@@ -19,7 +19,7 @@ class Window(SplitFluentWindow):
         self.HomeInterface = MainInterface()
         self.VersionsListInterface = VersionListInterface()
         self.SettingsInterface = SettingsInterface()
-        self.stackedWidget.hBoxLayout.setContentsMargins(0, 20, 0, 0)
+        self.stackedWidget.hBoxLayout.setContentsMargins(0, 40, 0, 0)
         self.initNavigation()
         self.initWindow()
 
