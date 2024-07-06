@@ -33,7 +33,7 @@ class SettingsInterface(QWidget):
 
         self.vBoxLayout.addWidget(self.pivot, 0, Qt.AlignHCenter)
         self.vBoxLayout.addWidget(self.stackedWidget)
-        self.vBoxLayout.setContentsMargins(30, 30, 30, 30)
+        self.vBoxLayout.setContentsMargins(30, 0, 30, 30)
 
         self.stackedWidget.currentChanged.connect(self.onCurrentIndexChanged)
         self.stackedWidget.setCurrentWidget(self.GameSettingsInterface)

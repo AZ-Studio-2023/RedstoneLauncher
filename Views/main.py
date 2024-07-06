@@ -7,24 +7,8 @@ from qfluentwidgets import NavigationItemPosition,  SplitFluentWindow, SubtitleL
 from qfluentwidgets import FluentIcon as FIF
 
 from Interfaces.MainInterface import MainInterface
-from Interfaces.VersionListsInterface import VersionListInterface
+from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
-
-class Widget(QFrame):
-
-    def __init__(self, text: str, parent=None):
-        super().__init__(parent=parent)
-        self.label = SubtitleLabel(text, self)
-        self.hBoxLayout = QHBoxLayout(self)
-
-        setFont(self.label, 24)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.hBoxLayout.addWidget(self.label, 1, Qt.AlignCenter)
-        self.setObjectName(text.replace(' ', '-'))
-
-        # !IMPORTANT: leave some space for title bar
-        self.hBoxLayout.setContentsMargins(0, 32, 0, 0)
-
 
 class Window(SplitFluentWindow):
 
@@ -35,7 +19,7 @@ class Window(SplitFluentWindow):
         self.HomeInterface = MainInterface()
         self.VersionsListInterface = VersionListInterface()
         self.SettingsInterface = SettingsInterface()
-
+        self.stackedWidget.hBoxLayout.setContentsMargins(0, 20, 0, 0)
         self.initNavigation()
         self.initWindow()
 
