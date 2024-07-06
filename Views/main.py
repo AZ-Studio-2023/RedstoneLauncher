@@ -3,7 +3,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
-from qfluentwidgets import NavigationItemPosition,  SplitFluentWindow, SubtitleLabel, setFont
+from qfluentwidgets import NavigationItemPosition,  SplitFluentWindow, SubtitleLabel, setFont, NavigationInterface, FluentWindow
 from qfluentwidgets import FluentIcon as FIF
 
 from Interfaces.MainInterface import MainInterface
@@ -33,7 +33,7 @@ class Window(SplitFluentWindow):
         # self.navigationInterface.setAcrylicEnabled(True)
 
     def initWindow(self):
-        self.resize(1600, 900)
+        self.resize(1200, 750)
         self.setWindowIcon(QIcon(':/qfluentwidgets/images/logo.png'))
         self.setWindowTitle('Python Minecraft Launcher Beta')
 

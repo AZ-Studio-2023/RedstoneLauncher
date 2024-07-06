@@ -10,6 +10,7 @@ from qfluentwidgets import (NavigationBar, NavigationItemPosition, NavigationWid
                             PopUpAniStackedWidget, getFont)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, TitleBar
+from Helpers.ListViewHelper import ListViewHelper
 
 
 class Widget(QWidget):
@@ -70,7 +71,7 @@ class VersionListInterface(QWidget):
         # setThemeColor('#0078d4')
 
         self.hBoxLayout = QHBoxLayout(self)
-        self.navigationBar = NavigationBar(self)
+        self.navigationBar = ListViewHelper(self)
         self.stackWidget = StackedWidget(self)
 
         # create sub interface
