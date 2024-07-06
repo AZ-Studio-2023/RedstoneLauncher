@@ -40,10 +40,10 @@ class Window(SplitFluentWindow):
         self.initWindow()
 
     def initNavigation(self):
-        self.addSubInterface(self.HomeInterface, FIF.HOME, 'Home')
+        self.addSubInterface(self.HomeInterface, FIF.HOME, '主页')
         self.navigationInterface.addSeparator()
-        self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, 'Version List')
-        self.addSubInterface(self.SettingsInterface, FIF.SETTING, 'Settings', NavigationItemPosition.BOTTOM)
+        self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, '版本列表')
+        self.addSubInterface(self.SettingsInterface, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
 
         # NOTE: enable acrylic effect
         # self.navigationInterface.setAcrylicEnabled(True)
@@ -51,7 +51,7 @@ class Window(SplitFluentWindow):
     def initWindow(self):
         self.resize(1600, 900)
         self.setWindowIcon(QIcon(':/qfluentwidgets/images/logo.png'))
-        self.setWindowTitle('PyQt-Fluent-Widgets')
+        self.setWindowTitle('Python Minecraft Launcher Beta')
 
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
