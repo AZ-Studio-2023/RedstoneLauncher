@@ -33,18 +33,25 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
         for native in libraries["downloads"]:
             if native == "artifact":
                 dirct_path = native_library
-                file_path = str(os.path.normpath(os.path.join(gameDir, "libraries", libraries["downloads"][native]['path'])))
-                if decompression(file_path, dirct_path) == 0:
+                file_path = str(
+                    os.path.normpath(os.path.join(gameDir, "libraries", libraries["downloads"][native]['path'])))
+                if not os.path.exists(f"{version}.bat"):
+                    if decompression(file_path, dirct_path) == 0:
+                        native_list.append(file_path)
+                else:
                     native_list.append(file_path)
             elif native == 'classifiers':
                 for n in libraries['downloads'][native].values():
                     dirct_path = str(os.path.join(gameDir, "libraries", libraries["downloads"][native]['path']))
                     file_path = str(os.path.join(gameDir, "libraries", n["path"]))
-                    decompression(file_path, dirct_path)
+                    if not os.path.exists(f"{version}.bat"):
+                        decompression(file_path, dirct_path)
 
     # 构建本地库字符串
-    cp = ';'.join(native_list)
-
+    if pc_os == "Windows":
+        cp = ';'.join(native_list)
+    else:
+        cp = ':'.join(native_list)
     #构建启动命令
     jvm_args = [
         f"-Xmx{xmx}m",
@@ -83,12 +90,13 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
         "--versionType", versionType
     ]
     command = [javaDir] + jvm_args + mc_args
-    u = open("cmd.bat","w")
+    u = open(f"{version}.bat", "w")
     u.write(str(command))
     u.close()
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print(result.stdout.decode('utf-8'))
     print(result.stderr.decode('utf-8'))
+
 
 start(javaDir="C:\\Users\\18079\AppData\Roaming\.minecraft\\runtime\java-runtime-gamma-snapshot\\bin\javaw.exe",
       gameDir="C:\\Users\\18079\Documents\PCL2\.minecraft",
