@@ -8,6 +8,7 @@ from qfluentwidgets import FluentIcon as FIF
 
 from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionListsInterface import VersionListInterface
+from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
 
 class Widget(QFrame):
 
@@ -33,7 +34,7 @@ class Window(SplitFluentWindow):
         # create sub interface
         self.HomeInterface = MainInterface()
         self.VersionsListInterface = VersionListInterface()
-        self.SettingsInterface = Widget('Video Interface', self)
+        self.SettingsInterface = SettingsInterface()
 
         self.initNavigation()
         self.initWindow()
@@ -42,7 +43,7 @@ class Window(SplitFluentWindow):
         self.addSubInterface(self.HomeInterface, FIF.HOME, 'Home')
         self.navigationInterface.addSeparator()
         self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, 'Version List')
-        #self.addSubInterface(self.SettingInterface, FIF.SETTING, 'Settings', NavigationItemPosition.BOTTOM)
+        self.addSubInterface(self.SettingsInterface, FIF.SETTING, 'Settings', NavigationItemPosition.BOTTOM)
 
         # NOTE: enable acrylic effect
         # self.navigationInterface.setAcrylicEnabled(True)
