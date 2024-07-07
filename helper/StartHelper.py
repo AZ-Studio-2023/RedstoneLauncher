@@ -81,12 +81,11 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
         "--versionType", versionType
     ]
     command = [javaDir] + jvm_args + mc_args
+    command_bat = ' '.join(command)
     u = open(f"{version}.bat", "w")
-    u.write(str(command))
+    u.write(str(command_bat))
     u.close()
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print(result.stdout)
-    print(result.stderr)
 
 if __name__ == '__main__':
     start(javaDir="C:\\Users\\18079\AppData\Roaming\.minecraft\\runtime\java-runtime-gamma-snapshot\\bin\javaw.exe",
