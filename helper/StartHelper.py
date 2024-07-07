@@ -62,21 +62,12 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
         f"-Djava.library.path={native_library}",
         f"-Dminecraft.launcher.brand=Python Minecraft Launcher",
         f"-Dminecraft.launcher.version=0.9.6",
+        f"-Dos.name={pc_os} {platform.version()}",
+        f"-Dos.version={platform.version()}",
         "-cp",
         f"{cp}"
     ]
-    # mc_args = [
-    #     main_class,
-    #     f"--username {username}",
-    #     f"--version {version}",
-    #     f"--gameDir {gameDir}",
-    #     f"--assetsDir {assetsDir}",
-    #     f"--assetIndex {assetIndex}",
-    #     f"--uuid {uuid}",
-    #     f"--accessToken {accessToken}",
-    #     f"--userType {userType}",
-    #     f"--versionType {versionType}"
-    # ]
+
     mc_args = [
         main_class,
         "--username", username,
@@ -94,18 +85,18 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
     u.write(str(command))
     u.close()
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print(result.stdout.decode('utf-8'))
-    print(result.stderr.decode('utf-8'))
+    print(result.stdout)
+    print(result.stderr)
 
-
-start(javaDir="C:\\Users\\18079\AppData\Roaming\.minecraft\\runtime\java-runtime-gamma-snapshot\\bin\javaw.exe",
-      gameDir="C:\\Users\\18079\Documents\PCL2\.minecraft",
-      version="1.19",
-      xmx=1024,
-      gameType="vanilla",
-      userType="msa",
-      uuid="d9e667e2dbf446568f3f8875f89447a3",
-      accessToken="eyJraWQiOiJhYzg0YSIsImFsZyI6IkhTMjU2In0.eyJ4dWlkIjoiMjUzNTQ2Mzg2MDcxNDQ5NyIsImFnZyI6IkFkdWx0Iiwic3ViIjoiZmU1NWNkMjEtNjRjYy00NGJlLWE2ZTQtYzJkN2E5OWFmZjA1IiwiYXV0aCI6IlhCT1giLCJucyI6ImRlZmF1bHQiLCJyb2xlcyI6W10sImlzcyI6ImF1dGhlbnRpY2F0aW9uIiwiZmxhZ3MiOlsidHdvZmFjdG9yYXV0aCIsIm1zYW1pZ3JhdGlvbl9zdGFnZTQiLCJvcmRlcnNfMjAyMiIsIm11bHRpcGxheWVyIl0sInByb2ZpbGVzIjp7Im1jIjoiZDllNjY3ZTItZGJmNC00NjU2LThmM2YtODg3NWY4OTQ0N2EzIn0sInBsYXRmb3JtIjoiVU5LTk9XTiIsInl1aWQiOiI3MTNhODZlMGY0MTVmODljMzM2MGVhYmY2ZTlmM2M2OSIsIm5iZiI6MTcyMDI1MDAxMywiZXhwIjoxNzIwMzM2NDEzLCJpYXQiOjE3MjAyNTAwMTN9.WHi8FtGrNj1a7SYg9m5tfMOTGkWPO-tEYHenAwgh-UE",
-      versionType="Test",
-      username="zenglingkun1125"
+if __name__ == '__main__':
+    start(javaDir="C:\\Users\\18079\AppData\Roaming\.minecraft\\runtime\java-runtime-gamma-snapshot\\bin\javaw.exe",
+          gameDir="C:\\Users\\18079\Documents\PCL2\.minecraft",
+          version="1.19",
+          xmx=1024,
+          gameType="vanilla",
+          userType="Legacy",
+          uuid="",
+          accessToken="",
+          versionType="Python_Minecraft_Launcher",
+          username="TEST"
       )
