@@ -8,7 +8,8 @@ from PyQt5.QtWidgets import QLabel, QHBoxLayout, QVBoxLayout, QApplication, QFra
 
 from qfluentwidgets import (NavigationBar, NavigationItemPosition, NavigationWidget, MessageBox,FluentIconBase,
                             isDarkTheme, setTheme, Theme, setThemeColor, SearchLineEdit, NavigationBarPushButton,
-                            PopUpAniStackedWidget, getFont, setFont)
+                            PopUpAniStackedWidget, getFont, setFont, FluentWindow, NavigationInterface, SplitTitleBar,
+                            FluentTitleBar)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, TitleBar
 from typing import Dict, Union

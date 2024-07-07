@@ -10,7 +10,7 @@ from qfluentwidgets import (NavigationBar, NavigationItemPosition, NavigationWid
                             PopUpAniStackedWidget, getFont)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, TitleBar
-from Helpers.ListViewHelper import ListViewHelper
+from Helpers.CustomControls import ListViewHelper
 
 
 class Widget(QWidget):
