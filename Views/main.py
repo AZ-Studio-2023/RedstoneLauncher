@@ -1,14 +1,16 @@
 # coding:utf-8
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEventLoop, QTimer, QSize
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
-from qfluentwidgets import NavigationItemPosition,  SplitFluentWindow, SubtitleLabel, setFont, NavigationInterface, FluentWindow
+from qfluentwidgets import NavigationItemPosition, SplitFluentWindow, SubtitleLabel, setFont, NavigationInterface, \
+    FluentWindow, SplashScreen
 from qfluentwidgets import FluentIcon as FIF
 
 from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
+
 
 class Window(SplitFluentWindow):
 
@@ -22,6 +24,16 @@ class Window(SplitFluentWindow):
         self.stackedWidget.hBoxLayout.setContentsMargins(0, 40, 0, 0)
         self.initNavigation()
         self.initWindow()
+        self.splashScreen = SplashScreen(self.windowIcon(), self)
+        self.splashScreen.setIconSize(QSize(102, 102))
+        self.show()
+        self.createSubInterface()
+        self.splashScreen.finish()
+
+    def createSubInterface(self):
+        loop = QEventLoop(self)
+        QTimer.singleShot(1500, loop.quit)
+        loop.exec()
 
     def initNavigation(self):
         self.addSubInterface(self.HomeInterface, FIF.HOME, '主页')
@@ -34,9 +46,9 @@ class Window(SplitFluentWindow):
 
     def initWindow(self):
         self.resize(1200, 750)
-        self.setWindowIcon(QIcon(':/qfluentwidgets/images/logo.png'))
+        self.setWindowIcon(QIcon('resource/image/logo.png'))
         self.setWindowTitle('Python Minecraft Launcher Beta')
 
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
-        self.move(w//2 - self.width()//2, h//2 - self.height()//2)
+        self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
