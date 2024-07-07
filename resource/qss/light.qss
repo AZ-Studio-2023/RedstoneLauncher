@@ -44,3 +44,17 @@ CloseButton {
     qproperty-normalColor: black;
     qproperty-normalBackgroundColor: transparent;
 }
+
+QScrollArea {
+    background-color: transparent;
+    border: none;
+}
+
+SettingInterface, #scrollWidget {
+    background-color: transparent;
+}
+
+QLabel#settingLabel {
+    font: 33px 'Microsoft YaHei Light';
+    background-color: transparent;
+}
