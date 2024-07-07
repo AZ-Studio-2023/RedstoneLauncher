@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
 from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, RoundMenu, VBoxLayout, DropDownPushButton, \
-    PushButton, TransparentPushButton, HorizontalFlipView
+    PushButton, TransparentPushButton, HorizontalFlipView, HorizontalPipsPager
 from PyQt5.QtGui import QIcon, QFont
 
 
@@ -23,10 +23,15 @@ class MainInterface(QWidget):
         self.flipView.setItemSize(QSize(1200, 400))
         self.flipView.setSpacing(15)
         self.flipView.setBorderRadius(15)
+        self.pager = HorizontalPipsPager(self)
+        self.mainLayout.addWidget(self.pager)
+        self.pager.setPageNumber(self.flipView.count())
+        self.pager.currentIndexChanged.connect(self.flipView.setCurrentIndex)
+        self.flipView.currentIndexChanged.connect(self.pager.setCurrentIndex)
 
         self.startLayout = QVBoxLayout()
         self.startLayout.setAlignment(Qt.AlignBottom)
-        self.startLayout.setContentsMargins(0, 0, 30, 30)
+        self.startLayout.setContentsMargins(0, 0, 15, 15)
         self.chose_button = TransparentPushButton()
         self.chose_button.setText("Please choose a Version.")
         self.font = QFont()
