@@ -3,7 +3,7 @@ import os
 
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication
-from helper.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
+from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
 from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, RoundMenu, VBoxLayout, DropDownPushButton, \
     PushButton, TransparentPushButton, HorizontalFlipView
 from PyQt5.QtGui import QIcon, QFont
@@ -28,12 +28,12 @@ class MainInterface(QWidget):
         self.startLayout.setAlignment(Qt.AlignBottom)
         self.startLayout.setContentsMargins(0, 0, 30, 30)
         self.chose_button = TransparentPushButton()
-        self.chose_button.setText("请选择版本")
+        self.chose_button.setText("Please choose a Version.")
         self.font = QFont()
         self.font.setFamily("Microsoft YaHei")
         self.font.setPointSize(15)
         self.chose_button.setFont(self.font)
-        self.start_button = PushButton(FluentIcon.PLAY, '启动Minecraft')
+        self.start_button = PushButton(FluentIcon.PLAY, 'Start Minecraft!')
         self.startLayout.addWidget(self.chose_button, alignment=Qt.AlignRight)
         self.startLayout.addWidget(self.start_button, alignment=Qt.AlignRight)
         self.start_button.setFixedSize(175,80)

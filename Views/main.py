@@ -36,10 +36,10 @@ class Window(SplitFluentWindow):
         loop.exec()
 
     def initNavigation(self):
-        self.addSubInterface(self.HomeInterface, FIF.HOME, '主页')
+        self.addSubInterface(self.HomeInterface, FIF.HOME, 'Home Page')
         self.navigationInterface.addSeparator()
-        self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, '版本列表')
-        self.addSubInterface(self.SettingsInterface, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
+        self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, 'Versions List')
+        self.addSubInterface(self.SettingsInterface, FIF.SETTING, 'Settings', NavigationItemPosition.BOTTOM)
 
         # NOTE: enable acrylic effect
         # self.navigationInterface.setAcrylicEnabled(True)
