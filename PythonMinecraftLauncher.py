@@ -15,10 +15,16 @@ if __name__ == '__main__':
     locale = cfg.get(cfg.language).value
     fluentTranslator = FluentTranslator(locale)
     settingTranslator = QTranslator()
-    settingTranslator.load(locale, "settings", ".", "resource/i18n")
+    settingTranslator.load(locale, "MainWindow", ".", "resource/i18n")
+    caonima = QTranslator()
+    caonima.load("reaource/i18n/MainWindow.ts")
 
     setTheme(Theme.LIGHT)
     app = QApplication(sys.argv)
+    app.installTranslator(fluentTranslator)
+    app.installTranslator(settingTranslator)
+    app.installTranslator(caonima)
+
     w = Window()
     w.show()
     app.exec_()

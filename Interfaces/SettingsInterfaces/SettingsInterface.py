@@ -16,7 +16,7 @@ class SettingsInterface(QWidget):
     def __init__(self):
         super().__init__()
         # setTheme(Theme.DARK)
-        self.setObjectName("SettingsInterface")
+        self.setObjectName("SettingsInterfaces")
 
         self.pivot = Pivot(self)
         self.stackedWidget = QStackedWidget(self)

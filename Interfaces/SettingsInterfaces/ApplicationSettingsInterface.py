@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from qfluentwidgets import *
 from qfluentwidgets import FluentIcon as FIF
 from Helpers.Config import cfg
+from PyQt5.QtCore import Qt
 
 class AppilacationSettingsInterface(ScrollArea):
 
@@ -22,6 +23,12 @@ class AppilacationSettingsInterface(ScrollArea):
             self.setStyleSheet(f.read())
 
         self.InitCards()
+        self.setWidget(self.scrollWidget)
+        self.setWidgetResizable(True)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setViewportMargins(0, 120, 0, 20)
+
+
         self.InitLayout()
 
     def InitCards(self):
