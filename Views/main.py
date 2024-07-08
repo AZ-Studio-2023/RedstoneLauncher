@@ -1,15 +1,17 @@
 # coding:utf-8
 
 from PyQt5.QtCore import Qt, QEventLoop, QTimer, QSize
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel
 from qfluentwidgets import NavigationItemPosition, SplitFluentWindow, SubtitleLabel, setFont, NavigationInterface, \
     FluentWindow, SplashScreen
 from qfluentwidgets import FluentIcon as FIF
+from qframelesswindow import TitleBar
 
 from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
+from qfluentwidgets.window.fluent_window import SplitTitleBar
 
 
 class Window(SplitFluentWindow):
@@ -60,6 +62,3 @@ class Window(SplitFluentWindow):
         if event.spontaneous():
             self.HomeInterface.flipView.setFixedWidth(new_size.width() - 100)
         super().resizeEvent(event)
-
-
-
