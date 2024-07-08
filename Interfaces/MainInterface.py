@@ -46,7 +46,6 @@ class MainInterface(QWidget):
         self.menu.addAction(Action(QIcon(MINECRAFT_ICON), '1.19', triggered=lambda: self.setGameInfo(MINECRAFT_ICON, "1.19")))
         self.menu.addAction(Action(QIcon(FORGE_ICON), '1.19 Forge', triggered=lambda: self.setGameInfo(FORGE_ICON, "1.19 Forge")))
         self.menu.addAction(Action(QIcon(FABRIC_ICON), '1.19 Fabric', triggered=lambda: self.setGameInfo(FABRIC_ICON, "1.19 Fabric")))
-        # self.start_button.setMenu(self.menu)
         self.mainLayout.addLayout(self.startLayout)
 
 
