@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
 from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, RoundMenu, VBoxLayout, DropDownPushButton, \
-    PushButton, TransparentPushButton, HorizontalFlipView, HorizontalPipsPager
+    PushButton, TransparentPushButton, HorizontalFlipView, HorizontalPipsPager, LargeTitleLabel, TitleLabel
 from PyQt5.QtGui import QIcon, QFont
 
 
@@ -29,28 +29,51 @@ class MainInterface(QWidget):
         self.pager.currentIndexChanged.connect(self.flipView.setCurrentIndex)
         self.flipView.currentIndexChanged.connect(self.pager.setCurrentIndex)
 
+        self.bottomLayout = QHBoxLayout()
+        self.bottomLayout.setAlignment(Qt.AlignBottom)
+        self.bottomLayout.setContentsMargins(15, 0, 15, 15)
+        self.mainLayout.addLayout(self.bottomLayout)
+
+        self.accountLayout = QVBoxLayout()
+        self.accountLayout.setAlignment(Qt.AlignLeft)
+        self.accountButton = SplitPushButton(FluentIcon.PEOPLE, " 选择账号")
+        self.accountButton.button.setFixedSize(150, 60)
+        self.accountLayout.addWidget(self.accountButton)
+        self.bottomLayout.addLayout(self.accountLayout)
+
         self.startLayout = QVBoxLayout()
-        self.startLayout.setAlignment(Qt.AlignBottom)
-        self.startLayout.setContentsMargins(0, 0, 15, 15)
-        self.chose_button = TransparentPushButton()
-        self.chose_button.setText("Please choose a Version.")
+        self.startLayout.setAlignment(Qt.AlignRight)
+        self.tip_label = TitleLabel()
+        self.startLayout.addWidget(self.tip_label)
+        self.tip_label.setText("请选择游戏版本")
+        self.tip_label.setAlignment(Qt.AlignRight)
         self.font = QFont()
         self.font.setFamily("Microsoft YaHei")
-        self.font.setPointSize(15)
-        self.chose_button.setFont(self.font)
-        self.start_button = PushButton(FluentIcon.PLAY, 'Start Minecraft!')
-        self.startLayout.addWidget(self.chose_button, alignment=Qt.AlignRight)
-        self.startLayout.addWidget(self.start_button, alignment=Qt.AlignRight)
-        self.start_button.setFixedSize(175,80)
+        self.font.setPointSize(16)
+        self.tip_label.setFont(self.font)
+        # self.chose_button.setFont(self.font)
+        self.start_button = SplitPushButton(FluentIcon.PLAY, 'Start Minecraft!')
+        # self.startLayout.addWidget(self.chose_button, alignment=Qt.AlignRight)
+        self.startLayout.addWidget(self.start_button)
+        self.start_button.button.setFixedSize(175, 80)
         self.menu = RoundMenu(parent=self.start_button)
-        self.menu.addAction(Action(QIcon(MINECRAFT_ICON), '1.19', triggered=lambda: self.setGameInfo(MINECRAFT_ICON, "1.19")))
-        self.menu.addAction(Action(QIcon(FORGE_ICON), '1.19 Forge', triggered=lambda: self.setGameInfo(FORGE_ICON, "1.19 Forge")))
-        self.menu.addAction(Action(QIcon(FABRIC_ICON), '1.19 Fabric', triggered=lambda: self.setGameInfo(FABRIC_ICON, "1.19 Fabric")))
-        self.mainLayout.addLayout(self.startLayout)
+        self.menu.addAction(
+            Action(QIcon(MINECRAFT_ICON), '1.19', triggered=lambda: self.setGameInfo("Vanilla", "1.19")))
+        self.menu.addAction(
+            Action(QIcon(FORGE_ICON), '1.19 Forge', triggered=lambda: self.setGameInfo("Forge", "1.19 Forge")))
+        self.menu.addAction(
+            Action(QIcon(FABRIC_ICON), '1.19 Fabric', triggered=lambda: self.setGameInfo("Fabric", "1.19 Fabric")))
+        self.start_button.setFlyout(self.menu)
+        self.bottomLayout.addLayout(self.startLayout)
 
-
-    def setGameInfo(self, icon, version):
-        self.start_button.setIcon(QIcon(icon))
+    def setGameInfo(self, type, version):
+        if type == "Vanilla":
+            self.start_button.setIcon(QIcon(MINECRAFT_ICON))
+        elif type == "Forge":
+            self.start_button.setIcon(QIcon(FORGE_ICON))
+        elif type == "Fabric":
+            self.start_button.setIcon(QIcon(FABRIC_ICON))
+        self.tip_label.setText(f"{type}： {version}")
         self.start_button.setText(str(version))
 
     def get_all_news(self):

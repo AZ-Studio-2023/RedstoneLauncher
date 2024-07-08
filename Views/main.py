@@ -57,7 +57,8 @@ class Window(SplitFluentWindow):
 
     def resizeEvent(self, event):
         new_size = event.size()
-        self.HomeInterface.flipView.setFixedWidth(new_size.width() - 100)
+        if event.spontaneous():
+            self.HomeInterface.flipView.setFixedWidth(new_size.width() - 100)
         super().resizeEvent(event)
 
 
