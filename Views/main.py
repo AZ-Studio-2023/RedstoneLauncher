@@ -31,6 +31,7 @@ class Window(SplitFluentWindow):
         self.createSubInterface()
         self.splashScreen.finish()
 
+
     def createSubInterface(self):
         loop = QEventLoop(self)
         QTimer.singleShot(1500, loop.quit)
@@ -53,3 +54,11 @@ class Window(SplitFluentWindow):
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
+
+    def resizeEvent(self, event):
+        new_size = event.size()
+        self.HomeInterface.flipView.setFixedWidth(new_size.width() - 100)
+        super().resizeEvent(event)
+
+
+
