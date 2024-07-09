@@ -4,14 +4,47 @@ from PyQt5.QtCore import Qt, QEventLoop, QTimer, QSize
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel
 from qfluentwidgets import NavigationItemPosition, SplitFluentWindow, SubtitleLabel, setFont, NavigationInterface, \
-    FluentWindow, SplashScreen
+    FluentWindow, SplashScreen, FluentStyleSheet, isDarkTheme
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import TitleBar
 
 from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
-from qfluentwidgets.window.fluent_window import SplitTitleBar
+
+class SplitTitleBar(TitleBar):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        # add window icon
+        self.iconLabel = QLabel(self)
+        self.iconLabel.setFixedSize(18, 18)
+        self.hBoxLayout.insertSpacing(0, 12)
+        self.hBoxLayout.insertWidget(1, self.iconLabel, 0, Qt.AlignLeft | Qt.AlignBottom)
+        self.window().windowIconChanged.connect(self.setIcon)
+
+        # add title label
+        self.titleLabel = QLabel(self)
+        self.hBoxLayout.insertWidget(2, self.titleLabel, 0, Qt.AlignLeft | Qt.AlignBottom)
+        self.titleLabel.setObjectName('titleLabel')
+        self.tipLabel = QLabel(self)
+        self.tipLabel.setObjectName('tipLabel')
+        self.tipLabel.setText("Beta")
+        self.tipLabel.setStyleSheet('color: #30d5c8')
+        self.hBoxLayout.insertWidget(3, self.tipLabel, 0, Qt.AlignLeft | Qt.AlignBottom)
+
+
+        self.window().windowTitleChanged.connect(self.setTitle)
+
+
+        FluentStyleSheet.FLUENT_WINDOW.apply(self)
+
+    def setTitle(self, title):
+        self.titleLabel.setText(title)
+        self.titleLabel.adjustSize()
+
+    def setIcon(self, icon):
+        self.iconLabel.setPixmap(QIcon(icon).pixmap(18, 18))
 
 
 class Window(SplitFluentWindow):
@@ -19,7 +52,8 @@ class Window(SplitFluentWindow):
     def __init__(self):
         super().__init__()
         self.setObjectName("MainWindow")
-
+        self.setQss()
+        self.setTitleBar(SplitTitleBar(self))
         # create sub interface
         self.HomeInterface = MainInterface()
         self.VersionsListInterface = VersionListInterface()
@@ -51,7 +85,7 @@ class Window(SplitFluentWindow):
     def initWindow(self):
         self.resize(1200, 750)
         self.setWindowIcon(QIcon('resource/image/logo.png'))
-        self.setWindowTitle('Python Minecraft Launcher Beta')
+        self.setWindowTitle('Python Minecraft Launcher')
 
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()
@@ -62,3 +96,8 @@ class Window(SplitFluentWindow):
         if event.spontaneous():
             self.HomeInterface.flipView.setFixedWidth(new_size.width() - 100)
         super().resizeEvent(event)
+
+    def setQss(self):
+        color = 'dark' if isDarkTheme() else 'light'
+        with open(f'resource/qss/{color}.qss', encoding='utf-8') as f:
+            self.setStyleSheet(f.read())
