@@ -38,11 +38,11 @@ class MainInterface(QWidget):
 
 
         self.startLayout = QVBoxLayout()
-        self.accountButton = DropDownPushButton(FluentIcon.PEOPLE, " 选择账号")
+        self.accountButton = DropDownPushButton(FluentIcon.PEOPLE, self.tr(" 选择账号"))
         self.accountButton.setFixedSize(300, 60)
         self.startLayout.addWidget(self.accountButton, alignment=Qt.AlignRight)
         # self.chose_button.setFont(self.font)
-        self.game_version_button = DropDownPushButton(FluentIcon.PLAY, '选择游戏版本')
+        self.game_version_button = DropDownPushButton(FluentIcon.PLAY, self.tr('选择游戏版本'))
         # self.startLayout.addWidget(self.chose_button, alignment=Qt.AlignRight)
         self.startLayout.addWidget(self.game_version_button, alignment=Qt.AlignRight)
         self.game_version_button.setFixedSize(325, 60)
@@ -51,7 +51,7 @@ class MainInterface(QWidget):
         self.game_version_button.setMenu(self.menu)
         self.start_button = PrimaryPushButton()
         self.start_button.setFixedSize(350,60)
-        self.start_button.setText("开始游戏")
+        self.start_button.setText(self.tr("开始游戏"))
         self.startLayout.addWidget(self.start_button, alignment=Qt.AlignRight)
         self.bottomLayout.addLayout(self.startLayout)
 

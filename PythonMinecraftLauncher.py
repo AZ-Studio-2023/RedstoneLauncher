@@ -5,8 +5,6 @@ from PyQt5.QtWidgets import QApplication
 from qfluentwidgets import setTheme, Theme, FluentTranslator
 from Views.main import Window
 from Helpers.Config import cfg
-from Helpers.createHelper import check_and_create
-
 
 if __name__ == '__main__':
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
@@ -20,8 +18,6 @@ if __name__ == '__main__':
     settingTranslator.load(locale, "MainWindow", ".", "resource/i18n")
     caonima = QTranslator()
     caonima.load("reaource/i18n/MainWindow.ts")
-
-    check_and_create()
 
     setTheme(Theme.LIGHT)
     app = QApplication(sys.argv)

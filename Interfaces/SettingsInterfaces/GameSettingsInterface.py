@@ -33,11 +33,11 @@ class GameSettingsInterface(ScrollArea):
             self.tr("修改游戏文件存储目录"),
             self.gameFileGroup
         )
-        self.LabelFolder = SubtitleLabel(f"\n    当前目录为：{cfg.gamePath.value}\n", self)
-        self.LabelAuto = SubtitleLabel(f"\n    默认目录为：{DEFAULT_GAME_PATH}\n", self)
-        self.changeFolder = PrimaryPushButton("选择目录", self)
+        self.LabelFolder = SubtitleLabel(self.tr(f"\n    当前目录为：{cfg.gamePath.value}\n"), self)
+        self.LabelAuto = SubtitleLabel(self.tr(f"\n    默认目录为：{DEFAULT_GAME_PATH}\n"), self)
+        self.changeFolder = PrimaryPushButton(self.tr("选择目录"), self)
         self.changeFolder.clicked.connect(self.__onDownloadFolderCardClicked)
-        self.AutoFolder = PushButton("恢复默认", self)
+        self.AutoFolder = PushButton(self.tr("恢复默认"), self)
         self.AutoFolder.clicked.connect(self.__FolederAutoCardClicked)
     def InitLayout(self):
         self.settingLabel.move(60, 63)
@@ -63,8 +63,8 @@ class GameSettingsInterface(ScrollArea):
         if not folder or cfg.get(cfg.gamePath) == folder:
             return
         cfg.set(cfg.gamePath, folder)
-        self.LabelFolder.setText(f"\n    当前目录为：{folder}\n")
+        self.LabelFolder.setText(self.tr(f"\n    当前目录为：{folder}\n"))
 
     def __FolederAutoCardClicked(self):
         cfg.set(cfg.gamePath, DEFAULT_GAME_PATH)
-        self.LabelFolder.setText(f"\n    当前目录为：{DEFAULT_GAME_PATH}\n")
+        self.LabelFolder.setText(self.tr(f"\n    当前目录为：{DEFAULT_GAME_PATH}\n"))
