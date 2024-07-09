@@ -1,6 +1,7 @@
 # coding:utf-8
 from enum import Enum
 
+from Helpers.getValue import DEFAULT_GAME_PATH
 from PyQt5.QtCore import Qt, QLocale
 from PyQt5.QtGui import QGuiApplication, QFont, QColor
 from qfluentwidgets import (qconfig, QConfig, ConfigItem, OptionsConfigItem, BoolValidator,
@@ -48,8 +49,13 @@ class LanguageSerializer(ConfigSerializer):
 class Config(QConfig):
     """ Config of application """
 
+    gamePath = OptionsConfigItem(
+        "gameFileGroup", "gamePath", DEFAULT_GAME_PATH, FolderValidator()
+    )
+
     language = OptionsConfigItem(
-        "MainWindow", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer())
+        "personalizeGroup", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer())
+
 
 cfg = Config()
 qconfig.load('config/config.json', cfg)

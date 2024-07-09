@@ -12,15 +12,11 @@ class AppilacationSettingsInterface(ScrollArea):
 
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
-        self.settingLabel = QLabel(self.tr("Settings"), self)
+        self.settingLabel = QLabel(self.tr("应用程序设置"), self)
 
         self.setObjectName("AppilacationSettingsInterface")
         self.scrollWidget.setObjectName('scrollWidget')
         self.settingLabel.setObjectName('settingLabel')
-
-        theme = 'dark' if isDarkTheme() else 'light'
-        with open(f'resource/qss/{theme}.qss', encoding='utf-8') as f:
-            self.setStyleSheet(f.read())
 
         self.InitCards()
         self.setWidget(self.scrollWidget)
@@ -30,16 +26,17 @@ class AppilacationSettingsInterface(ScrollArea):
 
 
         self.InitLayout()
+        self.setQss()
 
     def InitCards(self):
-        self.AppearanceGroup = SettingCardGroup(self.tr("Appearance"), self.scrollWidget)
+        self.personalizeGroup = SettingCardGroup(self.tr("个性化"), self.scrollWidget)
         self.languageCard = ComboBoxSettingCard(
             cfg.language,
             FIF.LANGUAGE,
-            self.tr('Language'),
-            self.tr('Set your preferred language for UI'),
-            texts=['简体中文', '繁體中文', 'English', self.tr('Use system setting')],
-            parent=self.AppearanceGroup
+            self.tr('语言'),
+            self.tr('设置用户界面的首选语言'),
+            texts=['简体中文', '繁體中文', 'English', self.tr('使用系统设置')],
+            parent=self.personalizeGroup
         )
 
 
@@ -47,5 +44,10 @@ class AppilacationSettingsInterface(ScrollArea):
         self.settingLabel.move(60, 63)
         self.expandLayout.setSpacing(28)
         self.expandLayout.setContentsMargins(60, 10, 60, 0)
-        self.AppearanceGroup.addSettingCard(self.languageCard)
-        self.expandLayout.addWidget(self.AppearanceGroup)
+        self.personalizeGroup.addSettingCard(self.languageCard)
+        self.expandLayout.addWidget(self.personalizeGroup)
+
+    def setQss(self):
+        theme = 'dark' if isDarkTheme() else 'light'
+        with open(f'resource/qss/{theme}.qss', encoding='utf-8') as f:
+            self.setStyleSheet(f.read())

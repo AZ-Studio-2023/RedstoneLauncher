@@ -27,9 +27,9 @@ class SettingsInterface(QWidget):
         self.AboutSettingsInterface = AboutSettingsInterface()
 
         # add items to pivot
-        self.addSubInterface(self.GameSettingsInterface, 'GameSettingsInterface', 'GameSettings')
-        self.addSubInterface(self.AppilacationSettingsInterface, 'AppilacationSettingsInterface', 'AppilacationSettings')
-        self.addSubInterface(self.AboutSettingsInterface, 'AboutSettingsInterface', 'About')
+        self.addSubInterface(self.GameSettingsInterface, 'GameSettingsInterface', '游戏设置')
+        self.addSubInterface(self.AppilacationSettingsInterface, 'AppilacationSettingsInterface', '应用程序设置')
+        self.addSubInterface(self.AboutSettingsInterface, 'AboutSettingsInterface', '关于')
 
         self.vBoxLayout.addWidget(self.pivot, 0, Qt.AlignHCenter)
         self.vBoxLayout.addWidget(self.stackedWidget)
@@ -51,3 +51,4 @@ class SettingsInterface(QWidget):
     def onCurrentIndexChanged(self, index):
         widget = self.stackedWidget.widget(index)
         self.pivot.setCurrentItem(widget.objectName())
+

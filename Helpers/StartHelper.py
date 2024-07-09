@@ -14,8 +14,22 @@ def decompression(filename: str, path: str):
         return "Error"
 
 
+def getAllVersion(gameDir):
+    versions = os.listdir(os.path.join(gameDir, 'versions'))
+    version_list = []
+    for v in versions:
+        with open(os.path.join(gameDir, 'versions', v, f'{v}.json'), "r") as u:
+            file_content = u.read()
+            if "forge" in file_content:
+                version_list.append({"name": v, "type": "Forge"})
+            elif "fabric" in file_content:
+                version_list.append({"name": v, "type": "Fabric"})
+            else:
+                version_list.append({"name": v, "type": "Vanilla"})
+    return version_list
+
 def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken, userType, versionType):
-    if gameType == "vanilla":  # 判断客户端类型
+    if gameType == "Vanilla":  # 判断客户端类型
         main_class = "net.minecraft.client.main.Main"
     else:
         main_class = "net.minecraft.launchwrapper.Launch"
@@ -46,6 +60,10 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
                     file_path = str(os.path.join(gameDir, "libraries", n["path"]))
                     if not os.path.exists(f"{version}.bat"):
                         decompression(file_path, dirct_path)
+    if gameType != "Vanilla":
+        for mod in os.listdir(os.path.join(gameDir, 'mods')):
+            if mod.lower().endswith('.jar'):
+                native_list.append(os.path.join(gameDir, 'mods', mod))
 
     # 构建本地库字符串
     if pc_os == "Windows":
@@ -87,6 +105,7 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
     u.close()
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+
 if __name__ == '__main__':
     start(javaDir="C:\\Users\\18079\AppData\Roaming\.minecraft\\runtime\java-runtime-gamma-snapshot\\bin\javaw.exe",
           gameDir="C:\\Users\\18079\Documents\PCL2\.minecraft",
@@ -98,4 +117,4 @@ if __name__ == '__main__':
           accessToken="",
           versionType="Python_Minecraft_Launcher",
           username="TEST"
-      )
+          )

@@ -8,7 +8,8 @@ from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, Ro
     PushButton, TransparentPushButton, HorizontalFlipView, HorizontalPipsPager, LargeTitleLabel, TitleLabel, \
     TransparentDropDownPushButton, PrimaryPushButton
 from PyQt5.QtGui import QIcon, QFont
-
+from Helpers.Config import cfg
+from Helpers.StartHelper import getAllVersion
 
 class MainInterface(QWidget):
 
@@ -46,19 +47,13 @@ class MainInterface(QWidget):
         self.startLayout.addWidget(self.game_version_button, alignment=Qt.AlignRight)
         self.game_version_button.setFixedSize(325, 60)
         self.menu = RoundMenu(parent=self.game_version_button)
-        self.menu.addAction(
-            Action(QIcon(MINECRAFT_ICON), '1.19', triggered=lambda: self.setGameInfo("Vanilla", "1.19")))
-        self.menu.addAction(
-            Action(QIcon(FORGE_ICON), '1.19 Forge', triggered=lambda: self.setGameInfo("Forge", "1.19 Forge")))
-        self.menu.addAction(
-            Action(QIcon(FABRIC_ICON), '1.19 Fabric', triggered=lambda: self.setGameInfo("Fabric", "1.19 Fabric")))
+        self.load_versions()
         self.game_version_button.setMenu(self.menu)
         self.start_button = PrimaryPushButton()
         self.start_button.setFixedSize(350,60)
         self.start_button.setText("开始游戏")
         self.startLayout.addWidget(self.start_button, alignment=Qt.AlignRight)
         self.bottomLayout.addLayout(self.startLayout)
-
 
     def setGameInfo(self, type, version):
         if type == "Vanilla":
@@ -68,6 +63,18 @@ class MainInterface(QWidget):
         elif type == "Fabric":
             self.game_version_button.setIcon(QIcon(FABRIC_ICON))
         self.game_version_button.setText(str(version))
+    def load_versions(self):
+        versions = getAllVersion(cfg.gamePath.value)
+        for ver in versions:
+            if ver["type"] == "Vanilla":
+                self.menu.addAction(
+                    Action(QIcon(MINECRAFT_ICON), ver["name"], triggered=lambda: self.setGameInfo("Vanilla", ver["name"])))
+            elif ver["type"] == "Forge":
+                self.menu.addAction(
+                    Action(QIcon(FORGE_ICON), ver["name"], triggered=lambda: self.setGameInfo("Forge", ver["name"])))
+            else:
+                self.menu.addAction(
+                    Action(QIcon(FABRIC_ICON), ver["name"], triggered=lambda: self.setGameInfo("Fabric", ver["name"])))
 
     def get_all_news(self):
         image_extensions = ['.jpg', '.jpeg', '.png']
