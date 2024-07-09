@@ -16,6 +16,7 @@ def decompression(filename: str, path: str):
 
 def getAllVersion(gameDir):
     versions = os.listdir(os.path.join(gameDir, 'versions'))
+    versions = [version for version in versions if os.path.isdir(os.path.join(gameDir, 'versions', version))]
     version_list = []
     for v in versions:
         with open(os.path.join(gameDir, 'versions', v, f'{v}.json'), "r") as u:

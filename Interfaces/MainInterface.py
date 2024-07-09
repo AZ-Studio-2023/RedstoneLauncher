@@ -67,14 +67,17 @@ class MainInterface(QWidget):
         versions = getAllVersion(cfg.gamePath.value)
         for ver in versions:
             if ver["type"] == "Vanilla":
+                Vanilla_name = ver["name"]
                 self.menu.addAction(
-                    Action(QIcon(MINECRAFT_ICON), ver["name"], triggered=lambda: self.setGameInfo("Vanilla", ver["name"])))
+                    Action(QIcon(MINECRAFT_ICON), Vanilla_name, triggered=lambda: self.setGameInfo("Vanilla", Vanilla_name)))
             elif ver["type"] == "Forge":
+                Forge_name = ver["name"]
                 self.menu.addAction(
-                    Action(QIcon(FORGE_ICON), ver["name"], triggered=lambda: self.setGameInfo("Forge", ver["name"])))
+                    Action(QIcon(FORGE_ICON), Forge_name, triggered=lambda: self.setGameInfo("Forge", Forge_name)))
             else:
+                Fabric_name = ver["name"]
                 self.menu.addAction(
-                    Action(QIcon(FABRIC_ICON), ver["name"], triggered=lambda: self.setGameInfo("Fabric", ver["name"])))
+                    Action(QIcon(FABRIC_ICON), Fabric_name, triggered=lambda: self.setGameInfo("Fabric", Fabric_name)))
 
     def get_all_news(self):
         image_extensions = ['.jpg', '.jpeg', '.png']
