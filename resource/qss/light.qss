@@ -21,13 +21,6 @@ CustomTitleBar>QLabel#titleLabel {
     padding: 0 10px
 }
 
-CustomTitleBar>QLabel#tipLabel {
-    color: black;
-    background: transparent;
-    font: 13px 'Segoe UI';
-    padding: 0 10px
-}
-
 MinimizeButton {
     qproperty-normalColor: black;
     qproperty-normalBackgroundColor: transparent;

@@ -30,7 +30,12 @@ class SplitTitleBar(TitleBar):
         self.tipLabel = QLabel(self)
         self.tipLabel.setObjectName('tipLabel')
         self.tipLabel.setText("Beta")
-        self.tipLabel.setStyleSheet('color: #30d5c8')
+        self.tipLabel.setStyleSheet('''
+            color: #30d5c8;
+            background: transparent;
+            font: 13px 'Segoe UI';
+            padding: 0 10px
+    ''')
         self.hBoxLayout.insertWidget(3, self.tipLabel, 0, Qt.AlignLeft | Qt.AlignBottom)
 
 
