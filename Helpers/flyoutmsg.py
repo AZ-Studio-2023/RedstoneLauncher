@@ -12,3 +12,13 @@ def dlsuc(parent, content, title="", show_time=3000):
         position=InfoBarPosition.TOP,
         duration=show_time,
         parent=parent)
+
+def dlerr(content, parent, title="错误", show_time=3000):
+    InfoBar.error(
+        title=title,
+        content=content,
+        orient=Qt.Horizontal,
+        isClosable=True,
+        position=InfoBarPosition.TOP,
+        duration=show_time,
+        parent=parent)

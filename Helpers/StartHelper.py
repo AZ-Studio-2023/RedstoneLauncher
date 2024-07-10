@@ -4,6 +4,10 @@ import subprocess
 import zipfile
 import platform
 
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
+
+from Helpers.getValue import launch_data
+
 
 def decompression(filename: str, path: str):
     try:
@@ -13,7 +17,15 @@ def decompression(filename: str, path: str):
     except FileNotFoundError:
         return "Error"
 
-
+def getVersionType(gameDir, version):
+    with open(os.path.join(gameDir, 'versions', version, f'{version}.json'), "r") as u:
+        file_content = u.read()
+        if "forge" in file_content:
+            return "Forge"
+        elif "fabric" in file_content:
+            return "Fabric"
+        else:
+            return "Vanilla"
 def getAllVersion(gameDir):
     versions = os.listdir(os.path.join(gameDir, 'versions'))
     versions = [version for version in versions if os.path.isdir(os.path.join(gameDir, 'versions', version))]
@@ -28,6 +40,18 @@ def getAllVersion(gameDir):
             else:
                 version_list.append({"name": v, "type": "Vanilla"})
     return version_list
+
+class launch(QThread):
+    finished = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+
+    @pyqtSlot()
+    def run(self):
+        data = launch_data
+        print(data)
+
 
 def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken, userType, versionType):
     if gameType == "Vanilla":  # 判断客户端类型
