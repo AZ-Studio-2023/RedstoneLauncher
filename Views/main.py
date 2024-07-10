@@ -11,6 +11,7 @@ from qframelesswindow import TitleBar
 from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
+from Interfaces.AccountInterface import AccountInterface
 
 class SplitTitleBar(TitleBar):
 
@@ -41,7 +42,6 @@ class SplitTitleBar(TitleBar):
 
         self.window().windowTitleChanged.connect(self.setTitle)
 
-
         FluentStyleSheet.FLUENT_WINDOW.apply(self)
 
     def setTitle(self, title):
@@ -63,6 +63,7 @@ class Window(SplitFluentWindow):
         self.HomeInterface = MainInterface()
         self.VersionsListInterface = VersionListInterface()
         self.SettingsInterface = SettingsInterface()
+        self.AccountInterface = AccountInterface()
         self.stackedWidget.hBoxLayout.setContentsMargins(0, 40, 0, 0)
         self.initNavigation()
         self.initWindow()
@@ -71,7 +72,6 @@ class Window(SplitFluentWindow):
         self.show()
         self.createSubInterface()
         self.splashScreen.finish()
-
 
     def createSubInterface(self):
         loop = QEventLoop(self)
@@ -82,6 +82,9 @@ class Window(SplitFluentWindow):
         self.addSubInterface(self.HomeInterface, FIF.HOME, self.tr('主页'))
         self.navigationInterface.addSeparator()
         self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, self.tr('版本列表'))
+
+        self.addSubInterface(self.AccountInterface, FIF.PEOPLE, self.tr('游戏账号'), NavigationItemPosition.BOTTOM)
+        self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
         self.addSubInterface(self.SettingsInterface, FIF.SETTING, self.tr('设置'), NavigationItemPosition.BOTTOM)
 
         # NOTE: enable acrylic effect
