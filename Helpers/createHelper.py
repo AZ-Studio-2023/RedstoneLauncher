@@ -13,3 +13,5 @@ def check_and_create():
         u = open("data/accounts.json", "w")
         u.write(json.dumps({"accounts": []}))
         u.close()
+    if not os.path.exists("command"):
+        os.mkdir("command")

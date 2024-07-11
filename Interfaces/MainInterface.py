@@ -4,8 +4,10 @@ import os
 
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication
+
+from Helpers.flyoutmsg import dlerr, dlsuc, dlwar
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON, MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, \
-    THIRD_PARTY_ACCOUNT, launch_data
+    THIRD_PARTY_ACCOUNT, setLaunchData
 from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, RoundMenu, VBoxLayout, DropDownPushButton, \
     PushButton, TransparentPushButton, HorizontalFlipView, HorizontalPipsPager, LargeTitleLabel, TitleLabel, \
     TransparentDropDownPushButton, PrimaryPushButton
@@ -14,6 +16,9 @@ from Helpers.Config import cfg
 from Helpers.StartHelper import getAllVersion, launch, getVersionType
 
 status = False
+version_chose = False
+account_chose = False
+
 
 class MainInterface(QWidget):
 
@@ -40,7 +45,6 @@ class MainInterface(QWidget):
         self.bottomLayout.setContentsMargins(15, 0, 15, 15)
         self.mainLayout.addLayout(self.bottomLayout)
 
-
         self.startLayout = QVBoxLayout()
         self.accountButton = DropDownPushButton(FluentIcon.PEOPLE, self.tr(" 选择账号"))
         self.accountButton.setFixedSize(300, 60)
@@ -57,7 +61,7 @@ class MainInterface(QWidget):
         self.load_account()
         self.game_version_button.setMenu(self.menu)
         self.start_button = PrimaryPushButton()
-        self.start_button.setFixedSize(350,60)
+        self.start_button.setFixedSize(350, 60)
         self.start_button.setText(self.tr("开始游戏"))
         self.start_button.clicked.connect(self.start_game)
         self.startLayout.addWidget(self.start_button, alignment=Qt.AlignRight)
@@ -67,14 +71,32 @@ class MainInterface(QWidget):
         self.launch_worker.finished.connect(self.launch_finish)
 
     def launch_start(self):
+        global status
         status = True
-        launch_data = {"javaDir": "C:\\Users\\18079\AppData\Roaming\.minecraft\\runtime\java-runtime-gamma-snapshot\\bin\javaw.exe", "gameDir": cfg.gamePath.value, "version": self.game_version_button.text(), "xmx": 1024, "gameType": getVersionType(cfg.gamePath.value, self.game_version_button.text()), "userType": "Legacy", "uuid": "", "accessToken": "", "versionType": "Python_Minecraft_Launcher", "username":self.accountButton.text()}
+        launch_data = {
+            "javaDir": "C:\\Users\\18079\AppData\Roaming\.minecraft\\runtime\java-runtime-gamma-snapshot\\bin\javaw.exe",
+            "gameDir": cfg.gamePath.value, "version": self.game_version_button.text(), "xmx": 1024,
+            "gameType": getVersionType(cfg.gamePath.value, self.game_version_button.text()), "userType": "Legacy",
+            "uuid": "", "accessToken": "", "versionType": "Python_Minecraft_Launcher",
+            "username": self.accountButton.text()}
+        setLaunchData(launch_data)
         self.launch_worker.start()
-    def launch_finish(self):
-        status = False
-        self.launch_worker.quit()
+
+    def launch_finish(self, return_data):
+        if return_data == "0":
+            dlsuc(self, "获取参数完毕")
+        elif return_data == "1":
+            dlsuc(self, "本地库列表生成完毕")
+        elif return_data == "2":
+            dlsuc(self, "启动命令构建完毕，等待游戏窗口出现", show_time=10000)
+        else:
+            global status
+            status = False
+            self.launch_worker.quit()
+            dlwar("游戏进程已结束", self, show_time=5000)
 
     def setGameInfo(self, type, version):
+        global version_chose
         if type == "Vanilla":
             self.game_version_button.setIcon(QIcon(MINECRAFT_ICON))
         elif type == "Forge":
@@ -82,8 +104,10 @@ class MainInterface(QWidget):
         elif type == "Fabric":
             self.game_version_button.setIcon(QIcon(FABRIC_ICON))
         self.game_version_button.setText(str(version))
+        version_chose = True
 
     def setAccountInfo(self, type, name):
+        global account_chose
         if type == "Microsoft":
             self.accountButton.setIcon(QIcon(MICROSOFT_ACCOUNT))
         elif type == "Legacy":
@@ -91,6 +115,7 @@ class MainInterface(QWidget):
         elif type == "Third-Party":
             self.accountButton.setIcon(QIcon(THIRD_PARTY_ACCOUNT))
         self.accountButton.setText(str(name))
+        account_chose = True
 
     def load_account(self):
         f = open("data/accounts.json", "r")
@@ -109,16 +134,27 @@ class MainInterface(QWidget):
                 self.account_menu.addAction(
                     Action(QIcon(THIRD_PARTY_ACCOUNT), account["name"],
                            triggered=lambda: self.setAccountInfo("Third-Party", account["name"])))
+
     def start_game(self):
-        if self.accountButton.text() != self.tr("选择游戏版本") and self.game_version_button.text() != self.tr(" 选择账号"):
-            self.launch_start()
+        global status
+        global version_chose
+        global account_chose
+        if version_chose and account_chose:
+            if not status:
+                self.launch_start()
+            else:
+                dlerr(self.tr("当前已有游戏进程启动"), self)
+        else:
+            dlerr(self.tr("未选择游戏版本或游戏账户"), self)
+
     def load_versions(self):
         versions = getAllVersion(cfg.gamePath.value)
         for ver in versions:
             if ver["type"] == "Vanilla":
                 Vanilla_name = ver["name"]
                 self.menu.addAction(
-                    Action(QIcon(MINECRAFT_ICON), Vanilla_name, triggered=lambda: self.setGameInfo("Vanilla", Vanilla_name)))
+                    Action(QIcon(MINECRAFT_ICON), Vanilla_name,
+                           triggered=lambda: self.setGameInfo("Vanilla", Vanilla_name)))
             elif ver["type"] == "Forge":
                 Forge_name = ver["name"]
                 self.menu.addAction(

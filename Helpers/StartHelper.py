@@ -3,10 +3,8 @@ import json
 import subprocess
 import zipfile
 import platform
-
+from Helpers.getValue import getLaunchData
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
-
-from Helpers.getValue import launch_data
 
 
 def decompression(filename: str, path: str):
@@ -42,6 +40,7 @@ def getAllVersion(gameDir):
     return version_list
 
 class launch(QThread):
+
     finished = pyqtSignal(str)
 
     def __init__(self):
@@ -49,11 +48,14 @@ class launch(QThread):
 
     @pyqtSlot()
     def run(self):
-        data = launch_data
+        data = getLaunchData()
+        start(data["javaDir"], data["gameDir"], data["version"], data["xmx"], data["gameType"], data["username"], data["uuid"], data["accessToken"], data["userType"], data["versionType"])
+
+    def return_data(self, data):
         print(data)
-
-
+        self.finished.emit(data)
 def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken, userType, versionType):
+    return_msg = launch().return_data
     if gameType == "Vanilla":  # 判断客户端类型
         main_class = "net.minecraft.client.main.Main"
     else:
@@ -62,6 +64,7 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
     assetsDir = os.path.join(gameDir, "assets")
     assetIndex = version
     native_library = str(os.path.join(gameDir, "versions", version, f"{version}-natives"))
+    return_msg("0")
 
     native_list = []
     native_list.append(os.path.join(gameDir, "versions", version, f"{version}.jar"))
@@ -74,7 +77,7 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
                 dirct_path = native_library
                 file_path = str(
                     os.path.normpath(os.path.join(gameDir, "libraries", libraries["downloads"][native]['path'])))
-                if not os.path.exists(f"{version}.bat"):
+                if not os.path.exists(f"command/{version}.bat"):
                     if decompression(file_path, dirct_path) == 0:
                         native_list.append(file_path)
                 else:
@@ -89,7 +92,7 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
         for mod in os.listdir(os.path.join(gameDir, 'mods')):
             if mod.lower().endswith('.jar'):
                 native_list.append(os.path.join(gameDir, 'mods', mod))
-
+    return_msg("1")
     # 构建本地库字符串
     if pc_os == "Windows":
         cp = ';'.join(native_list)
@@ -124,11 +127,14 @@ def start(javaDir, gameDir, version, xmx, gameType, username, uuid, accessToken,
         "--versionType", versionType
     ]
     command = [javaDir] + jvm_args + mc_args
+    u = open(f"command/{version}.bat", "w")
     command_bat = ' '.join(command)
-    u = open(f"{version}.bat", "w")
     u.write(str(command_bat))
     u.close()
+    return_msg("2")
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return_msg("3")
+
 
 
 if __name__ == '__main__':
