@@ -1,17 +1,19 @@
 # coding:utf-8
 import json
 import os
+import random
 
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication, QSizePolicy, QLabel
+from qfluentwidgets.components.widgets.acrylic_label import AcrylicLabel
 
 from Helpers.flyoutmsg import dlerr, dlsuc, dlwar
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON, MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, \
     THIRD_PARTY_ACCOUNT, setLaunchData
 from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, RoundMenu, VBoxLayout, DropDownPushButton, \
     PushButton, TransparentPushButton, HorizontalFlipView, HorizontalPipsPager, LargeTitleLabel, TitleLabel, \
-    TransparentDropDownPushButton, PrimaryPushButton
-from PyQt5.QtGui import QIcon, QFont
+    TransparentDropDownPushButton, PrimaryPushButton, ImageLabel
+from PyQt5.QtGui import QIcon, QFont, QImage, QPixmap, QColor
 from Helpers.Config import cfg
 from Helpers.StartHelper import getAllVersion, launch, getVersionType
 
@@ -26,19 +28,22 @@ class MainInterface(QWidget):
         super().__init__(parent=parent)
         self.setObjectName("MainInterface")
         self.mainLayout = VBoxLayout(self)
-        self.flipView = HorizontalFlipView()
-        self.mainLayout.addWidget(self.flipView, alignment=Qt.AlignCenter)
-        self.flipView.addImages(self.get_all_news())
-        self.flipView.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
-        self.flipView.setFixedSize(QSize(1100, 450))
-        self.flipView.setItemSize(QSize(1100, 450))
-        self.flipView.setSpacing(15)
-        self.flipView.setBorderRadius(15)
+
+        self.mainImage = HorizontalFlipView(self)
+        self.mainImage.addImages(self.get_all_news())
+        self.mainLayout.addWidget(self.mainImage)
+        self.mainImage.setSpacing(15)
+        self.mainImage.setBorderRadius(15)
+        self.mainImage.setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+        self.mainImage.setItemSize(QSize(1200, 450))
+        self.mainImage.resize(QSize(1200, 450))
+        self.mainImage.setFixedHeight(450)
+
         self.pager = HorizontalPipsPager(self)
+        self.pager.setPageNumber(self.mainImage.count())
+        self.pager.currentIndexChanged.connect(self.mainImage.setCurrentIndex)
+        self.mainImage.currentIndexChanged.connect(self.pager.setCurrentIndex)
         self.mainLayout.addWidget(self.pager)
-        self.pager.setPageNumber(self.flipView.count())
-        self.pager.currentIndexChanged.connect(self.flipView.setCurrentIndex)
-        self.flipView.currentIndexChanged.connect(self.pager.setCurrentIndex)
 
         self.bottomLayout = QHBoxLayout()
         self.bottomLayout.setAlignment(Qt.AlignBottom)

@@ -2,7 +2,7 @@
 
 from PyQt5.QtCore import Qt, QEventLoop, QTimer, QSize
 from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel
+from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel, QSizePolicy
 from qfluentwidgets import NavigationItemPosition, SplitFluentWindow, SubtitleLabel, setFont, NavigationInterface, \
     FluentWindow, SplashScreen, FluentStyleSheet, isDarkTheme
 from qfluentwidgets import FluentIcon as FIF
@@ -99,11 +99,6 @@ class Window(SplitFluentWindow):
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
 
-    def resizeEvent(self, event):
-        new_size = event.size()
-        if event.spontaneous():
-            self.HomeInterface.flipView.setFixedWidth(new_size.width() - 100)
-        super().resizeEvent(event)
 
     def setQss(self):
         color = 'dark' if isDarkTheme() else 'light'
