@@ -3,7 +3,8 @@ import re
 import concurrent.futures
 from platform import system
 from subprocess import Popen, PIPE
-from tqdm import tqdm
+import timeit
+
 
 class Java:
     def __init__(self, path, version):
@@ -32,7 +33,6 @@ def find_java_directories(base_path, match_keywords, exclude_keywords):
     try:
         for root, dirs, files in os.walk(base_path):
             for dir_name in dirs:
-                print(dir_name)
                 if any(exclude in dir_name for exclude in exclude_keywords):
                     continue
                 if any(keyword in dir_name.lower() for keyword in match_keywords):
@@ -43,13 +43,14 @@ def find_java_directories(base_path, match_keywords, exclude_keywords):
                             java_list.append(Java(java_path, version))
     except Exception as e:
         print(f"Error searching directory {base_path}: {e}")
+    print(java_list)
     return java_list
 
 def detect_java_paths(start_paths, match_keywords, exclude_keywords, num_threads=10):
     java_list = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-        futures = {executor.submit(find_java_directories, path, match_keywords, exclude_keywords): path for path in start_paths}
-        for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc="Searching"):
+        future_to_path = {executor.submit(find_java_directories, path, match_keywords, exclude_keywords): path for path in start_paths}
+        for future in concurrent.futures.as_completed(future_to_path):
             java_list.extend(future.result())
     return java_list
 
@@ -71,6 +72,4 @@ if system().lower() == "windows":
 else:
     start_paths = ["/usr", "/usr/java", "/usr/lib/jvm", "/usr/lib64/jvm", "/opt/jdk", "/opt/jdks"]
 
-found_java_list = detect_java_paths(start_paths, match_keywords, exclude_keywords, num_threads=10)
-for java in found_java_list:
-    print(f"Java Path: {java.path}, Version: {java.version}")
+print(timeit.timeit(lambda: detect_java_paths(start_paths, match_keywords, exclude_keywords, num_threads=30), number=1))

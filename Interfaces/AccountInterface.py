@@ -15,7 +15,10 @@ from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, 
                             TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit)
 
 from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCOUNT
-from Helpers.flyoutmsg import dlsuc
+from Helpers.flyoutmsg import dlsuc, dlwar
+
+account_list = []
+
 
 class Add_Account_MessageBox(MessageBoxBase):
 
@@ -73,7 +76,20 @@ class AppCard(CardWidget):
 
         self.hBoxLayout.addStretch(1)
         self.hBoxLayout.addWidget(self.delButton, 0, Qt.AlignRight)
-        self.delButton.clicked.connect(lambda: AccountInterface().del_account(dic=dic))
+        self.delButton.clicked.connect(lambda: self.del_account(dic=dic))
+
+    def del_account(self, dic):
+        f = open("data/accounts.json", "r")
+        data = json.loads(f.read())["accounts"]
+        f.close()
+        try:
+            data.remove(dic)
+        except ValueError:
+            return 0
+        f = open("data/accounts.json", "w")
+        f.write(json.dumps({"accounts": data}))
+        f.close()
+        self.setVisible(False)
 
 
 class AccountInterface(ScrollArea):
@@ -99,7 +115,10 @@ class AccountInterface(ScrollArea):
         self.setQss()
 
     def addCard(self, icon, title, content, dic):
-        card = AppCard(icon, title, content, dic ,self)
+        global account_list
+        account_list.append(title)
+        card = AppCard(icon, title, content, dic, self)
+        card.setObjectName(title)
         self.vBoxLayout.addWidget(card, alignment=Qt.AlignTop)
 
     def load_account(self):
@@ -127,6 +146,7 @@ class AccountInterface(ScrollArea):
         f = open("data/accounts.json", "w")
         f.write(json.dumps({"accounts": data}))
         f.close()
+        self.load_account()
 
     def setQss(self):
         color = 'dark' if isDarkTheme() else 'light'
@@ -139,20 +159,5 @@ class AccountInterface(ScrollArea):
             if w.username.text() != "":
                 if w.type_Box.text() == "离线登录":
                     self.add_account(name=w.username.text(), account_type="Legacy")
-                    dlsuc(self, "导入成功，重启程序后生效")
                 else:
                     pass
-
-    def del_account(self, dic):
-        f = open("data/accounts.json", "r")
-        data = json.loads(f.read())["accounts"]
-        f.close()
-        try:
-            data.remove(dic)
-        except ValueError:
-            return 0
-        f = open("data/accounts.json", "w")
-        f.write(json.dumps({"accounts": data}))
-        f.close()
-        dlsuc(self, "删除成功，重启程序后生效")
-
