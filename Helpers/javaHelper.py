@@ -1,87 +1,76 @@
 import os
-import subprocess
+import re
+import concurrent.futures
 from platform import system
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from subprocess import Popen, PIPE
+from tqdm import tqdm
 
-# 关键词列表
-keywords = [
-    'java', 'jdk', 'jre'
-]
+class Java:
+    def __init__(self, path, version):
+        self.path = path
+        self.version = version
 
-def get_java_version(java_path):
-    """
-    获取Java版本信息。
-    """
+    def to_dict(self):
+        return {"Path": self.path, "Version": self.version}
+
+def get_java_version(file_path):
     try:
-        result = subprocess.run([java_path, '-version'], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-        output = result.stderr
-        version_line = output.split('\n')[0]
-        version = version_line.split('"')[1]
-        return version
+        process = Popen([file_path, "-version"], stdout=PIPE, stderr=PIPE)
+        _, stderr = process.communicate()
+        output = stderr.decode()
+        version_pattern = r'(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:[._](\d+))?(?:-(.+))?'
+        version_match = re.search(version_pattern, output)
+        if version_match:
+            version = ".".join(filter(None, version_match.groups()))
+            return version
     except Exception as e:
-        print(f"Error getting version for {java_path}: {e}")
-        return "Unknown"
+        print(f"Error getting version for {file_path}: {e}")
+    return ""
 
-def search_keywords(start_path, keywords):
-    """
-    搜索包含关键词的目录。
-    """
-    candidate_dirs = []
-    for root, dirs, _ in os.walk(start_path):
-        for dir_name in dirs:
-            for keyword in keywords:
-                if keyword.lower() in dir_name.lower():
-                    candidate_dirs.append(os.path.join(root, dir_name))
-                    break
-    return candidate_dirs
-
-def find_javaw(candidate_dirs):
-    """
-    在候选目录中查找javaw.exe文件，并返回包含路径和版本信息的字典列表。
-    """
+def find_java_directories(base_path, match_keywords, exclude_keywords):
     java_list = []
-    for dir_path in candidate_dirs:
-        for root, _, files in os.walk(dir_path):
-            if "javaw.exe" in files:
-                java_path = os.path.join(root, "javaw.exe")
-                version = get_java_version(java_path)
-                java_list.append({"name": f"JDK {version}", "path": java_path})
+    try:
+        for root, dirs, files in os.walk(base_path):
+            for dir_name in dirs:
+                print(dir_name)
+                if any(exclude in dir_name for exclude in exclude_keywords):
+                    continue
+                if any(keyword in dir_name.lower() for keyword in match_keywords):
+                    java_path = os.path.join(root, dir_name, 'bin', 'java.exe' if "windows" in system().lower() else 'java')
+                    if os.path.isfile(java_path):
+                        version = get_java_version(java_path)
+                        if version:
+                            java_list.append(Java(java_path, version))
+    except Exception as e:
+        print(f"Error searching directory {base_path}: {e}")
     return java_list
 
-def detect_all_javaw():
-    """
-    检测所有已安装的javaw.exe路径，并返回包含路径和版本信息的字典列表。
-    """
+def detect_java_paths(start_paths, match_keywords, exclude_keywords, num_threads=10):
     java_list = []
-    futures = []
-    max_workers = 8
-    candidate_dirs = []
-
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        if system().lower() == 'windows':
-            for drive in range(ord('C'), ord('Z') + 1):
-                drive_path = f"{chr(drive)}:\\"
-                if os.path.exists(drive_path):
-                    futures.append(executor.submit(search_keywords, drive_path, keywords))
-        else:
-            # 假定在类Unix系统上
-            default_paths = ["/usr", "/usr/lib", "/usr/local", "/opt"]
-            for path in default_paths:
-                if os.path.exists(path):
-                    futures.append(executor.submit(search_keywords, path, keywords))
-
-        for future in as_completed(futures):
-            candidate_dirs.extend(future.result())
-
-    # 使用多线程并行查找javaw.exe
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(find_javaw, [dir_path]) for dir_path in candidate_dirs]
-        for future in as_completed(futures):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
+        futures = {executor.submit(find_java_directories, path, match_keywords, exclude_keywords): path for path in start_paths}
+        for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc="Searching"):
             java_list.extend(future.result())
-
     return java_list
 
-# 调用检测函数并打印结果
-java_installations = detect_all_javaw()
-for java in java_installations:
-    print(java)
+# 使用示例
+match_keywords = [
+    '1.', 'bin', 'cache', 'client', 'craft', 'data', 'download', 'eclipse', 'mine', 'mc', 'launch',
+    'hotspot', 'java', 'jdk', 'jre', 'zulu', 'dragonwell', 'jvm', 'microsoft', 'corretto',
+    'mod', 'mojang', 'net', 'netease', 'forge', 'liteloader', 'fabric', 'game', 'vanilla',
+    'optifine', 'oracle', 'path', 'program', 'roaming', 'run', 'runtime', 'server', 'software',
+    'temp', 'users', 'x64', 'x86', 'lib', 'usr', 'env', 'ext', 'file', 'data',
+    '我的', '世界', '前置', '原版', '启动', '国服', '官启', '官方', '客户', '应用', '整合',
+    os.getlogin(), '新建文件夹', '服务', '游戏', '环境', '程序', '网易', '软件', '运行', '高清',
+    'badlion', 'blc', 'lunar', 'tlauncher', 'cb', 'cheatbreaker', 'hmcl', 'pcl', 'bakaxl', 'fsm'
+]
+exclude_keywords = ["$", "{", "}", "__"]
+
+if system().lower() == "windows":
+    start_paths = [f"{chr(i)}:\\" for i in range(65, 91) if os.path.exists(f"{chr(i)}:\\")]
+else:
+    start_paths = ["/usr", "/usr/java", "/usr/lib/jvm", "/usr/lib64/jvm", "/opt/jdk", "/opt/jdks"]
+
+found_java_list = detect_java_paths(start_paths, match_keywords, exclude_keywords, num_threads=10)
+for java in found_java_list:
+    print(f"Java Path: {java.path}, Version: {java.version}")

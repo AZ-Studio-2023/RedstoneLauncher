@@ -3,7 +3,7 @@ import json
 import os
 import random
 
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication, QSizePolicy, QLabel
 from qfluentwidgets.components.widgets.acrylic_label import AcrylicLabel
 
@@ -74,6 +74,16 @@ class MainInterface(QWidget):
 
         self.launch_worker = launch()
         self.launch_worker.finished.connect(self.launch_finish)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.next_image)
+        self.timer.start(5000)
+
+    def next_image(self):
+        if self.mainImage.count() == self.mainImage.currentIndex()+1:
+            self.mainImage.setCurrentIndex(0)
+        else:
+            self.mainImage.setCurrentIndex(self.mainImage.currentIndex()+1)
 
     def launch_start(self):
         global status
