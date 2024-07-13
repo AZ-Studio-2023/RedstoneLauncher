@@ -18,8 +18,6 @@ from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCO
 from Helpers.flyoutmsg import dlsuc, dlwar
 from Helpers.styleHelper import style_path
 
-account_list = []
-
 
 class Add_Account_MessageBox(MessageBoxBase):
 
@@ -116,8 +114,6 @@ class AccountInterface(ScrollArea):
         self.setQss()
 
     def addCard(self, icon, title, content, dic):
-        global account_list
-        account_list.append(title)
         card = AppCard(icon, title, content, dic, self)
         card.setObjectName(title)
         self.vBoxLayout.addWidget(card, alignment=Qt.AlignTop)
@@ -133,13 +129,13 @@ class AccountInterface(ScrollArea):
                 self.addCard(QIcon(LEGACY_ACCOUNT), account["name"], "离线登录", account)
             else:
                 self.addCard(QIcon(THIRD_PARTY_ACCOUNT), account["name"], "第三方登录", account)
-
     def add_account(self, account_type, name):
         f = open("data/accounts.json", "r")
         data = json.loads(f.read())["accounts"]
         f.close()
         if account_type == "Legacy":
             data.append({"name": name, "type": "Legacy"})
+            self.addCard(QIcon(LEGACY_ACCOUNT), name, "离线登录", {"name": name, "type": "Legacy"})
         elif account_type == "Microsoft":
             pass  # 由于还在申请API 所以微软登录需要等审核通过后完善
         else:
@@ -147,8 +143,6 @@ class AccountInterface(ScrollArea):
         f = open("data/accounts.json", "w")
         f.write(json.dumps({"accounts": data}))
         f.close()
-        self.load_account()
-
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())

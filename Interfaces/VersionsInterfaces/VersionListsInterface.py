@@ -10,8 +10,13 @@ from qfluentwidgets import (NavigationBar, NavigationItemPosition, NavigationWid
                             PopUpAniStackedWidget, getFont)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, TitleBar
+
+from Helpers.Config import cfg
 from Helpers.CustomControls import ListViewHelper
+from Helpers.StartHelper import getAllVersion
 from Helpers.styleHelper import style_path
+from Interfaces.VersionsInterfaces.VersionTemplateInterface import VersionTemplateInterface
+from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
 
 
 class Widget(QWidget):
@@ -58,7 +63,6 @@ class StackedWidget(QFrame):
         self.setCurrentWidget(self.view.widget(index), popOut)
 
 
-
 class VersionListInterface(QWidget):
 
     def __init__(self):
@@ -94,19 +98,13 @@ class VersionListInterface(QWidget):
         self.hBoxLayout.setStretchFactor(self.stackWidget, 1)
 
     def initNavigation(self):
-        self.addSubInterface(self.homeInterface, FIF.HOME, '主页', selectedIcon=FIF.HOME_FILL)
-        self.addSubInterface(self.appInterface, FIF.APPLICATION, '应用')
-        self.addSubInterface(self.videoInterface, FIF.VIDEO, '视频')
-
-        self.addSubInterface(self.libraryInterface, FIF.BOOK_SHELF, '库', NavigationItemPosition.BOTTOM, FIF.LIBRARY_FILL)
-        self.navigationBar.addItem(
-            routeKey='Help',
-            icon=FIF.HELP,
-            text='帮助',
-            onClick=self.showMessageBox,
-            selectable=False,
-            position=NavigationItemPosition.BOTTOM,
-        )
+        for version in getAllVersion(cfg.gamePath.value):
+            if version["type"] == "Vanilla":
+                self.addSubInterface(VersionTemplateInterface(version["name"]), QIcon(MINECRAFT_ICON), version["name"])
+            elif version["type"] == "Forge":
+                self.addSubInterface(VersionTemplateInterface(version["name"]), QIcon(FORGE_ICON), version["name"])
+            elif version["type"] == "Fabric":
+                self.addSubInterface(VersionTemplateInterface(version["name"]), QIcon(FORGE_ICON), version["name"])
 
         self.stackWidget.currentChanged.connect(self.onCurrentInterfaceChanged)
         self.navigationBar.setCurrentItem(self.homeInterface.objectName())
