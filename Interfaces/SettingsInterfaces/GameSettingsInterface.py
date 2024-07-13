@@ -39,6 +39,13 @@ class GameSettingsInterface(ScrollArea):
         self.changeFolder.clicked.connect(self.__onDownloadFolderCardClicked)
         self.AutoFolder = PushButton(self.tr("恢复默认"), self)
         self.AutoFolder.clicked.connect(self.__FolederAutoCardClicked)
+        self.javaGroup = SettingCardGroup(self.tr("Java运行时"), self.scrollWidget)
+        self.javaCard = ExpandGroupSettingCard(
+            FluentIcon.FOLDER,
+            self.tr('首选Java运行时'),
+            self.tr("选择运行游戏的首选Java运行时"),
+            self.javaGroup
+        )
     def InitLayout(self):
         self.settingLabel.move(60, 63)
         self.expandLayout.setSpacing(28)
