@@ -65,22 +65,25 @@ class launch(QThread):
         version_json = open(version_path, "r")
         version_data = json.loads(version_json.read())
         for libraries in version_data["libraries"]:
-            for native in libraries["downloads"]:
-                if native == "artifact":
-                    dirct_path = native_library
-                    file_path = str(
-                        os.path.normpath(os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path'])))
-                    if not os.path.exists(f"command/{data['version']}.bat"):
-                        if decompression(file_path, dirct_path) == 0:
+            try:
+                for native in libraries["downloads"]:
+                    if native == "artifact":
+                        dirct_path = native_library
+                        file_path = str(
+                            os.path.normpath(os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path'])))
+                        if not os.path.exists(f"command/{data['version']}.bat"):
+                            if decompression(file_path, dirct_path) == 0:
+                                native_list.append(file_path)
+                        else:
                             native_list.append(file_path)
-                    else:
-                        native_list.append(file_path)
-                elif native == 'classifiers':
-                    for n in libraries['downloads'][native].values():
-                        dirct_path = str(os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path']))
-                        file_path = str(os.path.join(data["gameDir"], "libraries", n["path"]))
-                        if not os.path.exists(f"{data['version']}.bat"):
-                            decompression(file_path, dirct_path)
+                    elif native == 'classifiers':
+                        for n in libraries['downloads'][native].values():
+                            dirct_path = str(os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path']))
+                            file_path = str(os.path.join(data["gameDir"], "libraries", n["path"]))
+                            if not os.path.exists(f"{data['version']}.bat"):
+                                decompression(file_path, dirct_path)
+            except KeyError:
+                continue
         if data["gameType"] != "Vanilla":
             for mod in os.listdir(os.path.join(data["gameDir"], 'mods')):
                 if mod.lower().endswith('.jar'):
