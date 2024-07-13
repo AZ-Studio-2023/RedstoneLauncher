@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt, QLocale
 from PyQt5.QtGui import QGuiApplication, QFont, QColor
 from qfluentwidgets import (qconfig, QConfig, ConfigItem, OptionsConfigItem, BoolValidator,
                             ColorConfigItem, OptionsValidator, RangeConfigItem, RangeValidator, ColorValidator,
-                            FolderListValidator, EnumSerializer, FolderValidator, ConfigSerializer, __version__)
+                            FolderListValidator, EnumSerializer, FolderValidator, ConfigSerializer, __version__, Theme)
 
 
 class SongQuality(Enum):
@@ -53,8 +53,15 @@ class Config(QConfig):
         "gameFileGroup", "gamePath", DEFAULT_GAME_PATH, FolderValidator()
     )
 
+    javaPath = OptionsConfigItem(
+        "javaGroup", "javaPath", ""
+    )
+
     language = OptionsConfigItem(
         "personalizeGroup", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer())
+
+    themeMode = OptionsConfigItem(
+        "personalizeGroup", "ThemeMode", Theme.LIGHT, OptionsValidator(Theme), EnumSerializer(Theme))
 
 
 cfg = Config()

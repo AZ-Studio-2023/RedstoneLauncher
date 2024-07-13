@@ -11,6 +11,7 @@ from qfluentwidgets import (NavigationBar, NavigationItemPosition, NavigationWid
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, TitleBar
 from Helpers.CustomControls import ListViewHelper
+from Helpers.styleHelper import style_path
 
 
 class Widget(QWidget):
@@ -129,8 +130,7 @@ class VersionListInterface(QWidget):
         )
 
     def setQss(self):
-        color = 'dark' if isDarkTheme() else 'light'
-        with open(f'resource/qss/{color}.qss', encoding='utf-8') as f:
+        with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
     def switchTo(self, widget):

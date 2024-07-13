@@ -20,7 +20,7 @@ from Helpers.StartHelper import getAllVersion, launch, getVersionType
 status = False
 version_chose = False
 account_chose = False
-
+version_list = []
 
 class MainInterface(QWidget):
 
@@ -77,7 +77,7 @@ class MainInterface(QWidget):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.next_image)
-        self.timer.start(5000)
+        self.timer.start(10000)
 
     def next_image(self):
         if self.mainImage.count() == self.mainImage.currentIndex()+1:
@@ -89,7 +89,7 @@ class MainInterface(QWidget):
         global status
         status = True
         launch_data = {
-            "javaDir": "C:\\Users\\18079\AppData\Roaming\.minecraft\\runtime\java-runtime-gamma-snapshot\\bin\javaw.exe",
+            "javaDir": cfg.javaPath.value,
             "gameDir": cfg.gamePath.value, "version": self.game_version_button.text(), "xmx": 1024,
             "gameType": getVersionType(cfg.gamePath.value, self.game_version_button.text()), "userType": "Legacy",
             "uuid": "", "accessToken": "", "versionType": "Python_Minecraft_Launcher",
@@ -140,25 +140,34 @@ class MainInterface(QWidget):
             if account["type"] == "Microsoft":
                 self.account_menu.addAction(
                     Action(QIcon(MICROSOFT_ACCOUNT), account["name"],
-                           triggered=lambda: self.setAccountInfo("Microsoft", account["name"])))
+                           triggered=self.create_lambda("Microsoft", account["name"])))
             elif account["type"] == "Legacy":
                 self.account_menu.addAction(
                     Action(QIcon(LEGACY_ACCOUNT), account["name"],
-                           triggered=lambda: self.setAccountInfo("Legacy", account["name"])))
+                           triggered=self.create_lambda("Legacy", account["name"])))
             else:
                 self.account_menu.addAction(
                     Action(QIcon(THIRD_PARTY_ACCOUNT), account["name"],
-                           triggered=lambda: self.setAccountInfo("Third-Party", account["name"])))
+                           triggered=self.create_lambda("Third-Party", account["name"])))
+
+    def create_lambda(self, account_type, account_name):
+        def lambda_function():
+            self.setAccountInfo(account_type, account_name)
+
+        return lambda_function
 
     def start_game(self):
         global status
         global version_chose
         global account_chose
         if version_chose and account_chose:
-            if not status:
-                self.launch_start()
+            if cfg.javaPath.value != "":
+                if not status:
+                    self.launch_start()
+                else:
+                    dlerr(self.tr("当前已有游戏进程启动"), self)
             else:
-                dlerr(self.tr("当前已有游戏进程启动"), self)
+                dlerr(self.tr("无可用Java运行时，请先前往设置中进行配置"), self)
         else:
             dlerr(self.tr("未选择游戏版本或游戏账户"), self)
 

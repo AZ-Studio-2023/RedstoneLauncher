@@ -22,7 +22,9 @@ if __name__ == '__main__':
     caonima.load("reaource/i18n/MainWindow.ts")
 
     check_and_create()
-    setTheme(Theme.LIGHT)
+
+    setTheme(cfg.themeMode.value)
+
     app = QApplication(sys.argv)
     app.installTranslator(fluentTranslator)
     app.installTranslator(settingTranslator)

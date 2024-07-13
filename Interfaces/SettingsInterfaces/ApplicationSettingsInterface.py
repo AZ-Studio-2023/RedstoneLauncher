@@ -5,6 +5,9 @@ from qfluentwidgets import FluentIcon as FIF
 from Helpers.Config import cfg
 from PyQt5.QtCore import Qt
 
+from Helpers.styleHelper import style_path
+
+
 class AppilacationSettingsInterface(ScrollArea):
 
     def __init__(self, parent=None):
@@ -38,16 +41,34 @@ class AppilacationSettingsInterface(ScrollArea):
             texts=['简体中文', '繁體中文', 'English', self.tr('使用系统设置')],
             parent=self.personalizeGroup
         )
+        self.themeCard = OptionsSettingCard(
+            cfg.themeMode,
+            FIF.BRUSH,
+            self.tr('深浅模式'),
+            self.tr("更改应用程序的外观"),
+            texts=[
+                self.tr('浅色'), self.tr('深色'),
+                self.tr('使用系统设置')
+            ],
+            parent=self.personalizeGroup
+        )
+
+        self.themeCard.optionChanged.connect(lambda ci: setTheme(cfg.get(ci)))
 
 
+    def setSettingsQss(self):
+        theme = 'dark' if isDarkTheme() else 'light'
+        with open(f'resource/qss/{theme}.qss', encoding='utf-8') as f:
+            self.setStyleSheet(f.read())
     def InitLayout(self):
         self.settingLabel.move(60, 63)
         self.expandLayout.setSpacing(28)
         self.expandLayout.setContentsMargins(60, 10, 60, 0)
         self.personalizeGroup.addSettingCard(self.languageCard)
+        self.personalizeGroup.addSettingCard(self.themeCard)
         self.expandLayout.addWidget(self.personalizeGroup)
 
     def setQss(self):
-        theme = 'dark' if isDarkTheme() else 'light'
-        with open(f'resource/qss/{theme}.qss', encoding='utf-8') as f:
+        with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())
+

@@ -16,6 +16,7 @@ from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, 
 
 from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCOUNT
 from Helpers.flyoutmsg import dlsuc, dlwar
+from Helpers.styleHelper import style_path
 
 account_list = []
 
@@ -149,8 +150,7 @@ class AccountInterface(ScrollArea):
         self.load_account()
 
     def setQss(self):
-        color = 'dark' if isDarkTheme() else 'light'
-        with open(f'resource/qss/{color}.qss', encoding='utf-8') as f:
+        with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
     def showMessage(self):

@@ -4,10 +4,11 @@ from PyQt5.QtCore import Qt, QEventLoop, QTimer, QSize
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel, QSizePolicy
 from qfluentwidgets import NavigationItemPosition, SplitFluentWindow, SubtitleLabel, setFont, NavigationInterface, \
-    FluentWindow, SplashScreen, FluentStyleSheet, isDarkTheme
+    FluentWindow, SplashScreen, FluentStyleSheet, isDarkTheme, setTheme, Theme
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import TitleBar
 
+from Helpers.styleHelper import style_path
 from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
@@ -101,6 +102,5 @@ class Window(SplitFluentWindow):
 
 
     def setQss(self):
-        color = 'dark' if isDarkTheme() else 'light'
-        with open(f'resource/qss/{color}.qss', encoding='utf-8') as f:
+        with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())
