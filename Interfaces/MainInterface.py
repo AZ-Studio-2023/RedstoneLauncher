@@ -20,7 +20,7 @@ from Helpers.StartHelper import getAllVersion, launch, getVersionType
 status = False
 version_chose = False
 account_chose = False
-version_list = []
+account_list = []
 
 class MainInterface(QWidget):
 
@@ -52,6 +52,7 @@ class MainInterface(QWidget):
 
         self.startLayout = QVBoxLayout()
         self.accountButton = DropDownPushButton(FluentIcon.PEOPLE, self.tr(" 选择账号"))
+        self.accountButton.clicked.connect(self.load_account)
         self.accountButton.setFixedSize(300, 60)
         self.account_menu = RoundMenu(parent=self.accountButton)
         self.accountButton.setMenu(self.account_menu)
@@ -63,7 +64,6 @@ class MainInterface(QWidget):
         self.game_version_button.setFixedSize(325, 60)
         self.menu = RoundMenu(parent=self.game_version_button)
         self.load_versions()
-        self.load_account()
         self.game_version_button.setMenu(self.menu)
         self.start_button = PrimaryPushButton()
         self.start_button.setFixedSize(350, 60)
@@ -133,22 +133,35 @@ class MainInterface(QWidget):
         account_chose = True
 
     def load_account(self):
+        global account_list
         f = open("data/accounts.json", "r")
         data = json.loads(f.read())["accounts"]
         f.close()
+        items_to_remove = []
+
+        for item in account_list:
+            self.account_menu.removeAction(item)
+            items_to_remove.append(item)
+
+        for item in items_to_remove:
+            account_list.remove(item)
+
         for account in data:
             if account["type"] == "Microsoft":
-                self.account_menu.addAction(
-                    Action(QIcon(MICROSOFT_ACCOUNT), account["name"],
-                           triggered=self.create_lambda("Microsoft", account["name"])))
+                action = Action(QIcon(MICROSOFT_ACCOUNT), account["name"],
+                           triggered=self.create_lambda("Microsoft", account["name"]))
+                self.account_menu.addAction(action)
+                account_list.append(action)
             elif account["type"] == "Legacy":
-                self.account_menu.addAction(
-                    Action(QIcon(LEGACY_ACCOUNT), account["name"],
-                           triggered=self.create_lambda("Legacy", account["name"])))
+                action = Action(QIcon(LEGACY_ACCOUNT), account["name"],
+                           triggered=self.create_lambda("Legacy", account["name"]))
+                self.account_menu.addAction(action)
+                account_list.append(action)
             else:
-                self.account_menu.addAction(
-                    Action(QIcon(THIRD_PARTY_ACCOUNT), account["name"],
-                           triggered=self.create_lambda("Third-Party", account["name"])))
+                action = Action(QIcon(THIRD_PARTY_ACCOUNT), account["name"],
+                           triggered=self.create_lambda("Third-Party", account["name"]))
+                self.account_menu.addAction(action)
+                account_list.append(action)
 
     def create_lambda(self, account_type, account_name):
         def lambda_function():
