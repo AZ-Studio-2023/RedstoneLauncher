@@ -127,23 +127,23 @@ class GameSettingsInterface(ScrollArea):
     def local_finished(self, data):
         self.bar.setVisible(False)
         self.autoFindLocal.setEnabled(True)
+        self.loaclFindWorker.quit()
         if cfg.javaPath.value == "":
             if len(data) >= 1:
                 cfg.set(cfg.javaPath, data[0].path)
         for java in data:
             self.addCard(QIcon(JAVA_RUNTIME), java.version, java.path)
-            self.loaclFindWorker.quit()
         dlsuc(self, f"共计找到了 {len(data)} 个Java运行时", "快速查找完成", 6000)
 
     def global_finished(self, data):
         self.bar.setVisible(False)
         self.autoFindGlobal.setEnabled(True)
+        self.globalFindWorker.quit()
         if cfg.javaPath.value == "":
             if len(data) >= 1:
                 cfg.set(cfg.javaPath, data[0].path)
         for java in data:
             self.addCard(QIcon(JAVA_RUNTIME), java.version, java.path)
-            self.globalFindWorker.quit()
 
         dlsuc(self, f"共计找到了 {len(data)} 个Java运行时", "全局查找完成", 6000)
 

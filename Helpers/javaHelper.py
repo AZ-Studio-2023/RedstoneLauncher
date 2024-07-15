@@ -48,7 +48,7 @@ def find_java_directories(base_path, match_keywords, exclude_keywords):
                     java_path = os.path.normpath(os.path.join(root, dir_name, 'bin',
                                              'java.exe' if "windows" in system().lower() else 'java'))
                     if os.path.isfile(java_path):
-                        if not javaPath in java_path_list:
+                        if not java_path in java_path_list:
                             version = get_java_version(java_path)
                             if version:
                                 java_path_list.append(java_path)
@@ -111,6 +111,9 @@ class GetJava_Local(QThread):
             path_list = os.environ.get('PATH').split(';')
             for env_path in path_list:
                 if os.path.exists(os.path.join(env_path, "java.exe")) and os.path.isfile(os.path.join(env_path, "java.exe")):
-                    if not javaPath(os.path.join(env_path, "java.exe"), get_java_version(os.path.join(env_path, "java.exe"))) in java_list:
-                        java_list.append(javaPath(os.path.join(env_path, "java.exe"), get_java_version(os.path.join(env_path, "java.exe"))))
+                    add_paths = []
+                    for obj in java_list:
+                        add_paths.append(obj.path)
+                    if not os.path.normpath(os.path.join(env_path, "java.exe")) in add_paths:
+                        java_list.append(javaPath(os.path.normpath(os.path.join(env_path, "java.exe")), get_java_version(os.path.join(env_path, "java.exe"))))
         self.finished.emit(java_list)
