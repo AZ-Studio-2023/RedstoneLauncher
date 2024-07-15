@@ -38,18 +38,21 @@ def get_java_version(file_path):
 
 def find_java_directories(base_path, match_keywords, exclude_keywords):
     java_list = []
+    java_path_list = []
     try:
         for root, dirs, files in os.walk(base_path):
             for dir_name in dirs:
                 if any(exclude in dir_name for exclude in exclude_keywords):
                     continue
                 if any(keyword in dir_name.lower() for keyword in match_keywords):
-                    java_path = os.path.join(root, dir_name, 'bin',
-                                             'java.exe' if "windows" in system().lower() else 'java')
+                    java_path = os.path.normpath(os.path.join(root, dir_name, 'bin',
+                                             'java.exe' if "windows" in system().lower() else 'java'))
                     if os.path.isfile(java_path):
-                        version = get_java_version(java_path)
-                        if version:
-                            java_list.append(javaPath(java_path, version))
+                        if not javaPath in java_path_list:
+                            version = get_java_version(java_path)
+                            if version:
+                                java_path_list.append(java_path)
+                                java_list.append(javaPath(java_path, version))
     except Exception as e:
         print(f"Error searching directory {base_path}: {e}")
     return java_list
