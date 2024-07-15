@@ -3,6 +3,7 @@ import json
 import os
 import random
 
+import psutil
 from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication, QSizePolicy, QLabel
 from qfluentwidgets.components.widgets.acrylic_label import AcrylicLabel
@@ -15,7 +16,7 @@ from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, Ro
     TransparentDropDownPushButton, PrimaryPushButton, ImageLabel
 from PyQt5.QtGui import QIcon, QFont, QImage, QPixmap, QColor
 from Helpers.Config import cfg
-from Helpers.StartHelper import getAllVersion, launch, getVersionType
+from Helpers.StartHelper import getAllVersion, launch, getVersionType, getVersionInfo
 
 status = False
 version_chose = False
@@ -88,12 +89,16 @@ class MainInterface(QWidget):
     def launch_start(self):
         global status
         status = True
+        mem = psutil.virtual_memory()
+        free_memory = mem.available
+        free_memory_mb = free_memory / 1024 / 1024
+        free_memory_mb = int(free_memory_mb)
         launch_data = {
             "javaDir": cfg.javaPath.value,
-            "gameDir": cfg.gamePath.value, "version": self.game_version_button.text(), "xmx": 1024,
+            "gameDir": cfg.gamePath.value, "clientVersion": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["clientVersion"], "xmx": free_memory_mb,
             "gameType": getVersionType(cfg.gamePath.value, self.game_version_button.text()), "userType": "Legacy",
-            "uuid": "", "accessToken": "", "versionType": "Python_Minecraft_Launcher",
-            "username": self.accountButton.text()}
+            "uuid": "", "accessToken": "", "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
+            "username": self.accountButton.text(), "version": self.game_version_button.text()}
         setLaunchData(launch_data)
         self.launch_worker.start()
 

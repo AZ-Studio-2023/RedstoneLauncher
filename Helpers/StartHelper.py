@@ -15,6 +15,7 @@ def decompression(filename: str, path: str):
     except FileNotFoundError:
         return "Error"
 
+
 def getVersionType(gameDir, version):
     with open(os.path.join(gameDir, 'versions', version, f'{version}.json'), "r") as u:
         file_content = u.read()
@@ -24,6 +25,8 @@ def getVersionType(gameDir, version):
             return "Fabric"
         else:
             return "Vanilla"
+
+
 def getAllVersion(gameDir):
     versions = os.listdir(os.path.join(gameDir, 'versions'))
     versions = [version for version in versions if os.path.isdir(os.path.join(gameDir, 'versions', version))]
@@ -39,8 +42,14 @@ def getAllVersion(gameDir):
                 version_list.append({"name": v, "type": "Vanilla"})
     return version_list
 
-class launch(QThread):
 
+def getVersionInfo(gameDir, version):
+    with open(os.path.join(gameDir, 'versions', version, f'{version}.json'), "r") as u:
+        file_content = json.loads(u.read())
+        return {"type": file_content["clientVersion"], "clientVersion": file_content["clientVersion"]}
+
+
+class launch(QThread):
     finished = pyqtSignal(str)
 
     def __init__(self):
@@ -49,13 +58,13 @@ class launch(QThread):
     @pyqtSlot()
     def run(self):
         data = getLaunchData()
-        if data["gameType"] == "Vanilla":  # 判断客户端类型
-            main_class = "net.minecraft.client.main.Main"
-        else:
-            main_class = "net.minecraft.launchwrapper.Launch"
+        main_class = "net.minecraft.client.main.Main"
         pc_os = platform.system()
         assetsDir = os.path.join(data["gameDir"], "assets")
-        assetIndex = data["version"]
+        if len(data["clientVersion"]) >= 3 and data["clientVersion"][2] == '.':
+            assetIndex = data["clientVersion"][:3]
+        else:
+            assetIndex = data["clientVersion"][:4]
         native_library = str(os.path.join(data["gameDir"], "versions", data["version"], f"{data['version']}-natives"))
         self.finished.emit("0")
 
@@ -70,7 +79,8 @@ class launch(QThread):
                     if native == "artifact":
                         dirct_path = native_library
                         file_path = str(
-                            os.path.normpath(os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path'])))
+                            os.path.normpath(
+                                os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path'])))
                         if not os.path.exists(f"command/{data['version']}.bat"):
                             if decompression(file_path, dirct_path) == 0:
                                 native_list.append(file_path)
@@ -78,7 +88,8 @@ class launch(QThread):
                             native_list.append(file_path)
                     elif native == 'classifiers':
                         for n in libraries['downloads'][native].values():
-                            dirct_path = str(os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path']))
+                            dirct_path = str(
+                                os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path']))
                             file_path = str(os.path.join(data["gameDir"], "libraries", n["path"]))
                             if not os.path.exists(f"{data['version']}.bat"):
                                 decompression(file_path, dirct_path)
@@ -97,7 +108,6 @@ class launch(QThread):
         # 构建启动命令
         jvm_args = [
             f"-Xmx{data['xmx']}m",
-            "-Xmn128m",
             "-XX:+UseG1GC",
             "-XX:-UseAdaptiveSizePolicy",
             "-XX:-OmitStackTraceInFastThrow",
@@ -113,7 +123,7 @@ class launch(QThread):
         mc_args = [
             main_class,
             "--username", data["username"],
-            "--version", data['version'],
+            "--version", data['clientVersion'],
             "--gameDir", data["gameDir"],
             "--assetsDir", assetsDir,
             "--assetIndex", assetIndex,
@@ -128,10 +138,5 @@ class launch(QThread):
         u.write(str(command_bat))
         u.close()
         self.finished.emit("2")
-        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run(command, capture_output=True, text=True)
         self.finished.emit("3")
-
-
-
-
-
