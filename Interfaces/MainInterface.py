@@ -10,7 +10,7 @@ from qfluentwidgets.components.widgets.acrylic_label import AcrylicLabel
 
 from Helpers.flyoutmsg import dlerr, dlsuc, dlwar
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON, MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, \
-    THIRD_PARTY_ACCOUNT, setLaunchData
+    THIRD_PARTY_ACCOUNT, setLaunchData, setStatus, getStatus
 from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, RoundMenu, VBoxLayout, DropDownPushButton, \
     PushButton, TransparentPushButton, HorizontalFlipView, HorizontalPipsPager, LargeTitleLabel, TitleLabel, \
     TransparentDropDownPushButton, PrimaryPushButton, ImageLabel
@@ -18,7 +18,6 @@ from PyQt5.QtGui import QIcon, QFont, QImage, QPixmap, QColor
 from Helpers.Config import cfg
 from Helpers.StartHelper import getAllVersion, launch, getVersionType, getVersionInfo
 
-status = False
 version_chose = False
 account_chose = False
 account_list = []
@@ -87,8 +86,7 @@ class MainInterface(QWidget):
             self.mainImage.setCurrentIndex(self.mainImage.currentIndex()+1)
 
     def launch_start(self):
-        global status
-        status = True
+        setStatus(True)
         mem = psutil.virtual_memory()
         free_memory = mem.available
         free_memory_mb = free_memory / 1024 / 1024
@@ -110,8 +108,7 @@ class MainInterface(QWidget):
         elif return_data == "2":
             dlsuc(self, "启动命令构建完毕，等待游戏窗口出现", show_time=10000)
         else:
-            global status
-            status = False
+            setStatus(False)
             self.launch_worker.quit()
             dlwar("游戏进程已结束", self, show_time=5000)
 
@@ -175,12 +172,11 @@ class MainInterface(QWidget):
         return lambda_function
 
     def start_game(self):
-        global status
         global version_chose
         global account_chose
         if version_chose and account_chose:
             if cfg.javaPath.value != "":
-                if not status:
+                if not getStatus():
                     self.launch_start()
                 else:
                     dlerr(self.tr("当前已有游戏进程启动"), self)

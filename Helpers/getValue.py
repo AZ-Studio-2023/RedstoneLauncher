@@ -11,6 +11,7 @@ JAVA_RUNTIME = "resource/image/java.png"
 DEFAULT_GAME_PATH = os.path.join(os.path.expanduser('~'), "AppData", "Roaming", ".minecraft")
 
 LAUNCH_DATA = {}
+status = False
 
 def setLaunchData(data):
     global LAUNCH_DATA
@@ -19,3 +20,11 @@ def setLaunchData(data):
 def getLaunchData():
     global LAUNCH_DATA
     return LAUNCH_DATA
+
+def setStatus(data):
+    global status
+    status = data
+
+def getStatus():
+    global status
+    return status

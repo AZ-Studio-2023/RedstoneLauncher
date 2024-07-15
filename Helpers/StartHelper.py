@@ -134,7 +134,7 @@ class launch(QThread):
         ]
         command = [data["javaDir"]] + jvm_args + mc_args
         u = open(f"command/{data['version']}.bat", "w")
-        command_bat = ' '.join(command)
+        command_bat = subprocess.list2cmdline(command)
         u.write(str(command_bat))
         u.close()
         self.finished.emit("2")

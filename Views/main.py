@@ -13,6 +13,8 @@ from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
 from Interfaces.AccountInterface import AccountInterface
+from Interfaces.loggerInterface import loggerInterface
+
 
 class SplitTitleBar(TitleBar):
 
@@ -65,6 +67,7 @@ class Window(SplitFluentWindow):
         self.VersionsListInterface = VersionListInterface()
         self.SettingsInterface = SettingsInterface()
         self.AccountInterface = AccountInterface()
+        self.loggerInterface = loggerInterface()
         self.stackedWidget.hBoxLayout.setContentsMargins(0, 40, 0, 0)
         self.initNavigation()
         self.initWindow()
@@ -83,6 +86,7 @@ class Window(SplitFluentWindow):
         self.addSubInterface(self.HomeInterface, FIF.HOME, self.tr('主页'))
         self.navigationInterface.addSeparator()
         self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, self.tr('版本列表'))
+        self.addSubInterface(self.loggerInterface, FIF.QUICK_NOTE, self.tr('游戏日志'))
 
         self.addSubInterface(self.AccountInterface, FIF.PEOPLE, self.tr('游戏账号'), NavigationItemPosition.BOTTOM)
         self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
