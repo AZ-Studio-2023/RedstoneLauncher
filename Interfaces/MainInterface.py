@@ -2,6 +2,7 @@
 import json
 import os
 import random
+import uuid
 
 import psutil
 from PyQt5.QtCore import Qt, QSize, QTimer
@@ -17,6 +18,7 @@ from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, Ro
 from PyQt5.QtGui import QIcon, QFont, QImage, QPixmap, QColor
 from Helpers.Config import cfg
 from Helpers.StartHelper import getAllVersion, launch, getVersionType, getVersionInfo
+from Interfaces.activityInterface import activityInterface, AppCard
 
 version_chose = False
 account_chose = False
@@ -75,6 +77,8 @@ class MainInterface(QWidget):
         self.launch_worker = launch()
         self.launch_worker.finished.connect(self.launch_finish)
 
+        self.activityInterface = activityInterface()
+
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.next_image)
         self.timer.start(10000)
@@ -86,8 +90,8 @@ class MainInterface(QWidget):
             self.mainImage.setCurrentIndex(self.mainImage.currentIndex()+1)
 
     def launch_start(self):
-        setStatus(True)
         mem = psutil.virtual_memory()
+        launch_uuid = str(uuid.uuid4())
         free_memory = mem.available
         free_memory_mb = free_memory / 1024 / 1024
         free_memory_mb = int(free_memory_mb)
@@ -108,7 +112,6 @@ class MainInterface(QWidget):
         elif return_data == "2":
             dlsuc(self, "启动命令构建完毕，等待游戏窗口出现", show_time=10000)
         else:
-            setStatus(False)
             self.launch_worker.quit()
             dlwar("游戏进程已结束", self, show_time=5000)
 

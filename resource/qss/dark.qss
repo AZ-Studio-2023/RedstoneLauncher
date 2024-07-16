@@ -70,3 +70,8 @@ QScrollArea {
     border: none;
     background-color: transparent;
 }
+
+QLabel#title {
+    font: 33px 'Microsoft YaHei Light';
+    background-color: transparent;
+}
