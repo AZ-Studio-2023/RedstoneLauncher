@@ -5,7 +5,6 @@ from qfluentwidgets import PlainTextEdit, ScrollArea, ExpandLayout, TitleLabel, 
     ExpandGroupSettingCard, FluentIcon, PushButton, ProgressBar, TransparentToolButton, VBoxLayout, BodyLabel
 
 from Helpers.styleHelper import style_path
-from Helpers.getValue import getStatus
 import uuid
 
 

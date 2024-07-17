@@ -11,7 +11,7 @@ from qfluentwidgets.components.widgets.acrylic_label import AcrylicLabel
 
 from Helpers.flyoutmsg import dlerr, dlsuc, dlwar
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON, MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, \
-    THIRD_PARTY_ACCOUNT, setLaunchData, setStatus, getStatus
+    THIRD_PARTY_ACCOUNT, setLaunchData
 from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, RoundMenu, VBoxLayout, DropDownPushButton, \
     PushButton, TransparentPushButton, HorizontalFlipView, HorizontalPipsPager, LargeTitleLabel, TitleLabel, \
     TransparentDropDownPushButton, PrimaryPushButton, ImageLabel
@@ -19,6 +19,7 @@ from PyQt5.QtGui import QIcon, QFont, QImage, QPixmap, QColor
 from Helpers.Config import cfg
 from Helpers.StartHelper import getAllVersion, launch, getVersionType, getVersionInfo
 from Interfaces.activityInterface import activityInterface, AppCard
+from Helpers.getValue import setProcessData, getProcessData
 
 version_chose = False
 account_chose = False
@@ -92,6 +93,9 @@ class MainInterface(QWidget):
     def launch_start(self):
         mem = psutil.virtual_memory()
         launch_uuid = str(uuid.uuid4())
+        data = getProcessData()
+        data.append({"uuid": launch_uuid, "state": "", "logger": "", "version": self.game_version_button.text()})
+        setProcessData(data)
         free_memory = mem.available
         free_memory_mb = free_memory / 1024 / 1024
         free_memory_mb = int(free_memory_mb)
@@ -100,7 +104,7 @@ class MainInterface(QWidget):
             "gameDir": cfg.gamePath.value, "clientVersion": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["clientVersion"], "xmx": free_memory_mb,
             "gameType": getVersionType(cfg.gamePath.value, self.game_version_button.text()), "userType": "Legacy",
             "uuid": "", "accessToken": "", "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
-            "username": self.accountButton.text(), "version": self.game_version_button.text()}
+            "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid}
         setLaunchData(launch_data)
         self.launch_worker.start()
 
@@ -179,10 +183,7 @@ class MainInterface(QWidget):
         global account_chose
         if version_chose and account_chose:
             if cfg.javaPath.value != "":
-                if not getStatus():
-                    self.launch_start()
-                else:
-                    dlerr(self.tr("当前已有游戏进程启动"), self)
+                self.launch_start()
             else:
                 dlerr(self.tr("无可用Java运行时，请先前往设置中进行配置"), self)
         else:
