@@ -25,6 +25,12 @@ version_chose = False
 account_chose = False
 account_list = []
 
+def find_dict(dictionary_list, key, value):
+    for dictionary in dictionary_list:
+        if key in dictionary and dictionary[key] == value:
+            return dictionary
+    return None
+
 class MainInterface(QWidget):
 
     def __init__(self, parent=None):
@@ -94,7 +100,7 @@ class MainInterface(QWidget):
         mem = psutil.virtual_memory()
         launch_uuid = str(uuid.uuid4())
         data = getProcessData()
-        data.append({"uuid": launch_uuid, "state": "", "logger": "", "version": self.game_version_button.text()})
+        data.append({"uuid": launch_uuid, "state": "获取必要数据", "logger": "", "version": self.game_version_button.text(), "code": -1})
         setProcessData(data)
         free_memory = mem.available
         free_memory_mb = free_memory / 1024 / 1024
@@ -106,18 +112,36 @@ class MainInterface(QWidget):
             "uuid": "", "accessToken": "", "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
             "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid}
         setLaunchData(launch_data)
+        dlsuc(self, "游戏进程已启动！可前往任务页查看启动状态")
         self.launch_worker.start()
 
     def launch_finish(self, return_data):
-        if return_data == "0":
-            dlsuc(self, "获取参数完毕")
-        elif return_data == "1":
-            dlsuc(self, "本地库列表生成完毕")
-        elif return_data == "2":
-            dlsuc(self, "启动命令构建完毕，等待游戏窗口出现", show_time=10000)
-        else:
+        if return_data["state"] == "0":
+            dic = find_dict(getProcessData(), "uuid", return_data["uuid"])
+            data = getProcessData()
+            data.remove(dic)
+            data.append({"uuid": return_data["uuid"], "state": "补全游戏所需资源", "logger": "", "version": self.game_version_button.text(), "code": 0})
+            setProcessData(data)
+        elif return_data["state"] == "1":
+            dic = find_dict(getProcessData(), "uuid", return_data["uuid"])
+            data = getProcessData()
+            data.remove(dic)
+            data.append({"uuid": return_data["uuid"], "state": "构建启动命令", "logger": "", "version": self.game_version_button.text(), "code": 1})
+            setProcessData(data)
+        elif return_data["state"] == "2":
+            dic = find_dict(getProcessData(), "uuid", return_data["uuid"])
+            data = getProcessData()
+            data.remove(dic)
+            data.append({"uuid": return_data["uuid"], "state": "启动游戏进程", "logger": "", "version": self.game_version_button.text(), "code": 2})
+            setProcessData(data)
+        elif return_data["state"] == "3":
+            dic = find_dict(getProcessData(), "uuid", return_data["uuid"])
+            data = getProcessData()
+            data.remove(dic)
+            data.append({"uuid": return_data["uuid"], "state": "游戏进程已退出", "logger": "",
+                         "version": self.game_version_button.text(), "code": 3})
+            setProcessData(data)
             self.launch_worker.quit()
-            dlwar("游戏进程已结束", self, show_time=5000)
 
     def setGameInfo(self, type, version):
         global version_chose
