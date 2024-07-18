@@ -100,7 +100,7 @@ class MainInterface(QWidget):
         mem = psutil.virtual_memory()
         launch_uuid = str(uuid.uuid4())
         data = getProcessData()
-        data.append({"uuid": launch_uuid, "state": "获取必要数据", "logger": "", "version": self.game_version_button.text(), "code": -1})
+        data.append({"uuid": launch_uuid, "state": "", "logger": "", "version": self.game_version_button.text()})
         setProcessData(data)
         free_memory = mem.available
         free_memory_mb = free_memory / 1024 / 1024
@@ -112,7 +112,6 @@ class MainInterface(QWidget):
             "uuid": "", "accessToken": "", "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
             "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid}
         setLaunchData(launch_data)
-        dlsuc(self, "游戏进程已启动！可前往任务页查看启动状态")
         self.launch_worker.start()
 
     def launch_finish(self, return_data):
@@ -120,19 +119,22 @@ class MainInterface(QWidget):
             dic = find_dict(getProcessData(), "uuid", return_data["uuid"])
             data = getProcessData()
             data.remove(dic)
-            data.append({"uuid": return_data["uuid"], "state": "补全游戏所需资源", "logger": "", "version": self.game_version_button.text(), "code": 0})
+            data.append({"uuid": return_data["uuid"], "state": "补全游戏所需资源", "logger": "",
+                         "version": self.game_version_button.text(), "code": 0})
             setProcessData(data)
         elif return_data["state"] == "1":
             dic = find_dict(getProcessData(), "uuid", return_data["uuid"])
             data = getProcessData()
             data.remove(dic)
-            data.append({"uuid": return_data["uuid"], "state": "构建启动命令", "logger": "", "version": self.game_version_button.text(), "code": 1})
+            data.append({"uuid": return_data["uuid"], "state": "构建启动命令", "logger": "",
+                         "version": self.game_version_button.text(), "code": 1})
             setProcessData(data)
         elif return_data["state"] == "2":
             dic = find_dict(getProcessData(), "uuid", return_data["uuid"])
             data = getProcessData()
             data.remove(dic)
-            data.append({"uuid": return_data["uuid"], "state": "启动游戏进程", "logger": "", "version": self.game_version_button.text(), "code": 2})
+            data.append({"uuid": return_data["uuid"], "state": "游戏进程已启动", "logger": "",
+                         "version": self.game_version_button.text(), "code": 2})
             setProcessData(data)
         elif return_data["state"] == "3":
             dic = find_dict(getProcessData(), "uuid", return_data["uuid"])
