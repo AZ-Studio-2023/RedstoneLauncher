@@ -18,6 +18,7 @@ from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCO
 from Helpers.flyoutmsg import dlsuc, dlwar
 from Helpers.styleHelper import style_path
 from Helpers.getValue import getProcessData
+from Interfaces.loggerInterface import loggerInterface
 
 local_process = []
 local_process_data = {}
@@ -25,10 +26,12 @@ local_process_data = {}
 class AppCard(CardWidget):
     """ App card """
 
-    def __init__(self, icon, title, content, parent=None):
+    def __init__(self, icon, title, content, process_uuid, parent=None):
         super().__init__(parent)
         self.iconWidget = IconWidget(icon)
         self.iconWidget.setFixedSize(18, 18)
+        self.uuid = process_uuid
+        self.title = title
         self.titleLabel = BodyLabel(title, self)
         self.contentLabel = CaptionLabel(content, self)
         self.stopping = PushButton(FluentIcon.CLOSE, self.tr("强制停止"))
@@ -57,8 +60,13 @@ class AppCard(CardWidget):
         self.hBoxLayout.addWidget(self.stopping, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.logger, 0, Qt.AlignRight)
 
+
     def change_state(self, state: str):
         self.contentLabel.setText(f"当前状态：{state}")
+
+    def __open_logger(self):
+        w = loggerInterface(self.uuid, self.title)
+        w.show()
 
 class activityInterface(QWidget):
 
@@ -96,7 +104,7 @@ class activityInterface(QWidget):
 
     def addCard(self, icon, title, content, cuuid):
         global local_process_data
-        card = AppCard(icon, title, content, self)
+        card = AppCard(icon, title, content, cuuid, self)
         card.setObjectName(cuuid)
         local_process_data[cuuid] = card
         self.vBoxLayout.addWidget(card, alignment=Qt.AlignTop)

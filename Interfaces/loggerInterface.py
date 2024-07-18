@@ -1,19 +1,22 @@
 import os.path
 
 from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QScrollArea
 from qfluentwidgets import PlainTextEdit, ScrollArea
 
 from Helpers.styleHelper import style_path
-from Helpers.getValue import getStatus
 
 old_log = ""
 
 class loggerInterface(QWidget):
 
-    def __init__(self):
+    def __init__(self, process_uuid, version):
         super().__init__()
         self.setObjectName("loggerInterface")
+        self.uuid = process_uuid
+        self.setWindowTitle(f"游戏日志 | Version: {version} | Process_UUID: {self.uuid}")
+        self.setWindowIcon(QIcon("resource/image/logo.png"))
         self.textEdit = PlainTextEdit()
         self.textEdit.setObjectName("logger")
         self.textEdit.ensureCursorVisible()
@@ -81,12 +84,12 @@ class loggerInterface(QWidget):
         ''')
     def setLog(self):
         global old_log
-        if getStatus():
-            if os.path.exists("logs/latest.log"):
-                u = open("logs/latest.log", "r", encoding="gbk")
-                log = u.read()
-                u.close()
-                if log != old_log:
-                    old_log = log
-                    self.textEdit.setPlainText(log)
+        path = os.path.join("command", self.uuid, "logs", "latest.log")
+        if os.path.exists(path):
+            u = open(path, "r", encoding="gbk")
+            log = u.read()
+            u.close()
+            if log != old_log:
+                old_log = log
+                self.textEdit.setPlainText(log)
 

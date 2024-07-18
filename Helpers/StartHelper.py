@@ -138,5 +138,8 @@ class launch(QThread):
         u.write(str(command_bat))
         u.close()
         self.finished.emit({"state": "2", "uuid": data["process_uuid"]})
-        result = subprocess.run(command, capture_output=True, text=True)
+        game_log_path = os.path.join("command", data["process_uuid"])
+        if not os.path.exists(game_log_path):
+            os.mkdir(game_log_path)
+        result = subprocess.run(command, capture_output=True, text=True, cwd=game_log_path)
         self.finished.emit({"state": "3", "uuid": data["process_uuid"]})

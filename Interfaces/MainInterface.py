@@ -112,6 +112,7 @@ class MainInterface(QWidget):
             "uuid": "", "accessToken": "", "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
             "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid}
         setLaunchData(launch_data)
+        dlsuc(self, "游戏进程已启动！可前往任务页查看详细信息")
         self.launch_worker.start()
 
     def launch_finish(self, return_data):
