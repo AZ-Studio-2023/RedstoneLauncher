@@ -36,6 +36,7 @@ class AppCard(CardWidget):
         self.contentLabel = CaptionLabel(content, self)
         self.stopping = PushButton(FluentIcon.CLOSE, self.tr("强制停止"))
         self.logger = PushButton(FluentIcon.QUICK_NOTE, self.tr("日志"))
+        self.logger.clicked.connect(self.__open_logger)
 
         self.hBoxLayout = QHBoxLayout(self)
         self.vBoxLayout = QVBoxLayout()
