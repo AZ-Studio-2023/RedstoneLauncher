@@ -1,5 +1,6 @@
 import json
 import sys
+import time
 from pathlib import Path
 
 from PyQt5.QtCore import Qt, QPoint, QSize, QUrl, QRect, QPropertyAnimation, QTimer
@@ -79,12 +80,16 @@ class activityInterface(QWidget):
         self.title.setContentsMargins(0, 0, 0, 10)
         self.hBoxLayout = QHBoxLayout()
         self.hBoxLayout.addWidget(self.title, alignment=Qt.AlignLeft)
+        self.refresh = PushButton(FluentIcon.SYNC, self.tr("刷新"))
+        self.refresh.clicked.connect(self.change_process)
+        self.hBoxLayout.addWidget(self.refresh, alignment=Qt.AlignRight)
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.addLayout(self.hBoxLayout)
         self.vBoxLayout.setSpacing(6)
         self.vBoxLayout.setContentsMargins(30, 60, 30, 30)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.setQss()
+
         self.timer = QTimer()
         self.timer.timeout.connect(self.change_process)
         self.timer.start(1500)

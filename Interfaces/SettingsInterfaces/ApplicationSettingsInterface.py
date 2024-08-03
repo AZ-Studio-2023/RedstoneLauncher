@@ -52,7 +52,23 @@ class AppilacationSettingsInterface(ScrollArea):
             ],
             parent=self.personalizeGroup
         )
-
+        self.downloadGroup = SettingCardGroup(self.tr("下载设置"), self.scrollWidget)
+        self.downloadSource = OptionsSettingCard(
+            cfg.source,
+            FIF.SEARCH_MIRROR,
+            self.tr("下载源"),
+            self.tr("下载游戏资源使用的源"),
+            texts=["官方", "BMCL API"],
+            parent=self.downloadGroup
+        )
+        self.downloadMethod = OptionsSettingCard(
+            cfg.downloadMethod,
+            FIF.CLOUD_DOWNLOAD,
+            self.tr("下载方式"),
+            self.tr("下载资源文件的方式，目前仅支持Aria2多线程下载"),
+            texts=["Aria2"],
+            parent=self.downloadGroup
+        )
         self.themeCard.optionChanged.connect(lambda ci: setTheme(cfg.get(ci)))
 
 
@@ -66,7 +82,10 @@ class AppilacationSettingsInterface(ScrollArea):
         self.expandLayout.setContentsMargins(60, 10, 60, 0)
         self.personalizeGroup.addSettingCard(self.languageCard)
         self.personalizeGroup.addSettingCard(self.themeCard)
+        self.downloadGroup.addSettingCard(self.downloadSource)
+        self.downloadGroup.addSettingCard(self.downloadMethod)
         self.expandLayout.addWidget(self.personalizeGroup)
+        self.expandLayout.addWidget(self.downloadGroup)
 
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:

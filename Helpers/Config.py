@@ -63,6 +63,12 @@ class Config(QConfig):
     themeMode = OptionsConfigItem(
         "personalizeGroup", "ThemeMode", Theme.LIGHT, OptionsValidator(Theme), EnumSerializer(Theme))
 
+    source = OptionsConfigItem(
+        "downloadGroup", "downloadSource", "BMCL API", OptionsValidator(["官方", "BMCL API"])
+    )
+    downloadMethod = OptionsConfigItem(
+               "downloadGroup", "downloadMethod", "Aria2", OptionsValidator(["Aria2"])
+    )
 
 cfg = Config()
 qconfig.load('config/config.json', cfg)

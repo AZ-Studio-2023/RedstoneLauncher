@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QHBoxLayout, QVBoxLayo
 from qfluentwidgets import FluentIcon, ExpandGroupSettingCard, SubtitleLabel, PrimaryPushButton, PushButton, ScrollArea, \
     ExpandLayout, SettingCardGroup, isDarkTheme, IconWidget, CardWidget, CaptionLabel, BodyLabel, TransparentToolButton, \
     IndeterminateProgressBar, OptionsSettingCard
+
+import Helpers.javaHelper
 from Helpers.Config import DEFAULT_GAME_PATH
 from Helpers.Config import cfg
 from Helpers.flyoutmsg import dlsuc
@@ -130,7 +132,7 @@ class GameSettingsInterface(ScrollArea):
         self.loaclFindWorker.quit()
         if cfg.javaPath.value == "":
             if len(data) >= 1:
-                cfg.set(cfg.javaPath, data[0].path)
+                cfg.set(cfg.javaPath.value, data[0].path)
         for java in data:
             self.addCard(QIcon(JAVA_RUNTIME), java.version, java.path)
         dlsuc(self, f"共计找到了 {len(data)} 个Java运行时", "快速查找完成", 6000)
@@ -170,7 +172,7 @@ class GameSettingsInterface(ScrollArea):
     def __onDownloadFolderCardClicked(self):
         """ download folder card clicked slot """
         folder = QFileDialog.getExistingDirectory(
-            self, self.tr("Choose folder"), "./")
+            self, self.tr("选择文件夹"), "./")
         if not folder or cfg.get(cfg.gamePath) == folder:
             return
         cfg.set(cfg.gamePath, folder)
