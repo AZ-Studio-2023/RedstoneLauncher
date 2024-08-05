@@ -24,6 +24,7 @@ from Interfaces.loggerInterface import loggerInterface
 local_process = []
 local_process_data = {}
 
+
 class AppCard(CardWidget):
     """ App card """
 
@@ -62,13 +63,13 @@ class AppCard(CardWidget):
         self.hBoxLayout.addWidget(self.stopping, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.logger, 0, Qt.AlignRight)
 
-
     def change_state(self, state: str):
         self.contentLabel.setText(f"当前状态：{state}")
 
     def __open_logger(self):
         self.w = loggerInterface(self.uuid, self.title)
         self.w.show()
+
 
 class activityInterface(ScrollArea):
 
@@ -107,6 +108,8 @@ class activityInterface(ScrollArea):
                 local_process.append(i["uuid"])
                 card = local_process_data[i["uuid"]]
                 card.change_state(i["state"])
+        self.repaint()
+        self.update()
 
     def addCard(self, icon, title, content, cuuid):
         global local_process_data
@@ -121,3 +124,5 @@ class activityInterface(ScrollArea):
 
     def addActivityCard(self, version: str, Card_uuid: str):
         self.addCard(FluentIcon.APPLICATION, version, "当前状态：", Card_uuid)
+        self.repaint()
+        self.update()
