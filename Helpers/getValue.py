@@ -8,6 +8,8 @@ LEGACY_ACCOUNT = "resource/image/account/legacy.png"
 THIRD_PARTY_ACCOUNT = "resource/image/account/third_party.png"
 JAVA_RUNTIME = "resource/image/java.png"
 
+ARIA2C_PATH = 'resource/aria2/aria2c.exe'
+RPC_PORT = 6800
 DEFAULT_GAME_PATH = os.path.join(os.path.expanduser('~'), "AppData", "Roaming", ".minecraft")
 
 LAUNCH_DATA = {}

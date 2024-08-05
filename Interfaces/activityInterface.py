@@ -67,10 +67,10 @@ class AppCard(CardWidget):
         self.contentLabel.setText(f"当前状态：{state}")
 
     def __open_logger(self):
-        w = loggerInterface(self.uuid, self.title)
-        w.show()
+        self.w = loggerInterface(self.uuid, self.title)
+        self.w.show()
 
-class activityInterface(QWidget):
+class activityInterface(ScrollArea):
 
     def __init__(self):
         super().__init__()

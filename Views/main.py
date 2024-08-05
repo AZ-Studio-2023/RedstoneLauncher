@@ -9,6 +9,7 @@ from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import TitleBar
 
 from Helpers.styleHelper import style_path
+from Interfaces.DownloadInterfaces.DownloadInterface import DownloadInterface
 from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
@@ -68,6 +69,7 @@ class Window(SplitFluentWindow):
         self.SettingsInterface = SettingsInterface()
         self.AccountInterface = AccountInterface()
         self.activityInterface = activityInterface()
+        self.DownloadInterface = DownloadInterface()
         self.stackedWidget.hBoxLayout.setContentsMargins(0, 40, 0, 0)
         self.initNavigation()
         self.initWindow()
@@ -87,7 +89,7 @@ class Window(SplitFluentWindow):
         self.navigationInterface.addSeparator()
         self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, self.tr('版本列表'))
         self.addSubInterface(self.activityInterface, FIF.TILES, self.tr('任务'))
-
+        self.addSubInterface(self.DownloadInterface, FIF.DOWNLOAD, self.tr('下载'))
         self.addSubInterface(self.AccountInterface, FIF.PEOPLE, self.tr('游戏账号'), NavigationItemPosition.BOTTOM)
         self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
         self.addSubInterface(self.SettingsInterface, FIF.SETTING, self.tr('设置'), NavigationItemPosition.BOTTOM)
