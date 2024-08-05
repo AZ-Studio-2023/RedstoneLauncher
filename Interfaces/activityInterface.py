@@ -114,6 +114,7 @@ class activityInterface(ScrollArea):
     def addCard(self, icon, title, content, cuuid):
         global local_process_data
         card = AppCard(icon, title, content, cuuid, self)
+        card.setFixedHeight(70)
         card.setObjectName(cuuid)
         local_process_data[cuuid] = card
         self.vBoxLayout.addWidget(card, alignment=Qt.AlignTop)

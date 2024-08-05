@@ -1,4 +1,6 @@
 # coding:utf-8
+import subprocess
+import time
 
 from PyQt5.QtCore import Qt, QEventLoop, QTimer, QSize
 from PyQt5.QtGui import QIcon, QFont
@@ -8,6 +10,9 @@ from qfluentwidgets import NavigationItemPosition, SplitFluentWindow, SubtitleLa
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import TitleBar
 
+from Helpers.Config import cfg
+from Helpers.downloadHelper import download
+from Helpers.getValue import ARIA2C_PATH, RPC_PORT
 from Helpers.styleHelper import style_path
 from Interfaces.DownloadInterfaces.DownloadInterface import DownloadInterface
 from Interfaces.MainInterface import MainInterface
@@ -43,7 +48,6 @@ class SplitTitleBar(TitleBar):
     ''')
         self.hBoxLayout.insertWidget(3, self.tipLabel, 0, Qt.AlignLeft | Qt.AlignBottom)
 
-
         self.window().windowTitleChanged.connect(self.setTitle)
 
         FluentStyleSheet.FLUENT_WINDOW.apply(self)
@@ -63,6 +67,24 @@ class Window(SplitFluentWindow):
         self.setObjectName("MainWindow")
         self.setQss()
         self.setTitleBar(SplitTitleBar(self))
+
+        command = [
+            ARIA2C_PATH,
+            '--enable-rpc',
+            '--rpc-listen-all=true',
+            '--rpc-allow-origin-all',
+            '--rpc-listen-port', str(RPC_PORT),
+            '--max-concurrent-downloads=5',  #
+            '--split=5',
+            '--min-split-size=1M'
+        ]
+        # self.aria2c_process = subprocess.Popen(command)  # 把Aria2c启动
+        if cfg.source.value == "官方":
+            url = "http://launchermeta.mojang.com/mc/game/version_manifest.json"
+        else:
+            url = "https://bmclapi2.bangbang93.com/mc/game/version_manifest.json"
+        # download(url, "cache")
+
         # create sub interface
         self.HomeInterface = MainInterface()
         self.VersionsListInterface = VersionListInterface()
@@ -78,6 +100,7 @@ class Window(SplitFluentWindow):
         self.show()
         self.createSubInterface()
         self.splashScreen.finish()
+
 
     def createSubInterface(self):
         loop = QEventLoop(self)
@@ -106,6 +129,10 @@ class Window(SplitFluentWindow):
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
 
+    def closeEvent(self, event):
+        self.aria2c_process.terminate()
+        self.aria2c_process.wait()
+        event.accept()
 
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:

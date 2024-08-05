@@ -7,6 +7,8 @@ MICROSOFT_ACCOUNT = "resource/image/account/Microsoft.png"
 LEGACY_ACCOUNT = "resource/image/account/legacy.png"
 THIRD_PARTY_ACCOUNT = "resource/image/account/third_party.png"
 JAVA_RUNTIME = "resource/image/java.png"
+SNAPSHOT = "resource/image/block/obsidian.png"
+RELEASE = "resource/image/block/grass_block.png"
 
 ARIA2C_PATH = 'resource/aria2/aria2c.exe'
 RPC_PORT = 6800

@@ -58,7 +58,7 @@ class AppCard(CardWidget):
         self.vBoxLayout = QVBoxLayout()
 
         self.setFixedHeight(73)
-        self.iconWidget.setFixedSize(48, 48)
+        self.iconWidget.setFixedSize(18, 18)
         self.contentLabel.setTextColor("#606060", "#d2d2d2")
         self.delButton.setFixedWidth(120)
 
@@ -115,6 +115,7 @@ class AccountInterface(ScrollArea):
 
     def addCard(self, icon, title, content, dic):
         card = AppCard(icon, title, content, dic, self)
+        card.setFixedHeight(70)
         card.setObjectName(title)
         self.vBoxLayout.addWidget(card, alignment=Qt.AlignTop)
 

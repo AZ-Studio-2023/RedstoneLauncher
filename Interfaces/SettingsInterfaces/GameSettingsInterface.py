@@ -33,7 +33,7 @@ class AppCard(CardWidget):
         self.vBoxLayout = QVBoxLayout()
 
         self.setFixedHeight(73)
-        self.iconWidget.setFixedSize(48, 48)
+        self.iconWidget.setFixedSize(18, 18)
         self.contentLabel.setTextColor("#606060", "#d2d2d2")
         self.acceptButton.setFixedWidth(120)
 
