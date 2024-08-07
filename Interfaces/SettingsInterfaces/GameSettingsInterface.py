@@ -132,7 +132,7 @@ class GameSettingsInterface(ScrollArea):
         self.loaclFindWorker.quit()
         if cfg.javaPath.value == "":
             if len(data) >= 1:
-                cfg.set(cfg.javaPath.value, data[0].path)
+                cfg.set(cfg.javaPath, data[0].path)
         for java in data:
             self.addCard(QIcon(JAVA_RUNTIME), java.version, java.path)
         dlsuc(self, f"共计找到了 {len(data)} 个Java运行时", "快速查找完成", 6000)
