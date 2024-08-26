@@ -17,7 +17,6 @@ Window {
 CustomTitleBar>QLabel#titleLabel {
     color: black;
     background: transparent;
-    font: 13px 'Segoe UI';
     padding: 0 10px
 }
 

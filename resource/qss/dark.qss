@@ -24,7 +24,6 @@ CustomTitleBar {
 
 CustomTitleBar>QLabel#titleLabel {
     background: transparent;
-    font: 13px 'Segoe UI';
     padding: 0 10px;
     color: white;
 }

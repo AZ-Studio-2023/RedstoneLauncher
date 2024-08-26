@@ -10,6 +10,7 @@ from qfluentwidgets import SettingCardGroup, FolderListSettingCard, ScrollArea, 
 from Helpers.pluginHelper import run_plugins_plugin
 from Helpers.getValue import PLU_URL
 
+
 class plugins(ScrollArea):
 
     def __init__(self):
@@ -23,12 +24,12 @@ class plugins(ScrollArea):
         self.setWidget(self.scrollWidget)
         self.setWidgetResizable(True)
         self.scrollWidget.setObjectName('scrollWidget')
-        
+
         self.ListsGroup = SettingCardGroup(self.tr('已导入的插件'), self.scrollWidget)
         self.PluginsGroup = SettingCardGroup(self.tr('管理插件'), self.scrollWidget)
         run_plugins_plugin(parent=self, PluginsGroup=self.PluginsGroup)
         self.setStyleSheet(style_path())
-        
+
         self.PluginListCard = FolderListSettingCard(
             cfg.PluginFolders,
             "插件",
@@ -44,12 +45,10 @@ class plugins(ScrollArea):
             self.ListsGroup
         )
         self.StoreCard.setEnabled(False)
-        
+
         self.ListsGroup.addSettingCard(self.PluginListCard)
         self.ListsGroup.addSettingCard(self.StoreCard)
         self.expandLayout.setSpacing(28)
         self.expandLayout.setContentsMargins(60, 10, 60, 0)
         self.expandLayout.addWidget(self.ListsGroup)
         self.expandLayout.addWidget(self.PluginsGroup)
-            
-        

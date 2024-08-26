@@ -136,7 +136,7 @@ class AccountInterface(ScrollArea):
         data = json.loads(f.read())["accounts"]
         f.close()
         if account_type == "Legacy":
-            data.append({"name": name, "type": "Legacy", "uuid": uuid.uuid4()})
+            data.append({"name": name, "type": "Legacy", "uuid": str(uuid.uuid4())})
             self.addCard(QIcon(LEGACY_ACCOUNT), name, "离线登录", {"name": name, "type": "Legacy"})
         elif account_type == "Microsoft":
             pass  # 由于还在申请API 所以微软登录需要等审核通过后完善

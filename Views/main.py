@@ -1,9 +1,10 @@
 # coding:utf-8
+import os.path
 import subprocess
 import time
 
 from PyQt5.QtCore import Qt, QEventLoop, QTimer, QSize
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtGui import QIcon, QFont, QFontDatabase
 from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel, QSizePolicy
 from qfluentwidgets import NavigationItemPosition, SplitFluentWindow, SubtitleLabel, setFont, NavigationInterface, \
     FluentWindow, SplashScreen, FluentStyleSheet, isDarkTheme, setTheme, Theme
@@ -36,14 +37,17 @@ class SplitTitleBar(TitleBar):
         # add title label
         self.titleLabel = QLabel(self)
         self.hBoxLayout.insertWidget(2, self.titleLabel, 0, Qt.AlignLeft | Qt.AlignBottom)
+        font_id = QFontDatabase.addApplicationFont(os.path.join("resource", "font", "Minecraft_Regular.ttf"))
+        font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+        self.mc_font = QFont(font_family)
         self.titleLabel.setObjectName('titleLabel')
         self.tipLabel = QLabel(self)
         self.tipLabel.setObjectName('tipLabel')
-        self.tipLabel.setText("Beta")
+        self.tipLabel.setText("Preview")
+        self.tipLabel.setFont(self.mc_font)
         self.tipLabel.setStyleSheet('''
             color: #30d5c8;
             background: transparent;
-            font: 13px 'Segoe UI';
             padding: 0 10px
     ''')
         self.hBoxLayout.insertWidget(3, self.tipLabel, 0, Qt.AlignLeft | Qt.AlignBottom)
