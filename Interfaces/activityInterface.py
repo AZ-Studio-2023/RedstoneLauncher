@@ -1,129 +1,158 @@
-import json
+# coding:utf-8
 import sys
-import time
-from pathlib import Path
 
-from PyQt5.QtCore import Qt, QPoint, QSize, QUrl, QRect, QPropertyAnimation, QTimer
-from PyQt5.QtGui import QIcon, QFont, QColor, QPainter
-from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QGraphicsOpacityEffect, QLabel
+from PyQt5.QtCore import Qt, pyqtSignal, QEasingCurve, QUrl, QTimer
+from PyQt5.QtGui import QIcon, QDesktopServices
+from PyQt5.QtWidgets import QLabel, QHBoxLayout, QVBoxLayout, QApplication, QFrame, QWidget
 
-from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, CaptionLabel, PushButton,
-                            TransparentToolButton, FluentIcon, RoundMenu, Action, ElevatedCardWidget,
-                            ImageLabel, isDarkTheme, FlowLayout, MSFluentTitleBar, SimpleCardWidget,
-                            HeaderCardWidget, InfoBarIcon, HyperlinkLabel, HorizontalFlipView,
-                            PrimaryPushButton, TitleLabel, PillPushButton, setFont, SingleDirectionScrollArea,
-                            VerticalSeparator, MSFluentWindow, NavigationItemPosition, ScrollArea,
-                            TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit)
+from qfluentwidgets import (NavigationBar, NavigationItemPosition, NavigationWidget, MessageBox,
+                            isDarkTheme, setTheme, Theme, setThemeColor, SearchLineEdit,
+                            PopUpAniStackedWidget, getFont)
+from qfluentwidgets import FluentIcon as FIF
+from qframelesswindow import FramelessWindow, TitleBar
 
-from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCOUNT
-from Helpers.flyoutmsg import dlsuc, dlwar
-from Helpers.styleHelper import style_path
-from Helpers.getValue import getProcessData
+import Helpers.StartHelper
 from Interfaces.loggerInterface import loggerInterface
+
+from Helpers.Config import cfg
+from Helpers.CustomControls import ListViewHelper
+from Helpers.StartHelper import getAllVersion
+from Helpers.styleHelper import style_path
+from Interfaces.VersionsInterfaces.VersionTemplateInterface import VersionTemplateInterface
+from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON, getProcessData
 
 local_process = []
 local_process_data = {}
 
 
-class AppCard(CardWidget):
-    """ App card """
+class Widget(QWidget):
 
-    def __init__(self, icon, title, content, process_uuid, parent=None):
-        super().__init__(parent)
-        self.iconWidget = IconWidget(icon)
-        self.iconWidget.setFixedSize(18, 18)
-        self.uuid = process_uuid
-        self.title = title
-        self.titleLabel = BodyLabel(title, self)
-        self.contentLabel = CaptionLabel(content, self)
-        self.stopping = PushButton(FluentIcon.CLOSE, self.tr("强制停止"))
-        self.logger = PushButton(FluentIcon.QUICK_NOTE, self.tr("日志"))
-        self.logger.clicked.connect(self.__open_logger)
-
+    def __init__(self, text: str, parent=None):
+        super().__init__(parent=parent)
+        self.label = QLabel(text, self)
+        self.label.setAlignment(Qt.AlignCenter)
         self.hBoxLayout = QHBoxLayout(self)
-        self.vBoxLayout = QVBoxLayout()
-
-        self.setFixedHeight(73)
-        self.contentLabel.setTextColor("#606060", "#d2d2d2")
-        self.logger.setFixedWidth(120)
-        self.stopping.setFixedWidth(120)
-
-        self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
-        self.hBoxLayout.setSpacing(15)
-        self.hBoxLayout.addWidget(self.iconWidget)
-
-        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.vBoxLayout.setSpacing(0)
-        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignVCenter)
-        self.vBoxLayout.addWidget(self.contentLabel, 0, Qt.AlignVCenter)
-        self.vBoxLayout.setAlignment(Qt.AlignVCenter)
-        self.hBoxLayout.addLayout(self.vBoxLayout)
-
-        self.hBoxLayout.addStretch(1)
-        self.hBoxLayout.addWidget(self.stopping, 0, Qt.AlignRight)
-        self.hBoxLayout.addWidget(self.logger, 0, Qt.AlignRight)
-
-    def change_state(self, state: str):
-        self.contentLabel.setText(f"当前状态：{state}")
-
-    def __open_logger(self):
-        self.w = loggerInterface(self.uuid, self.title)
-        self.w.show()
+        self.hBoxLayout.addWidget(self.label, 1, Qt.AlignCenter)
+        self.setObjectName(text.replace(' ', '-'))
 
 
-class activityInterface(ScrollArea):
+class StackedWidget(QFrame):
+    """ Stacked widget """
+
+    currentChanged = pyqtSignal(int)
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.hBoxLayout = QHBoxLayout(self)
+        self.view = PopUpAniStackedWidget(self)
+
+        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.hBoxLayout.addWidget(self.view)
+
+        self.view.currentChanged.connect(self.currentChanged)
+
+    def addWidget(self, widget):
+        """ add widget to view """
+        self.view.addWidget(widget)
+
+    def widget(self, index: int):
+        return self.view.widget(index)
+
+    def setCurrentWidget(self, widget, popOut=False):
+        if not popOut:
+            self.view.setCurrentWidget(widget, duration=300)
+        else:
+            self.view.setCurrentWidget(
+                widget, True, False, 200, QEasingCurve.InQuad)
+
+    def setCurrentIndex(self, index, popOut=False):
+        self.setCurrentWidget(self.view.widget(index), popOut)
+
+
+class activityInterface(QWidget):
 
     def __init__(self):
         super().__init__()
         self.setObjectName("activityInterface")
-        self.title = TitleLabel()
-        self.title.setText(self.tr("任务"))
-        self.title.setContentsMargins(0, 0, 0, 10)
-        self.hBoxLayout = QHBoxLayout()
-        self.hBoxLayout.addWidget(self.title, alignment=Qt.AlignLeft)
-        self.refresh = PushButton(FluentIcon.SYNC, self.tr("刷新"))
-        self.refresh.clicked.connect(self.change_process)
-        self.hBoxLayout.addWidget(self.refresh, alignment=Qt.AlignRight)
-        self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.addLayout(self.hBoxLayout)
-        self.vBoxLayout.setSpacing(6)
-        self.vBoxLayout.setContentsMargins(30, 60, 30, 30)
-        self.vBoxLayout.setAlignment(Qt.AlignTop)
-        self.setQss()
 
+        # use dark theme mode
+        # setTheme(Theme.DARK)
+
+        # change the theme color
+        # setThemeColor('#0078d4')
+
+        self.hBoxLayout = QHBoxLayout(self)
+        self.navigationBar = ListViewHelper(self)
+        self.stackWidget = StackedWidget(self)
         self.timer = QTimer()
         self.timer.timeout.connect(self.change_process)
-        self.timer.start(1500)
+        self.timer.start(100)
+
+        # initialize layout
+        self.initLayout()
+
+        # add items to navigation interface
+        self.initNavigation()
+        self.setQss()
+
+    def initLayout(self):
+        self.hBoxLayout.addWidget(self.navigationBar)
+        self.hBoxLayout.addWidget(self.stackWidget)
+        self.hBoxLayout.setStretchFactor(self.stackWidget, 1)
+
+    def initNavigation(self):
+        self.stackWidget.currentChanged.connect(self.onCurrentInterfaceChanged)
+        self.addSubInterface(loggerInterface("tip", "tip"), FIF.INFO, "提示", "tip")
+        self.navigationBar.setCurrentItem("tip")
+        self.stackWidget.setCurrentIndex(0)
+        # hide the text of button when selected
+        # self.navigationBar.setSelectedTextVisible(False)
+
+        # adjust the font size of button
+        # self.navigationBar.setFont(getFont(12))
+
+    def addSubInterface(self, interface, icon, text: str, uuid, position=NavigationItemPosition.TOP, selectedIcon=None):
+        """ add sub interface """
+        self.stackWidget.addWidget(interface)
+        self.navigationBar.addItem(
+            routeKey=uuid,
+            icon=icon,
+            text=text,
+            onClick=lambda: self.switchTo(interface),
+            selectedIcon=selectedIcon,
+            position=position,
+        )
+
+    def setQss(self):
+        with open(style_path(), encoding='utf-8') as f:
+            self.setStyleSheet(f.read())
+
+    def switchTo(self, widget):
+        self.stackWidget.setCurrentWidget(widget)
+
+    def onCurrentInterfaceChanged(self, index):
+        widget = self.stackWidget.widget(index)
+        self.navigationBar.setCurrentItem(widget.objectName())
+
 
     def change_process(self):
         global local_process
         global local_process_data
         data = getProcessData()
         for i in data:
-            if i["uuid"] in local_process:
-                card = local_process_data[i["uuid"]]
-                card.change_state(i["state"])
-            else:
-                self.addActivityCard(i["version"], i["uuid"])
+            if i["uuid"] not in local_process:
+                if Helpers.StartHelper.getVersionType(cfg.gamePath.value, i["version"]) == "Vanilla":
+                    self.addSubInterface(loggerInterface(i["uuid"], i["version"]), QIcon(MINECRAFT_ICON), i["version"], i["uuid"])
+                elif Helpers.StartHelper.getVersionType(cfg.gamePath.value, i["version"]) == "Forge":
+                    self.addSubInterface(loggerInterface(i["uuid"], i["version"]), QIcon(FORGE_ICON),
+                                             i["version"], i["uuid"])
+                else:
+                    self.addSubInterface(loggerInterface(i["uuid"], i["version"]), QIcon(FABRIC_ICON),
+                                         i["version"], i["uuid"])
                 local_process.append(i["uuid"])
-                card = local_process_data[i["uuid"]]
-                card.change_state(i["state"])
-        self.repaint()
-        self.update()
-
-    def addCard(self, icon, title, content, cuuid):
-        global local_process_data
-        card = AppCard(icon, title, content, cuuid, self)
-        card.setFixedHeight(70)
-        card.setObjectName(cuuid)
-        local_process_data[cuuid] = card
-        self.vBoxLayout.addWidget(card, alignment=Qt.AlignTop)
-
-    def setQss(self):
-        with open(style_path(), encoding='utf-8') as f:
-            self.setStyleSheet(f.read())
-
-    def addActivityCard(self, version: str, Card_uuid: str):
-        self.addCard(FluentIcon.APPLICATION, version, "当前状态：", Card_uuid)
+                if len(local_process) == 1:
+                    self.navigationBar.removeWidget("tip")
+                self.navigationBar.setCurrentItem(i["uuid"])
+                self.stackWidget.setCurrentIndex(len(local_process))
         self.repaint()
         self.update()

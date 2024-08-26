@@ -78,7 +78,7 @@ class Window(SplitFluentWindow):
             '--split=5',
             '--min-split-size=1M'
         ]
-        # self.aria2c_process = subprocess.Popen(command)  # 把Aria2c启动
+        self.aria2c_process = subprocess.Popen(command)  # 把Aria2c启动
         if cfg.source.value == "官方":
             url = "http://launchermeta.mojang.com/mc/game/version_manifest.json"
         else:

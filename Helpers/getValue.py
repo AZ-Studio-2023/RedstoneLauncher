@@ -13,6 +13,7 @@ RELEASE = "resource/image/block/grass_block.png"
 ARIA2C_PATH = 'resource/aria2/aria2c.exe'
 RPC_PORT = 6800
 DEFAULT_GAME_PATH = os.path.join(os.path.expanduser('~'), "AppData", "Roaming", ".minecraft")
+PLU_URL = ""
 
 LAUNCH_DATA = {}
 

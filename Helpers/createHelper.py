@@ -15,6 +15,8 @@ def check_and_create():
         u.close()
     if not os.path.exists("command"):
         os.mkdir("command")
+    if not os.path.exists("log"):
+        os.mkdir("log")
     if not os.path.exists("cache"):
         os.mkdir("cache")
     if os.path.exists(os.path.join("cache", "version_manifest.json")):

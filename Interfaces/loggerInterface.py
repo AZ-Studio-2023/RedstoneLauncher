@@ -4,7 +4,7 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QScrollArea
 from qfluentwidgets import PlainTextEdit, ScrollArea
-
+from Helpers.getValue import getProcessData
 from Helpers.styleHelper import style_path
 
 old_log = ""
@@ -15,7 +15,8 @@ class loggerInterface(QWidget):
         super().__init__()
         self.setObjectName("loggerInterface")
         self.uuid = process_uuid
-        self.setWindowTitle(f"游戏日志 | Version: {version} | Process_UUID: {self.uuid}")
+        self.version = version
+        self.setWindowTitle(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}")
         self.setWindowIcon(QIcon("resource/image/logo.png"))
         self.textEdit = PlainTextEdit()
         self.textEdit.setObjectName("logger")
@@ -23,10 +24,18 @@ class loggerInterface(QWidget):
         self.hBoxLayout = QHBoxLayout(self)
         self.hBoxLayout.addWidget(self.textEdit, stretch=1)
         self.textEdit.setReadOnly(True)
-        self.textEdit.setPlainText("当前无游戏日志")
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.setLog)
-        self.timer.start(1500)
+        if self.uuid != "tip":
+            for data in getProcessData():
+                if data["uuid"] == self.uuid:
+                    state = data["state"]
+                else:
+                    state = "未知"
+            self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n当前无游戏日志")
+            self.timer = QTimer()
+            self.timer.timeout.connect(self.setLog)
+            self.timer.start(100)
+        else:
+            self.textEdit.setPlainText("您还没有启动游戏，这里没有可查看的任务")
         self.textEdit.setStyleSheet('''
         LineEdit, TextEdit, PlainTextEdit {
             color: white;
@@ -84,12 +93,17 @@ class loggerInterface(QWidget):
         ''')
     def setLog(self):
         global old_log
-        path = os.path.join("command", self.uuid, "logs", "latest.log")
+        path = os.path.join("log", self.uuid, "logs", "latest.log")
         if os.path.exists(path):
             u = open(path, "r", encoding="gbk")
             log = u.read()
             u.close()
             if log != old_log:
                 old_log = log
-                self.textEdit.setPlainText(log)
+                for data in getProcessData():
+                    if data["uuid"] == self.uuid:
+                        state = data["state"]
+                    else:
+                        state = "未知"
+                self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n{log}")
 

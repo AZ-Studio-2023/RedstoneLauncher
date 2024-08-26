@@ -69,6 +69,15 @@ class Config(QConfig):
     downloadMethod = OptionsConfigItem(
                "downloadGroup", "downloadMethod", "Aria2", OptionsValidator(["Aria2"])
     )
+    debug_card = OptionsConfigItem(
+                "betaGroup", "debugMode", False, BoolValidator()
+    )
+    PluginFolders = ConfigItem(
+        "Plugins", "Folders", [], FolderListValidator()
+    )
+    PluginEnable = OptionsConfigItem(
+                "betaGroup", "plugin", False, BoolValidator()
+    )
 
 cfg = Config()
 qconfig.load('config/config.json', cfg)

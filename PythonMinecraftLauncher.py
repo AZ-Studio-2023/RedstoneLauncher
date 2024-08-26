@@ -1,12 +1,17 @@
 # coding:utf-8
 import sys
 from PyQt5.QtCore import Qt, QTranslator
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 from qfluentwidgets import setTheme, Theme, FluentTranslator
 from Views.main import Window
 from Helpers.Config import cfg
 from Helpers.createHelper import check_and_create
 
+if not cfg.debug_card.value:
+    def global_exception_handler(exc_type, exc_value, exc_traceback):
+        msesg = '{}\n{}\n{}'.format(str(exc_type), str(exc_value), str(exc_traceback))
+        QMessageBox.critical(w, "啊偶，出错了", msesg, QMessageBox.Yes)
+    sys.excepthook = global_exception_handler
 
 if __name__ == '__main__':
     QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)

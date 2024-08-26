@@ -69,6 +69,21 @@ class AppilacationSettingsInterface(ScrollArea):
             texts=["Aria2"],
             parent=self.downloadGroup
         )
+        self.betaGroup = SettingCardGroup(self.tr("实验性功能"), self.scrollWidget)
+        self.debug = SwitchSettingCard(
+            FIF.CODE,
+            self.tr("Debug模式"),
+            self.tr("关闭全局异常捕获，并输出更多调试信息。"),
+            configItem=cfg.debug_card,
+            parent=self.betaGroup
+        )
+        self.plugin = SwitchSettingCard(
+            FIF.APPLICATION,
+            self.tr("插件"),
+            self.tr("开启插件功能，探索Python Minecraft Launcher的更多玩法！"),
+            cfg.PluginEnable,
+            self.betaGroup
+        )
         self.themeCard.optionChanged.connect(lambda ci: setTheme(cfg.get(ci)))
 
 
@@ -84,8 +99,11 @@ class AppilacationSettingsInterface(ScrollArea):
         self.personalizeGroup.addSettingCard(self.themeCard)
         self.downloadGroup.addSettingCard(self.downloadSource)
         self.downloadGroup.addSettingCard(self.downloadMethod)
+        self.betaGroup.addSettingCard(self.debug)
+        self.betaGroup.addSettingCard(self.plugin)
         self.expandLayout.addWidget(self.personalizeGroup)
         self.expandLayout.addWidget(self.downloadGroup)
+        self.expandLayout.addWidget(self.betaGroup)
 
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:

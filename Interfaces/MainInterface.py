@@ -18,7 +18,6 @@ from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, Ro
 from PyQt5.QtGui import QIcon, QFont, QImage, QPixmap, QColor
 from Helpers.Config import cfg
 from Helpers.StartHelper import getAllVersion, launch, getVersionType, getVersionInfo
-from Interfaces.activityInterface import activityInterface, AppCard
 from Helpers.getValue import setProcessData, getProcessData
 
 version_chose = False
@@ -84,8 +83,6 @@ class MainInterface(QWidget):
         self.launch_worker = launch()
         self.launch_worker.finished.connect(self.launch_finish)
 
-        self.activityInterface = activityInterface()
-
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.next_image)
         self.timer.start(10000)
@@ -100,16 +97,19 @@ class MainInterface(QWidget):
         mem = psutil.virtual_memory()
         launch_uuid = str(uuid.uuid4())
         data = getProcessData()
-        data.append({"uuid": launch_uuid, "state": "", "logger": "", "version": self.game_version_button.text()})
+        data.append({"uuid": launch_uuid, "state": "未知", "logger": "", "version": self.game_version_button.text()})
         setProcessData(data)
         free_memory = mem.available
         free_memory_mb = free_memory / 1024 / 1024
-        free_memory_mb = int(free_memory_mb)
+        free_memory_mb = int(free_memory_mb) * 0.8
+        f = open(os.path.join(data, "accounts.json"), "r")
+        account_data = json.loads(f.read())
+        f.close()
         launch_data = {
             "javaDir": cfg.javaPath.value,
             "gameDir": cfg.gamePath.value, "clientVersion": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["clientVersion"], "xmx": free_memory_mb,
             "gameType": getVersionType(cfg.gamePath.value, self.game_version_button.text()), "userType": "Legacy",
-            "uuid": "", "accessToken": "", "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
+            "uuid": find_dict(account_data["accounts"], "name", self.accountButton.text())["uuid"], "accessToken": "", "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
             "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid}
         setLaunchData(launch_data)
         dlsuc(self, "游戏进程已启动！可前往任务页查看详细信息")

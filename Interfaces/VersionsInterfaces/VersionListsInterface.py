@@ -79,11 +79,6 @@ class VersionListInterface(QWidget):
         self.navigationBar = ListViewHelper(self)
         self.stackWidget = StackedWidget(self)
 
-        # create sub interface
-        self.homeInterface = Widget('Home Interface', self)
-        self.appInterface = Widget('Application Interface', self)
-        self.videoInterface = Widget('Video Interface', self)
-        self.libraryInterface = Widget('library Interface', self)
 
         # initialize layout
         self.initLayout()
@@ -107,7 +102,6 @@ class VersionListInterface(QWidget):
                 self.addSubInterface(VersionTemplateInterface(version["name"]), QIcon(FORGE_ICON), version["name"])
 
         self.stackWidget.currentChanged.connect(self.onCurrentInterfaceChanged)
-        self.navigationBar.setCurrentItem(self.homeInterface.objectName())
 
         # hide the text of button when selected
         # self.navigationBar.setSelectedTextVisible(False)
