@@ -38,7 +38,7 @@ class loggerInterface(QWidget):
             self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n当前无游戏日志")
             self.timer = QTimer()
             self.timer.timeout.connect(self.setLog)
-            self.timer.start(100)
+            self.timer.start(2)
         else:
             self.textEdit.setPlainText("您还没有启动游戏，这里没有可查看的任务")
         self.textEdit.setStyleSheet('''
