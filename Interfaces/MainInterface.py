@@ -102,7 +102,7 @@ class MainInterface(QWidget):
         free_memory = mem.available
         free_memory_mb = free_memory / 1024 / 1024
         free_memory_mb = int(free_memory_mb) * 0.8
-        f = open(os.path.join(data, "accounts.json"), "r")
+        f = open(os.path.join("data", "accounts.json"), "r")
         account_data = json.loads(f.read())
         f.close()
         launch_data = {
@@ -112,7 +112,7 @@ class MainInterface(QWidget):
             "uuid": find_dict(account_data["accounts"], "name", self.accountButton.text())["uuid"], "accessToken": "", "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
             "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid}
         setLaunchData(launch_data)
-        dlsuc(self, "游戏进程已启动！可前往任务页查看详细信息")
+        dlsuc(self, "游戏进程启动中！可前往任务页查看详细信息")
         self.launch_worker.start()
 
     def launch_finish(self, return_data):

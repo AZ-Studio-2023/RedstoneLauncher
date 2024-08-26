@@ -1,5 +1,8 @@
 import os
 
+VERSION = "0.0.16 Preview"
+UPDATE_NUMBER = 0
+
 MINECRAFT_ICON = "resource/image/core/minecraft.png"
 FORGE_ICON = "resource/image/core/forge.png"
 FABRIC_ICON = "resource/image/core/fabric.png"

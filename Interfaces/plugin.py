@@ -52,3 +52,8 @@ class plugins(ScrollArea):
         self.expandLayout.setContentsMargins(60, 10, 60, 0)
         self.expandLayout.addWidget(self.ListsGroup)
         self.expandLayout.addWidget(self.PluginsGroup)
+        self.setQss()
+
+    def setQss(self):
+        with open(style_path(), encoding='utf-8') as f:
+            self.setStyleSheet(f.read())

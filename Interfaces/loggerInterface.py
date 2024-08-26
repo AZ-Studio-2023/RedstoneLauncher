@@ -1,7 +1,7 @@
 import os.path
 
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QFontDatabase, QFont
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QScrollArea
 from qfluentwidgets import PlainTextEdit, ScrollArea
 from Helpers.getValue import getProcessData
@@ -14,6 +14,10 @@ class loggerInterface(QWidget):
     def __init__(self, process_uuid, version):
         super().__init__()
         self.setObjectName("loggerInterface")
+        font_id = QFontDatabase.addApplicationFont(os.path.join("resource", "font", "Minecraft_UTF-8.ttf"))
+        font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+        self.mc_font = QFont(font_family)
+        self.mc_font.setPointSize(12)
         self.uuid = process_uuid
         self.version = version
         self.setWindowTitle(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}")
@@ -21,6 +25,7 @@ class loggerInterface(QWidget):
         self.textEdit = PlainTextEdit()
         self.textEdit.setObjectName("logger")
         self.textEdit.ensureCursorVisible()
+        self.textEdit.setFont(self.mc_font)
         self.hBoxLayout = QHBoxLayout(self)
         self.hBoxLayout.addWidget(self.textEdit, stretch=1)
         self.textEdit.setReadOnly(True)

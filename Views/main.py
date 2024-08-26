@@ -13,7 +13,8 @@ from qframelesswindow import TitleBar
 
 from Helpers.Config import cfg
 from Helpers.downloadHelper import download
-from Helpers.getValue import ARIA2C_PATH, RPC_PORT
+from Helpers.getValue import ARIA2C_PATH, RPC_PORT, VERSION, UPDATE_NUMBER
+from Helpers.pluginHelper import load_plugins, run_plugins
 from Helpers.styleHelper import style_path
 from Interfaces.DownloadInterfaces.DownloadInterface import DownloadInterface
 from Interfaces.MainInterface import MainInterface
@@ -21,6 +22,13 @@ from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInter
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
 from Interfaces.AccountInterface import AccountInterface
 from Interfaces.activityInterface import activityInterface
+from Interfaces.plugin import plugins
+from Helpers.outputHelper import logger
+
+logger.info(f"Python Minecraft Launcher  Ver.{VERSION}")
+logger.info(f"更新序列号：{UPDATE_NUMBER}")
+logger.debug("Debug模式：开")
+logger.info(f"当前游戏目录：{cfg.gamePath.value}")
 
 
 class SplitTitleBar(TitleBar):
@@ -37,7 +45,7 @@ class SplitTitleBar(TitleBar):
         # add title label
         self.titleLabel = QLabel(self)
         self.hBoxLayout.insertWidget(2, self.titleLabel, 0, Qt.AlignLeft | Qt.AlignBottom)
-        font_id = QFontDatabase.addApplicationFont(os.path.join("resource", "font", "Minecraft_Regular.ttf"))
+        font_id = QFontDatabase.addApplicationFont(os.path.join("resource", "font", "Minecraft_UTF-8.ttf"))
         font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
         self.mc_font = QFont(font_family)
         self.titleLabel.setObjectName('titleLabel')
@@ -72,6 +80,22 @@ class Window(SplitFluentWindow):
         self.setQss()
         self.setTitleBar(SplitTitleBar(self))
 
+
+        # create sub interface
+        self.HomeInterface = MainInterface()
+        self.VersionsListInterface = VersionListInterface()
+        self.SettingsInterface = SettingsInterface()
+        self.AccountInterface = AccountInterface()
+        self.activityInterface = activityInterface()
+        self.DownloadInterface = DownloadInterface()
+        self.pluginsInterface = plugins()
+        self.stackedWidget.hBoxLayout.setContentsMargins(0, 40, 0, 0)
+        self.initNavigation()
+        self.initWindow()
+        self.splashScreen = SplashScreen(self.windowIcon(), self)
+        self.splashScreen.setIconSize(QSize(102, 102))
+        self.show()
+        self.createSubInterface()
         command = [
             ARIA2C_PATH,
             '--enable-rpc',
@@ -82,27 +106,15 @@ class Window(SplitFluentWindow):
             '--split=5',
             '--min-split-size=1M'
         ]
-        self.aria2c_process = subprocess.Popen(command)  # 把Aria2c启动
+        self.aria2c_process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)  # 把Aria2c启动
         if cfg.source.value == "官方":
             url = "http://launchermeta.mojang.com/mc/game/version_manifest.json"
         else:
             url = "https://bmclapi2.bangbang93.com/mc/game/version_manifest.json"
         # download(url, "cache")
-
-        # create sub interface
-        self.HomeInterface = MainInterface()
-        self.VersionsListInterface = VersionListInterface()
-        self.SettingsInterface = SettingsInterface()
-        self.AccountInterface = AccountInterface()
-        self.activityInterface = activityInterface()
-        self.DownloadInterface = DownloadInterface()
-        self.stackedWidget.hBoxLayout.setContentsMargins(0, 40, 0, 0)
-        self.initNavigation()
-        self.initWindow()
-        self.splashScreen = SplashScreen(self.windowIcon(), self)
-        self.splashScreen.setIconSize(QSize(102, 102))
-        self.show()
-        self.createSubInterface()
+        if cfg.PluginEnable.value:
+            load_plugins(parent=self)
+            run_plugins(parent=self)
         self.splashScreen.finish()
 
 
@@ -118,6 +130,8 @@ class Window(SplitFluentWindow):
         self.addSubInterface(self.activityInterface, FIF.TILES, self.tr('任务'))
         self.addSubInterface(self.DownloadInterface, FIF.DOWNLOAD, self.tr('下载'))
         self.addSubInterface(self.AccountInterface, FIF.PEOPLE, self.tr('游戏账号'), NavigationItemPosition.BOTTOM)
+        if cfg.PluginEnable.value:
+            self.addSubInterface(self.pluginsInterface, FIF.APPLICATION, '插件', position=NavigationItemPosition.BOTTOM)
         self.navigationInterface.addSeparator(NavigationItemPosition.BOTTOM)
         self.addSubInterface(self.SettingsInterface, FIF.SETTING, self.tr('设置'), NavigationItemPosition.BOTTOM)
 

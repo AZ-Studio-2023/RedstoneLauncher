@@ -3,10 +3,16 @@ import json
 import subprocess
 import zipfile
 import platform
+
+from Helpers.Config import cfg
+from Helpers.flyoutmsg import dlerr
 from Helpers.getValue import getLaunchData
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 
+from Helpers.outputHelper import logger
+from Helpers.pluginHelper import plugins_api_items
 
+plugins_api = plugins_api_items
 def decompression(filename: str, path: str):
     try:
         with zipfile.ZipFile(filename, 'r') as zip_ref:
@@ -57,6 +63,14 @@ class launch(QThread):
 
     @pyqtSlot()
     def run(self):
+        global plugins_api
+        for item in plugins_api:
+            try:
+                plugins_api[item].when_beginning()
+            except Exception as e:
+                if cfg.debug_card.value:
+                    logger.error(f"插件{item}出现错误：{e}")
+
         data = getLaunchData()
         main_class = "net.minecraft.client.main.Main"
         pc_os = platform.system()
@@ -137,9 +151,21 @@ class launch(QThread):
         command_bat = subprocess.list2cmdline(command)
         u.write(str(command_bat))
         u.close()
-        self.finished.emit({"state": "2", "uuid": data["process_uuid"]})
         game_log_path = os.path.join("log", data["process_uuid"])
         if not os.path.exists(game_log_path):
             os.mkdir(game_log_path)
+        self.finished.emit({"state": "2", "uuid": data["process_uuid"]})
+        for item in plugins_api:
+            try:
+                plugins_api[item].when_startup()
+            except Exception as e:
+                if cfg.debug_card.value:
+                    logger.error(f"插件{item}出现错误：{e}")
         result = subprocess.run(command, capture_output=True, text=True, cwd=game_log_path)
         self.finished.emit({"state": "3", "uuid": data["process_uuid"]})
+        for item in plugins_api:
+            try:
+                plugins_api[item].when_stopping()
+            except Exception as e:
+                if cfg.debug_card.value:
+                    logger.error(f"插件{item}出现错误：{e}")

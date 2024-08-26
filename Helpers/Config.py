@@ -73,10 +73,10 @@ class Config(QConfig):
                 "betaGroup", "debugMode", False, BoolValidator()
     )
     PluginFolders = ConfigItem(
-        "Plugins", "Folders", [], FolderListValidator()
+        "Plugins", "Folders", [], FolderListValidator(), restart=True
     )
     PluginEnable = OptionsConfigItem(
-                "betaGroup", "plugin", False, BoolValidator()
+                "betaGroup", "plugin", False, BoolValidator(), restart=True
     )
 
 cfg = Config()
