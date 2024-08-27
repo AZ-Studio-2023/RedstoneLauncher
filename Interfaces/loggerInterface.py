@@ -1,4 +1,6 @@
 import os.path
+import time
+from datetime import datetime
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon, QFontDatabase, QFont
@@ -8,6 +10,7 @@ from Helpers.getValue import getProcessData
 from Helpers.styleHelper import style_path
 
 old_log = ""
+old_state = ""
 
 class loggerInterface(QWidget):
 
@@ -97,7 +100,7 @@ class loggerInterface(QWidget):
         }
         ''')
     def setLog(self):
-        global old_log
+        global old_log, old_state
         path = os.path.join("log", self.uuid, "logs", "latest.log")
         if os.path.exists(path):
             u = open(path, "r", encoding="gbk")
@@ -111,4 +114,12 @@ class loggerInterface(QWidget):
                     else:
                         state = "未知"
                 self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n{log}")
-
+        else:
+            for data in getProcessData():
+                if data["uuid"] == self.uuid:
+                    state = data["state"]
+                else:
+                    state = "未知"
+            if state != old_state:
+                old_state = state
+                self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n当前无游戏日志")

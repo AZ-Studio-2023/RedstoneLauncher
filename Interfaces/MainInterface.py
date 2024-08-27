@@ -101,7 +101,7 @@ class MainInterface(QWidget):
         setProcessData(data)
         free_memory = mem.available
         free_memory_mb = free_memory / 1024 / 1024
-        free_memory_mb = int(free_memory_mb) * 0.8
+        free_memory_mb = int(free_memory_mb * 0.8)
         f = open(os.path.join("data", "accounts.json"), "r")
         account_data = json.loads(f.read())
         f.close()
