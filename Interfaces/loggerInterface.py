@@ -36,8 +36,7 @@ class loggerInterface(QWidget):
             for data in getProcessData():
                 if data["uuid"] == self.uuid:
                     state = data["state"]
-                else:
-                    state = "未知"
+                    break
             self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n当前无游戏日志")
             self.timer = QTimer()
             self.timer.timeout.connect(self.setLog)
@@ -106,20 +105,22 @@ class loggerInterface(QWidget):
             u = open(path, "r", encoding="gbk")
             log = u.read()
             u.close()
+            for data in getProcessData():
+                if data["uuid"] == self.uuid:
+                    state = data["state"]
+                    break
             if log != old_log:
                 old_log = log
-                for data in getProcessData():
-                    if data["uuid"] == self.uuid:
-                        state = data["state"]
-                    else:
-                        state = "未知"
+                self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n{log}")
+            elif state != old_state:
+                old_state = state
                 self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n{log}")
         else:
             for data in getProcessData():
                 if data["uuid"] == self.uuid:
                     state = data["state"]
-                else:
-                    state = "未知"
+                    break
             if state != old_state:
                 old_state = state
                 self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n当前无游戏日志")
+
