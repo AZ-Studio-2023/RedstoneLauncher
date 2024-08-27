@@ -81,6 +81,7 @@ class launch(QThread):
             assetIndex = data["clientVersion"][:4]
         native_library = str(os.path.join(data["gameDir"], "versions", data["version"], f"{data['version']}-natives"))
         self.finished.emit({"state": "0", "uuid": data["process_uuid"]})
+        logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：补全游戏所需资源")
 
         native_list = []
         native_list.append(os.path.join(data["gameDir"], "versions", data["version"], f"{data['version']}.jar"))
@@ -114,6 +115,7 @@ class launch(QThread):
                 if mod.lower().endswith('.jar'):
                     native_list.append(os.path.join(data["gameDir"], 'mods', mod))
         self.finished.emit({"state": "1", "uuid": data["process_uuid"]})
+        logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：构建启动命令")
         # 构建本地库字符串
         if pc_os == "Windows":
             cp = ';'.join(native_list)
@@ -155,6 +157,7 @@ class launch(QThread):
         if not os.path.exists(game_log_path):
             os.mkdir(game_log_path)
         self.finished.emit({"state": "2", "uuid": data["process_uuid"]})
+        logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：游戏进程已启动")
         for item in plugins_api:
             try:
                 plugins_api[item].when_startup()
@@ -163,6 +166,7 @@ class launch(QThread):
                     logger.error(f"插件{item}出现错误：{e}")
         result = subprocess.run(command, capture_output=True, text=True, cwd=game_log_path)
         self.finished.emit({"state": "3", "uuid": data["process_uuid"]})
+        logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：游戏进程已退出")
         for item in plugins_api:
             try:
                 plugins_api[item].when_stopping()

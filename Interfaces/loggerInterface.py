@@ -9,8 +9,8 @@ from qfluentwidgets import PlainTextEdit, ScrollArea
 from Helpers.getValue import getProcessData
 from Helpers.styleHelper import style_path
 
-old_log = ""
-old_state = ""
+old_log = {}
+old_state = {}
 
 class loggerInterface(QWidget):
 
@@ -38,6 +38,8 @@ class loggerInterface(QWidget):
                     state = data["state"]
                     break
             self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n当前无游戏日志")
+            old_log[self.uuid] = ""
+            old_state[self.uuid] = ""
             self.timer = QTimer()
             self.timer.timeout.connect(self.setLog)
             self.timer.start(2)
@@ -109,18 +111,18 @@ class loggerInterface(QWidget):
                 if data["uuid"] == self.uuid:
                     state = data["state"]
                     break
-            if log != old_log:
-                old_log = log
+            if log != old_log[self.uuid]:
+                old_log[self.uuid] = log
                 self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n{log}")
-            elif state != old_state:
-                old_state = state
+            elif state != old_state[self.uuid]:
+                old_state[self.uuid] = state
                 self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n{log}")
         else:
             for data in getProcessData():
                 if data["uuid"] == self.uuid:
                     state = data["state"]
                     break
-            if state != old_state:
-                old_state = state
+            if state != old_state[self.uuid]:
+                old_state[self.uuid] = state
                 self.textEdit.setPlainText(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n当前无游戏日志")
 
