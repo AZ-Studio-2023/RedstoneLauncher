@@ -80,7 +80,7 @@ class AppilacationSettingsInterface(ScrollArea):
         self.plugin = SwitchSettingCard(
             FIF.APPLICATION,
             self.tr("插件"),
-            self.tr("开启插件功能，探索Python Minecraft Launcher的更多玩法！"),
+            self.tr("开启插件功能，探索Redstone Launcher的更多玩法！"),
             cfg.PluginEnable,
             self.betaGroup
         )

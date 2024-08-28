@@ -133,7 +133,7 @@ class launch(QRunnable):
             "-XX:-UseAdaptiveSizePolicy",
             "-XX:-OmitStackTraceInFastThrow",
             f"-Djava.library.path={native_library}",
-            f"-Dminecraft.launcher.brand=Python Minecraft Launcher",
+            f"-Dminecraft.launcher.brand=Redstone Launcher",
             f"-Dminecraft.launcher.version=0.9.6",
             f"-Dos.name={pc_os} {platform.version()}",
             f"-Dos.version={platform.version()}",

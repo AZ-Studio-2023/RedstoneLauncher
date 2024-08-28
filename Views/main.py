@@ -25,7 +25,7 @@ from Interfaces.activityInterface import activityInterface
 from Interfaces.plugin import plugins
 from Helpers.outputHelper import logger
 
-logger.info(f"Python Minecraft Launcher  Ver.{VERSION}")
+logger.info(f"Redstone Launcher  Ver.{VERSION}")
 logger.info(f"更新序列号：{UPDATE_NUMBER}")
 logger.debug("Debug模式：开")
 logger.info(f"当前游戏目录：{cfg.gamePath.value}")
@@ -141,7 +141,7 @@ class Window(SplitFluentWindow):
     def initWindow(self):
         self.resize(1200, 750)
         self.setWindowIcon(QIcon('resource/image/logo.png'))
-        self.setWindowTitle('Python Minecraft Launcher')
+        self.setWindowTitle('Redstone Launcher')
 
         desktop = QApplication.desktop().availableGeometry()
         w, h = desktop.width(), desktop.height()

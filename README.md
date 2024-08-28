@@ -4,7 +4,7 @@
     <img src="https://s21.ax1x.com/2024/08/26/pAkVZa4.png" width="200" height="200" alt="AZ Studio">
   </a>
 
-# Python Minecraft Launcher
+# Redstone Launcher
 
 _✨ 新目标 再出发 ✨_
 
