@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://azteam.cn/">
-    <img src="https://s21.ax1x.com/2024/08/26/pAkVZa4.png" width="200" height="200" alt="AZ Studio">
+    <img src="https://s21.ax1x.com/2024/08/28/pAAkWgP.png" width="200" height="200" alt="AZ Studio">
   </a>
 
 # Redstone Launcher
@@ -22,6 +22,6 @@ _✨ 新目标 再出发 ✨_
 </div>
 
 
-![Star History Chart](https://api.star-history.com/svg?repos=AZ-Studio-2023/PythonMinecraftLauncher&type=Date)
+![Star History Chart](https://api.star-history.com/svg?repos=AZ-Studio-2023/RedstoneLauncher&type=Date)
 
 
