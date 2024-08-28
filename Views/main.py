@@ -16,7 +16,7 @@ from Helpers.downloadHelper import download
 from Helpers.getValue import ARIA2C_PATH, RPC_PORT, VERSION, UPDATE_NUMBER
 from Helpers.pluginHelper import load_plugins, run_plugins
 from Helpers.styleHelper import style_path
-from Interfaces.DownloadInterfaces.DownloadInterface import DownloadInterface
+# from Interfaces.DownloadInterfaces.downloadInterface import downloadInterface
 from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
@@ -87,7 +87,7 @@ class Window(SplitFluentWindow):
         self.SettingsInterface = SettingsInterface()
         self.AccountInterface = AccountInterface()
         self.activityInterface = activityInterface()
-        self.DownloadInterface = DownloadInterface()
+        # self.downloadInterface = downloadInterface()
         self.pluginsInterface = plugins()
         self.stackedWidget.hBoxLayout.setContentsMargins(0, 40, 0, 0)
         self.initNavigation()
@@ -128,7 +128,7 @@ class Window(SplitFluentWindow):
         self.navigationInterface.addSeparator()
         self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, self.tr('版本列表'))
         self.addSubInterface(self.activityInterface, FIF.TILES, self.tr('任务'))
-        self.addSubInterface(self.DownloadInterface, FIF.DOWNLOAD, self.tr('下载'))
+        # self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, self.tr('下载'))
         self.addSubInterface(self.AccountInterface, FIF.PEOPLE, self.tr('游戏账号'), NavigationItemPosition.BOTTOM)
         if cfg.PluginEnable.value:
             self.addSubInterface(self.pluginsInterface, FIF.APPLICATION, '插件', position=NavigationItemPosition.BOTTOM)

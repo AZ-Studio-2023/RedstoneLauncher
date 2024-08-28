@@ -18,22 +18,10 @@ from Helpers.Config import cfg
 from Helpers.CustomControls import ListViewHelper
 from Helpers.StartHelper import getAllVersion
 from Helpers.styleHelper import style_path
-from Interfaces.VersionsInterfaces.VersionTemplateInterface import VersionTemplateInterface
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON, getProcessData
 
 local_process = []
 local_process_data = {}
-
-
-class Widget(QWidget):
-
-    def __init__(self, text: str, parent=None):
-        super().__init__(parent=parent)
-        self.label = QLabel(text, self)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.hBoxLayout = QHBoxLayout(self)
-        self.hBoxLayout.addWidget(self.label, 1, Qt.AlignCenter)
-        self.setObjectName(text.replace(' ', '-'))
 
 
 class StackedWidget(QFrame):

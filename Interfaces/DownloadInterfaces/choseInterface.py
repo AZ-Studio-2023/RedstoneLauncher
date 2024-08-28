@@ -14,6 +14,7 @@ from Helpers.styleHelper import style_path
 
 added_list = []
 
+
 class AppCard(CardWidget):
     """ App card """
 
@@ -48,11 +49,10 @@ class AppCard(CardWidget):
         self.hBoxLayout.addWidget(self.download, 0, Qt.AlignRight)
 
 
-
-class DownloadInterface(ScrollArea):
+class choseInterface(ScrollArea):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName("DownloadInterface")
+        self.setObjectName("choseInterface")
         self.expandLayout = ExpandLayout(self)
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
