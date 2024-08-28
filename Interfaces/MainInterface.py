@@ -5,7 +5,7 @@ import random
 import uuid
 
 import psutil
-from PyQt5.QtCore import Qt, QSize, QTimer
+from PyQt5.QtCore import Qt, QSize, QTimer, QThreadPool
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication, QSizePolicy, QLabel
 from qfluentwidgets.components.widgets.acrylic_label import AcrylicLabel
 
@@ -81,7 +81,9 @@ class MainInterface(QWidget):
         self.bottomLayout.addLayout(self.startLayout)
 
         self.launch_worker = launch()
-        self.launch_worker.finished.connect(self.launch_finish)
+        self.launch_worker.signals.progress.connect(self.launch_finish)
+
+        self.thread_pool = QThreadPool()
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.next_image)
@@ -113,7 +115,7 @@ class MainInterface(QWidget):
             "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid}
         setLaunchData(launch_data)
         dlsuc(self, "游戏进程启动中！可前往任务页查看详细信息")
-        self.launch_worker.start()
+        self.thread_pool.start(self.launch_worker)
 
     def launch_finish(self, return_data):
         if return_data["state"] == "0":
@@ -144,7 +146,6 @@ class MainInterface(QWidget):
             data.append({"uuid": return_data["uuid"], "state": "游戏进程已退出", "logger": "",
                          "version": self.game_version_button.text(), "code": 3})
             setProcessData(data)
-            self.launch_worker.quit()
 
     def setGameInfo(self, type, version):
         global version_chose

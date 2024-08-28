@@ -7,12 +7,18 @@ import platform
 from Helpers.Config import cfg
 from Helpers.flyoutmsg import dlerr
 from Helpers.getValue import getLaunchData
-from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot, QObject, QRunnable
 
 from Helpers.outputHelper import logger
 from Helpers.pluginHelper import plugins_api_items
 
 plugins_api = plugins_api_items
+
+
+class WorkerSignals(QObject):
+    progress = pyqtSignal(dict)
+
+
 def decompression(filename: str, path: str):
     try:
         with zipfile.ZipFile(filename, 'r') as zip_ref:
@@ -55,11 +61,10 @@ def getVersionInfo(gameDir, version):
         return {"type": file_content["clientVersion"], "clientVersion": file_content["clientVersion"]}
 
 
-class launch(QThread):
-    finished = pyqtSignal(dict)
-
+class launch(QRunnable):
     def __init__(self):
-        super().__init__()
+        super(launch, self).__init__()
+        self.signals = WorkerSignals()
 
     @pyqtSlot()
     def run(self):
@@ -80,7 +85,7 @@ class launch(QThread):
         else:
             assetIndex = data["clientVersion"][:4]
         native_library = str(os.path.join(data["gameDir"], "versions", data["version"], f"{data['version']}-natives"))
-        self.finished.emit({"state": "0", "uuid": data["process_uuid"]})
+        self.signals.progress.emit({"state": "0", "uuid": data["process_uuid"]})
         logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：补全游戏所需资源")
 
         native_list = []
@@ -114,7 +119,7 @@ class launch(QThread):
             for mod in os.listdir(os.path.join(data["gameDir"], 'mods')):
                 if mod.lower().endswith('.jar'):
                     native_list.append(os.path.join(data["gameDir"], 'mods', mod))
-        self.finished.emit({"state": "1", "uuid": data["process_uuid"]})
+        self.signals.progress.emit({"state": "1", "uuid": data["process_uuid"]})
         logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：构建启动命令")
         # 构建本地库字符串
         if pc_os == "Windows":
@@ -156,7 +161,7 @@ class launch(QThread):
         game_log_path = os.path.join("log", data["process_uuid"])
         if not os.path.exists(game_log_path):
             os.mkdir(game_log_path)
-        self.finished.emit({"state": "2", "uuid": data["process_uuid"]})
+        self.signals.progress.emit({"state": "2", "uuid": data["process_uuid"]})
         logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：游戏进程已启动")
         for item in plugins_api:
             try:
@@ -165,7 +170,7 @@ class launch(QThread):
                 if cfg.debug_card.value:
                     logger.error(f"插件{item}出现错误：{e}")
         result = subprocess.run(command, capture_output=True, text=True, cwd=game_log_path)
-        self.finished.emit({"state": "3", "uuid": data["process_uuid"]})
+        self.signals.progress.emit({"state": "3", "uuid": data["process_uuid"]})
         logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：游戏进程已退出")
         for item in plugins_api:
             try:
