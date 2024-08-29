@@ -23,8 +23,8 @@ if __name__ == '__main__':
     fluentTranslator = FluentTranslator(locale)
     settingTranslator = QTranslator()
     settingTranslator.load(locale, "MainWindow", ".", "resource/i18n")
-    caonima = QTranslator()
-    caonima.load("reaource/i18n/MainWindow.ts")
+    Translator = QTranslator()
+    Translator.load("reaource/i18n/MainWindow.ts")
 
     check_and_create()
 
