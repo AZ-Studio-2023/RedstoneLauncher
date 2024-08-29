@@ -13,7 +13,7 @@ from Helpers.Config import cfg
 from Helpers.getValue import ARIA2C_PATH, RPC_PORT, VERSION, UPDATE_NUMBER
 from Helpers.pluginHelper import load_plugins, run_plugins
 from Helpers.styleHelper import style_path
-# from Interfaces.DownloadInterfaces.downloadInterface import downloadInterface
+from Interfaces.DownloadInterfaces.downloadInterface import downloadInterface
 from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
@@ -84,7 +84,7 @@ class Window(SplitFluentWindow):
         self.SettingsInterface = SettingsInterface()
         self.AccountInterface = AccountInterface()
         self.activityInterface = activityInterface()
-        # self.downloadInterface = downloadInterface()
+        self.downloadInterface = downloadInterface()
         self.pluginsInterface = plugins()
         self.stackedWidget.hBoxLayout.setContentsMargins(0, 40, 0, 0)
         self.initNavigation()
@@ -104,10 +104,6 @@ class Window(SplitFluentWindow):
             '--min-split-size=1M'
         ]
         self.aria2c_process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)  # 把Aria2c启动
-        if cfg.source.value == "官方":
-            url = "http://launchermeta.mojang.com/mc/game/version_manifest.json"
-        else:
-            url = "https://bmclapi2.bangbang93.com/mc/game/version_manifest.json"
         # download(url, "cache")
         if cfg.PluginEnable.value:
             load_plugins(parent=self)
@@ -125,7 +121,7 @@ class Window(SplitFluentWindow):
         self.navigationInterface.addSeparator()
         self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, self.tr('版本列表'))
         self.addSubInterface(self.activityInterface, FIF.TILES, self.tr('任务'))
-        # self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, self.tr('下载'))
+        self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, self.tr('下载'))
         self.addSubInterface(self.AccountInterface, FIF.PEOPLE, self.tr('游戏账号'), NavigationItemPosition.BOTTOM)
         if cfg.PluginEnable.value:
             self.addSubInterface(self.pluginsInterface, FIF.APPLICATION, '插件', position=NavigationItemPosition.BOTTOM)

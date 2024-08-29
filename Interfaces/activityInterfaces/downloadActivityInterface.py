@@ -11,19 +11,17 @@ from Helpers.styleHelper import style_path
 
 
 
-class loggerInterface(QWidget):
+class downloadActivityInterface(QWidget):
 
 
-    def __init__(self, process_uuid, version):
+    def __init__(self):
         super().__init__()
         self.setObjectName("loggerInterface")
         font_id = QFontDatabase.addApplicationFont(os.path.join("resource", "font", "Minecraft_UTF-8.ttf"))
         font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
         self.mc_font = QFont(font_family)
         self.mc_font.setPointSize(12)
-        self.uuid = process_uuid
-        self.version = version
-        self.setWindowTitle(f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}")
+        self.setWindowTitle("下载任务")
         self.setWindowIcon(QIcon("resource/image/logo.png"))
         self.textEdit = PlainTextEdit()
         self.textEdit.setObjectName("logger")
@@ -32,20 +30,7 @@ class loggerInterface(QWidget):
         self.hBoxLayout = QHBoxLayout(self)
         self.hBoxLayout.addWidget(self.textEdit, stretch=1)
         self.textEdit.setReadOnly(True)
-        if self.uuid != "tip":
-            for data in getProcessData():
-                if data["uuid"] == self.uuid:
-                    state = data["state"]
-                    break
-            self.textEdit.setPlainText(
-                f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n当前无游戏日志")
-            old_log[self.uuid] = ""
-            old_state[self.uuid] = ""
-            self.timer = QTimer()
-            self.timer.timeout.connect(self.setLog)
-            self.timer.start(2)
-        else:
-            self.textEdit.setPlainText("您还没有启动游戏，这里没有可查看的任务")
+        self.textEdit.setPlainText("这里没有可查看的任务")
         self.textEdit.setStyleSheet('''
             LineEdit, TextEdit, PlainTextEdit {
                 color: white;

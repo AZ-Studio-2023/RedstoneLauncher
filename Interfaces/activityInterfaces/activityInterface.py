@@ -8,6 +8,7 @@ from qfluentwidgets import (NavigationItemPosition, PopUpAniStackedWidget)
 from qfluentwidgets import FluentIcon as FIF
 
 import Helpers.StartHelper
+from Interfaces.activityInterfaces.downloadActivityInterface import downloadActivityInterface
 from Interfaces.activityInterfaces.loggerInterface import loggerInterface
 
 from Helpers.Config import cfg
@@ -86,6 +87,7 @@ class activityInterface(QWidget):
     def initNavigation(self):
         self.stackWidget.currentChanged.connect(self.onCurrentInterfaceChanged)
         self.addSubInterface(loggerInterface("tip", "tip"), FIF.INFO, "提示", "tip")
+        self.addSubInterface(downloadActivityInterface(), FIF.DOWNLOAD, "下载任务", "download", position=NavigationItemPosition.BOTTOM)
         self.navigationBar.setCurrentItem("tip")
         self.stackWidget.setCurrentIndex(0)
         # hide the text of button when selected

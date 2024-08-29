@@ -82,8 +82,9 @@ class downloadInterface(QWidget):
         self.hBoxLayout.setStretchFactor(self.stackWidget, 1)
 
     def initNavigation(self):
-        self.addSubInterface(choseInterface(), QIcon(MINECRAFT_ICON), "Minecraft")
+        self.addSubInterface(choseInterface("Minecraft"), QIcon(MINECRAFT_ICON), "Minecraft", "Minecraft")
 
+        self.navigationBar.setCurrentItem("Minecraft")
         self.stackWidget.currentChanged.connect(self.onCurrentInterfaceChanged)
 
         # hide the text of button when selected
@@ -92,11 +93,11 @@ class downloadInterface(QWidget):
         # adjust the font size of button
         # self.navigationBar.setFont(getFont(12))
 
-    def addSubInterface(self, interface, icon, text: str, position=NavigationItemPosition.TOP, selectedIcon=None):
+    def addSubInterface(self, interface, icon, text: str, key, position=NavigationItemPosition.TOP, selectedIcon=None):
         """ add sub interface """
         self.stackWidget.addWidget(interface)
         self.navigationBar.addItem(
-            routeKey=interface.objectName(),
+            routeKey=key,
             icon=icon,
             text=text,
             onClick=lambda: self.switchTo(interface),
@@ -114,15 +115,3 @@ class downloadInterface(QWidget):
     def onCurrentInterfaceChanged(self, index):
         widget = self.stackWidget.widget(index)
         self.navigationBar.setCurrentItem(widget.objectName())
-
-    def showMessageBox(self):
-        w = MessageBox(
-            '支持作者🥰',
-            '个人开发不易，如果这个项目帮助到了您，可以考虑请作者喝一瓶快乐水🥤。您的支持就是作者开发和维护项目的动力🚀',
-            self
-        )
-        w.yesButton.setText('来啦老弟')
-        w.cancelButton.setText('下次一定')
-
-        if w.exec():
-            QDesktopServices.openUrl(QUrl("https://afdian.net/a/zhiyiYo"))

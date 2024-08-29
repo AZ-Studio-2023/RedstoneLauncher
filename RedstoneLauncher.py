@@ -33,7 +33,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.installTranslator(fluentTranslator)
     app.installTranslator(settingTranslator)
-    app.installTranslator(caonima)
+    app.installTranslator(Translator)
 
     w = Window()
     w.show()

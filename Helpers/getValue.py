@@ -22,6 +22,8 @@ LAUNCH_DATA = {}
 
 PROCESS_DATA = []
 
+DOWNLOAD_DATA = []
+
 def setLaunchData(data):
     global LAUNCH_DATA
     LAUNCH_DATA = data
@@ -36,6 +38,14 @@ def setProcessData(data):
 def getProcessData():
     global PROCESS_DATA
     return PROCESS_DATA
+
+def setDownloadData(data):
+    global DOWNLOAD_DATA
+    DOWNLOAD_DATA = data
+
+def getDownloadData():
+    global DOWNLOAD_DATA
+    return DOWNLOAD_DATA
 
 
 
