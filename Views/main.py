@@ -1,18 +1,15 @@
 # coding:utf-8
 import os.path
 import subprocess
-import time
 
 from PyQt5.QtCore import Qt, QEventLoop, QTimer, QSize
 from PyQt5.QtGui import QIcon, QFont, QFontDatabase
-from PyQt5.QtWidgets import QApplication, QFrame, QHBoxLayout, QLabel, QSizePolicy
-from qfluentwidgets import NavigationItemPosition, SplitFluentWindow, SubtitleLabel, setFont, NavigationInterface, \
-    FluentWindow, SplashScreen, FluentStyleSheet, isDarkTheme, setTheme, Theme
+from PyQt5.QtWidgets import QApplication, QLabel
+from qfluentwidgets import NavigationItemPosition, SplitFluentWindow, SplashScreen, FluentStyleSheet
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import TitleBar
 
 from Helpers.Config import cfg
-from Helpers.downloadHelper import download
 from Helpers.getValue import ARIA2C_PATH, RPC_PORT, VERSION, UPDATE_NUMBER
 from Helpers.pluginHelper import load_plugins, run_plugins
 from Helpers.styleHelper import style_path
@@ -21,7 +18,7 @@ from Interfaces.MainInterface import MainInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
 from Interfaces.AccountInterface import AccountInterface
-from Interfaces.activityInterface import activityInterface
+from Interfaces.activityInterfaces.activityInterface import activityInterface
 from Interfaces.plugin import plugins
 from Helpers.outputHelper import logger
 

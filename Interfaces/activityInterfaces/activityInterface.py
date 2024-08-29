@@ -1,22 +1,17 @@
 # coding:utf-8
-import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEasingCurve, QUrl, QTimer
-from PyQt5.QtGui import QIcon, QDesktopServices
-from PyQt5.QtWidgets import QLabel, QHBoxLayout, QVBoxLayout, QApplication, QFrame, QWidget
+from PyQt5.QtCore import pyqtSignal, QEasingCurve, QTimer
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QHBoxLayout, QFrame, QWidget
 
-from qfluentwidgets import (NavigationBar, NavigationItemPosition, NavigationWidget, MessageBox,
-                            isDarkTheme, setTheme, Theme, setThemeColor, SearchLineEdit,
-                            PopUpAniStackedWidget, getFont)
+from qfluentwidgets import (NavigationItemPosition, PopUpAniStackedWidget)
 from qfluentwidgets import FluentIcon as FIF
-from qframelesswindow import FramelessWindow, TitleBar
 
 import Helpers.StartHelper
-from Interfaces.loggerInterface import loggerInterface
+from Interfaces.activityInterfaces.loggerInterface import loggerInterface
 
 from Helpers.Config import cfg
 from Helpers.CustomControls import ListViewHelper
-from Helpers.StartHelper import getAllVersion
 from Helpers.styleHelper import style_path
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON, getProcessData
 
