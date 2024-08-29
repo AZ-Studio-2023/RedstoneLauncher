@@ -18,7 +18,8 @@ _✨ 新目标 再出发 ✨_
 
 </div>
 
+## 统计
 
 ![Star History Chart](https://api.star-history.com/svg?repos=AZ-Studio-2023/RedstoneLauncher&type=Date)
 
-
+![Alt](https://repobeats.axiom.co/api/embed/e9a933aefa5ffb60330e7079c79fa972279a7f7c.svg "Repobeats analytics image")
