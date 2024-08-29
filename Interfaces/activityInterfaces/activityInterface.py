@@ -138,6 +138,6 @@ class activityInterface(QWidget):
                 if len(local_process) == 1:
                     self.navigationBar.removeWidget("tip")
                 self.navigationBar.setCurrentItem(i["uuid"])
-                self.stackWidget.setCurrentIndex(len(local_process))
+                self.stackWidget.setCurrentIndex(len(local_process) + 1)
         self.repaint()
         self.update()

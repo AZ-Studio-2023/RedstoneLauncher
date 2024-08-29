@@ -1,7 +1,15 @@
 import os
+from datetime import date
+
 
 VERSION = "0.0.16 Preview"
 UPDATE_NUMBER = 0
+YEAR = int(date.today().year)
+AUTHOR = "AZ Studio"
+FEEDBACK_URL = "https://github.com/AZ-Studio-2023/RedstoneLauncher/issues"
+HELP_URL = "https://azteam.cn"
+
+
 
 MINECRAFT_ICON = "resource/image/core/minecraft.png"
 FORGE_ICON = "resource/image/core/forge.png"
