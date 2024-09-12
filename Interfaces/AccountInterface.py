@@ -3,7 +3,7 @@ import sys
 import uuid
 from pathlib import Path
 
-from PyQt5.QtCore import Qt, QPoint, QSize, QUrl, QRect, QPropertyAnimation
+from PyQt5.QtCore import Qt, QPoint, QSize, QUrl, QRect, QPropertyAnimation, QThreadPool
 from PyQt5.QtGui import QIcon, QFont, QColor, QPainter
 from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QGraphicsOpacityEffect, QLabel
 
@@ -13,12 +13,14 @@ from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, 
                             HeaderCardWidget, InfoBarIcon, HyperlinkLabel, HorizontalFlipView,
                             PrimaryPushButton, TitleLabel, PillPushButton, setFont, SingleDirectionScrollArea,
                             VerticalSeparator, MSFluentWindow, NavigationItemPosition, ScrollArea,
-                            TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit)
+                            TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit, StrongBodyLabel)
 
+from Helpers.authHelper import MicrosoftLogin
 from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCOUNT
 from Helpers.flyoutmsg import dlsuc, dlwar
 from Helpers.styleHelper import style_path
 
+ms_login_data = None
 
 class Add_Account_MessageBox(MessageBoxBase):
 
@@ -28,22 +30,55 @@ class Add_Account_MessageBox(MessageBoxBase):
         self.type_Label = QLabel("账号类型:", self)
         self.type_Label.setStyleSheet("QLabel{font-size:15px;font-weight:normal;font-family:Microsoft YaHei;}")
         self.type_Box = ComboBox()
-        self.type_Box.addItems(["离线登录"])
+        self.type_Box.addItems(["离线登录", "微软登录"])
         self.name_Label = QLabel("玩家名:", self)
         self.name_Label.setStyleSheet("QLabel{font-size:15px;font-weight:normal;font-family:Microsoft YaHei;}")
         self.username = LineEdit()
         self.username.setPlaceholderText('输入离线玩家名')
         self.username.setClearButtonEnabled(True)
+        self.tipLabel = StrongBodyLabel(self.tr("请在浏览器中登录"), self)
+
+        self.ms_login_worker = MicrosoftLogin()
+        self.ms_login_worker.signals.progress.connect(self.finish)
+
+        self.thread_pool = QThreadPool()
 
         self.viewLayout.addWidget(self.titleLabel)
         self.viewLayout.addWidget(self.type_Label)
         self.viewLayout.addWidget(self.type_Box)
         self.viewLayout.addWidget(self.name_Label)
         self.viewLayout.addWidget(self.username)
+        self.viewLayout.addWidget(self.tipLabel)
+        self.tipLabel.setHidden(True)
+        self.name_Label.setHidden(True)
+        self.username.setHidden(True)
+        self.type_Box.currentIndexChanged.connect(self.change)
 
         # 设置对话框的最小宽度
         self.widget.setMinimumWidth(350)
 
+    def change(self):
+        if self.type_Box.text() == "离线登录":
+            self.name_Label.setHidden(False)
+            self.username.setHidden(False)
+            self.tipLabel.setHidden(True)
+        else:
+            self.name_Label.setHidden(True)
+            self.username.setHidden(True)
+            self.tipLabel.setHidden(False)
+            self.thread_pool.start(self.ms_login_worker)
+
+    def finish(self, data):
+        global ms_login_data
+        if data["code"] == 500:
+            self.tipLabel.setText(self.tr("网络错误"))
+        elif data["code"] == 403:
+            self.tipLabel.setText(self.tr("未获取到该账户的Minecraft档案"))
+        elif data["code"] == 100:
+            self.tipLabel.setText(self.tr("请稍后，正在从Microsoft获取数据"))
+        else:
+            self.tipLabel.setText(self.tr("登录成功"))
+            ms_login_data = data
 
 class AppCard(CardWidget):
     """ App card """
@@ -132,16 +167,19 @@ class AccountInterface(ScrollArea):
             else:
                 self.addCard(QIcon(THIRD_PARTY_ACCOUNT), account["name"], "第三方登录", account)
     def add_account(self, account_type, name):
+        global ms_login_data
         f = open("data/accounts.json", "r")
         data = json.loads(f.read())["accounts"]
         f.close()
         if account_type == "Legacy":
-            data.append({"name": name, "type": "Legacy", "uuid": str(uuid.uuid4())})
-            self.addCard(QIcon(LEGACY_ACCOUNT), name, "离线登录", {"name": name, "type": "Legacy"})
+            u = str(uuid.uuid4())
+            data.append({"name": name, "type": "Legacy", "uuid": u})
+            self.addCard(QIcon(LEGACY_ACCOUNT), name, "离线登录", {"name": name, "type": "Legacy", "uuid": u})
         elif account_type == "Microsoft":
-            pass  # 由于还在申请API 所以微软登录需要等审核通过后完善
+            data.append({"name": name, "type": "Microsoft", "uuid": ms_login_data["uuid"], "refresh_token": ms_login_data["refresh_token"], "access_token": ms_login_data["access_token"]})
+            self.addCard(QIcon(MICROSOFT_ACCOUNT), name, "微软登录", {"name": name, "type": "Microsoft", "uuid": ms_login_data["uuid"]})
         else:
-            pass  # 第三方登录逻辑
+            pass  # 第三方登录逻辑，待研究
         f = open("data/accounts.json", "w")
         f.write(json.dumps({"accounts": data}))
         f.close()
@@ -150,10 +188,12 @@ class AccountInterface(ScrollArea):
             self.setStyleSheet(f.read())
 
     def showMessage(self):
+        global ms_login_data
         w = Add_Account_MessageBox(self.window())
         if w.exec():
-            if w.username.text() != "":
-                if w.type_Box.text() == "离线登录":
+            if w.type_Box.text() == "离线登录":
+                if w.username.text() != "":
                     self.add_account(name=w.username.text(), account_type="Legacy")
-                else:
-                    pass
+            else:
+                if ms_login_data != None:
+                    self.add_account(name=ms_login_data["username"], account_type="Microsoft")

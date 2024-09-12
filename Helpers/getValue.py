@@ -8,7 +8,8 @@ YEAR = int(date.today().year)
 AUTHOR = "AZ Studio"
 FEEDBACK_URL = "https://github.com/AZ-Studio-2023/RedstoneLauncher/issues"
 HELP_URL = "https://azteam.cn"
-
+CLIENT_ID = "846a8cc1-cc50-4df5-a2df-ea391aac13c5"
+REDIRECT_URL = "http://localhost:60000"
 
 
 MINECRAFT_ICON = "resource/image/core/minecraft.png"
