@@ -1,5 +1,4 @@
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QRunnable
-from Helpers.MicAuth import microsoft_oauth
 import requests
 import webbrowser
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -130,14 +129,3 @@ class MicrosoftLogin(QRunnable):
             self.signals.progress.emit({"code": 500, "error": f"响应数据缺少关键字段: {str(e)}"})
         except Exception as e:
             self.signals.progress.emit({"code": 500, "error": f"未知错误: {str(e)}"})
-
-class MicrosoftLoginRefresh(QRunnable):
-    def __init__(self):
-        super(MicrosoftLoginRefresh, self).__init__()
-        self.signals = WorkerSignals()
-
-    @pyqtSlot()
-    def run(self):
-        return_data = microsoft_oauth()
-        self.signals.progress.emit(return_data)
-

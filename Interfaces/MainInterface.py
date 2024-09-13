@@ -110,9 +110,9 @@ class MainInterface(QWidget):
         launch_data = {
             "javaDir": cfg.javaPath.value,
             "gameDir": cfg.gamePath.value, "clientVersion": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["clientVersion"], "xmx": free_memory_mb,
-            "gameType": getVersionType(cfg.gamePath.value, self.game_version_button.text()), "userType": "Legacy",
-            "uuid": find_dict(account_data["accounts"], "name", self.accountButton.text())["uuid"], "accessToken": "", "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
-            "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid}
+            "gameType": getVersionType(cfg.gamePath.value, self.game_version_button.text()), "userType": find_dict(account_data["accounts"], "name", self.accountButton.text())["type"],
+            "uuid": find_dict(account_data["accounts"], "name", self.accountButton.text())["uuid"], "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
+            "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid, "refresh_token": find_dict(account_data["accounts"], "name", self.accountButton.text())["refresh_token"], "access_token": find_dict(account_data["accounts"], "name", self.accountButton.text())["access_token"]}
         setLaunchData(launch_data)
         dlsuc(self, "游戏进程启动中！可前往任务页查看详细信息")
         self.thread_pool.start(self.launch_worker)
@@ -145,6 +145,20 @@ class MainInterface(QWidget):
             data.remove(dic)
             data.append({"uuid": return_data["uuid"], "state": "游戏进程已退出", "logger": "",
                          "version": self.game_version_button.text(), "code": 3})
+            setProcessData(data)
+        elif return_data["state"] == "4":
+            dic = find_dict(getProcessData(), "uuid", return_data["uuid"])
+            data = getProcessData()
+            data.remove(dic)
+            data.append({"uuid": return_data["uuid"], "state": "刷新登录令牌", "logger": "",
+                         "version": self.game_version_button.text(), "code": 4})
+            setProcessData(data)
+        elif return_data["state"] == "5":
+            dic = find_dict(getProcessData(), "uuid", return_data["uuid"])
+            data = getProcessData()
+            data.remove(dic)
+            data.append({"uuid": return_data["uuid"], "state": "刷新令牌失败！将使用旧的令牌启动", "logger": "",
+                         "version": self.game_version_button.text(), "code": 5})
             setProcessData(data)
 
     def setGameInfo(self, type, version):
@@ -184,7 +198,7 @@ class MainInterface(QWidget):
             account_list.remove(item)
 
         for account in data:
-            if account["type"] == "Microsoft":
+            if account["type"] == "msa":
                 action = Action(QIcon(MICROSOFT_ACCOUNT), account["name"],
                            triggered=self.create_lambda("Microsoft", account["name"]))
                 self.account_menu.addAction(action)

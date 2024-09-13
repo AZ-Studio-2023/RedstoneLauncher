@@ -6,11 +6,14 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QIcon, QFontDatabase, QFont
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QScrollArea
 from qfluentwidgets import PlainTextEdit, ScrollArea
+
+from Helpers.flyoutmsg import dlwar
 from Helpers.getValue import getProcessData
 from Helpers.styleHelper import style_path
 
 old_log = {}
 old_state = {}
+T = False
 
 class loggerInterface(QWidget):
 
@@ -101,7 +104,7 @@ class loggerInterface(QWidget):
         }
         ''')
     def setLog(self):
-        global old_log, old_state
+        global old_log, old_state, T
         path = os.path.join("log", self.uuid, "logs", "latest.log")
         if os.path.exists(path):
             u = open(path, "r", encoding="gbk")
@@ -110,6 +113,9 @@ class loggerInterface(QWidget):
             for data in getProcessData():
                 if data["uuid"] == self.uuid:
                     state = data["state"]
+                    if T and data["code"] == 5:
+                        dlwar("刷新令牌失败！将使用旧的令牌启动", self, show_time=10000)
+                        T = True
                     break
             if log != old_log[self.uuid]:
                 old_log[self.uuid] = log

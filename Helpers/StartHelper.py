@@ -3,29 +3,40 @@ import json
 import subprocess
 import zipfile
 import platform
+from PyQt5.QtCore import QThreadPool, pyqtSignal, pyqtSlot, QObject, QRunnable
 
 from Helpers.Config import cfg
+from Helpers.MicAuth import refresh_token
 from Helpers.flyoutmsg import dlerr
 from Helpers.getValue import getLaunchData
-from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot, QObject, QRunnable
-
 from Helpers.outputHelper import logger
 from Helpers.pluginHelper import plugins_api_items
 
 plugins_api = plugins_api_items
 
+def find_dict(dictionary_list, key, value):
+    for dictionary in dictionary_list:
+        if key in dictionary and dictionary[key] == value:
+            return dictionary
+    return None
 
 class WorkerSignals(QObject):
     progress = pyqtSignal(dict)
 
 
-def decompression(filename: str, path: str):
-    try:
-        with zipfile.ZipFile(filename, 'r') as zip_ref:
-            zip_ref.extractall(path)
-        return 0
-    except FileNotFoundError:
-        return "Error"
+class DecompressionTask(QRunnable):
+    def __init__(self, filename, path):
+        super(DecompressionTask, self).__init__()
+        self.filename = filename
+        self.path = path
+
+    @pyqtSlot()
+    def run(self):
+        try:
+            with zipfile.ZipFile(self.filename, 'r') as zip_ref:
+                zip_ref.extractall(self.path)
+        except FileNotFoundError:
+            logger.error(f"未找到文件: {self.filename}")
 
 
 def getVersionType(gameDir, version):
@@ -65,6 +76,7 @@ class launch(QRunnable):
     def __init__(self):
         super(launch, self).__init__()
         self.signals = WorkerSignals()
+        self.thread_pool = QThreadPool()
 
     @pyqtSlot()
     def run(self):
@@ -85,6 +97,25 @@ class launch(QRunnable):
         else:
             assetIndex = data["clientVersion"][:4]
         native_library = str(os.path.join(data["gameDir"], "versions", data["version"], f"{data['version']}-natives"))
+
+        if data["userType"] == "msa":
+            self.signals.progress.emit({"state": "4", "uuid": data["process_uuid"]})
+            logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：刷新登录令牌")
+            c_data = refresh_token(data["refresh_token"])
+            if c_data["code"] != 200:
+                self.signals.progress.emit({"state": "5", "uuid": data["process_uuid"]})
+                logger.error("刷新令牌失败！将使用旧的令牌启动")
+            else:
+                f = open("data/accounts.json", "r")
+                l_data = json.loads(f.read())["accounts"]
+                f.close()
+                d = find_dict(l_data, "uuid", c_data["uuid"])
+                l_data.remove(d)
+                l_data.append({"name": c_data["username"], "type": "msa", "uuid": c_data["uuid"], "refresh_token": c_data["refresh_token"], "access_token": c_data["access_token"]})
+                f = open("data/accounts.json", "w")
+                f.write(json.dumps({"accounts": l_data}))
+                f.close()
+                data["access_token"] = c_data["access_token"]
         self.signals.progress.emit({"state": "0", "uuid": data["process_uuid"]})
         logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：补全游戏所需资源")
 
@@ -93,6 +124,7 @@ class launch(QRunnable):
         version_path = os.path.join(data["gameDir"], "versions", data["version"], f"{data['version']}.json")
         version_json = open(version_path, "r")
         version_data = json.loads(version_json.read())
+
         for libraries in version_data["libraries"]:
             try:
                 for native in libraries["downloads"]:
@@ -102,8 +134,9 @@ class launch(QRunnable):
                             os.path.normpath(
                                 os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path'])))
                         if not os.path.exists(f"command/{data['version']}.bat"):
-                            if decompression(file_path, dirct_path) == 0:
-                                native_list.append(file_path)
+                            task = DecompressionTask(file_path, dirct_path)
+                            self.thread_pool.start(task)
+                            native_list.append(file_path)
                         else:
                             native_list.append(file_path)
                     elif native == 'classifiers':
@@ -112,13 +145,18 @@ class launch(QRunnable):
                                 os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path']))
                             file_path = str(os.path.join(data["gameDir"], "libraries", n["path"]))
                             if not os.path.exists(f"{data['version']}.bat"):
-                                decompression(file_path, dirct_path)
+                                task = DecompressionTask(file_path, dirct_path)
+                                self.thread_pool.start(task)
             except KeyError:
                 continue
+
         if data["gameType"] != "Vanilla":
             for mod in os.listdir(os.path.join(data["gameDir"], 'mods')):
                 if mod.lower().endswith('.jar'):
                     native_list.append(os.path.join(data["gameDir"], 'mods', mod))
+
+        self.thread_pool.waitForDone()
+
         self.signals.progress.emit({"state": "1", "uuid": data["process_uuid"]})
         logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：构建启动命令")
         # 构建本地库字符串
@@ -149,7 +187,7 @@ class launch(QRunnable):
             "--assetsDir", assetsDir,
             "--assetIndex", assetIndex,
             "--uuid", data["uuid"],
-            "--accessToken", data["accessToken"],
+            "--accessToken", data["access_token"],
             "--userType", data["userType"],
             "--versionType", data["versionType"]
         ]

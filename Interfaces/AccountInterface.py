@@ -160,7 +160,7 @@ class AccountInterface(ScrollArea):
         data = json.loads(f.read())["accounts"]
         f.close()
         for account in data:
-            if account["type"] == "Microsoft":
+            if account["type"] == "msa":
                 self.addCard(QIcon(MICROSOFT_ACCOUNT), account["name"], "微软登录", account)
             elif account["type"] == "Legacy":
                 self.addCard(QIcon(LEGACY_ACCOUNT), account["name"], "离线登录", account)
@@ -173,11 +173,11 @@ class AccountInterface(ScrollArea):
         f.close()
         if account_type == "Legacy":
             u = str(uuid.uuid4())
-            data.append({"name": name, "type": "Legacy", "uuid": u})
-            self.addCard(QIcon(LEGACY_ACCOUNT), name, "离线登录", {"name": name, "type": "Legacy", "uuid": u})
+            data.append({"name": name, "type": "Legacy", "uuid": u, "refresh_token": "", "access_token": ""})
+            self.addCard(QIcon(LEGACY_ACCOUNT), name, "离线登录", {"name": name, "type": "Legacy", "uuid": u, "refresh_token": "", "access_token": ""})
         elif account_type == "Microsoft":
-            data.append({"name": name, "type": "Microsoft", "uuid": ms_login_data["uuid"], "refresh_token": ms_login_data["refresh_token"], "access_token": ms_login_data["access_token"]})
-            self.addCard(QIcon(MICROSOFT_ACCOUNT), name, "微软登录", {"name": name, "type": "Microsoft", "uuid": ms_login_data["uuid"]})
+            data.append({"name": name, "type": "msa", "uuid": ms_login_data["uuid"], "refresh_token": ms_login_data["refresh_token"], "access_token": ms_login_data["access_token"]})
+            self.addCard(QIcon(MICROSOFT_ACCOUNT), name, "微软登录", {"name": name, "type": "msa", "uuid": ms_login_data["uuid"], "refresh_token": ms_login_data["refresh_token"], "access_token": ms_login_data["access_token"]})
         else:
             pass  # 第三方登录逻辑，待研究
         f = open("data/accounts.json", "w")
