@@ -1,9 +1,11 @@
+import os.path
+
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QRunnable
 import requests
 import webbrowser
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
-from Helpers.getValue import CLIENT_ID, REDIRECT_URL
+from Helpers.getValue import CLIENT_ID, REDIRECT_URL, DATA_PATH, CACHE_PATH
 from Helpers.outputHelper import logger
 
 
@@ -116,6 +118,12 @@ class MicrosoftLogin(QRunnable):
                 profile_response = requests.get(profile_url, headers=headers)
                 profile_response.raise_for_status()
                 profile_data = profile_response.json()
+                response = requests.get(f"https://minotar.net/avatar/{profile_data['name']}")
+                if response.status_code == 200:
+                    with open(os.path.join(CACHE_PATH, f"{profile_data['name']}.png"), 'wb') as file:
+                        file.write(response.content)
+                else:
+                    logger.debug("下载玩家头像失败")
                 logger.info(f"登录成功！玩家名：{profile_data['name']}")
                 self.signals.progress.emit( {
                     "access_token": minecraft_access_token,
@@ -124,6 +132,7 @@ class MicrosoftLogin(QRunnable):
                     "refresh_token": refresh_token,
                     "code": 200
                 })
+
             else:
                 logger.error("该账号未拥有Minecraft")
                 self.signals.progress.emit({"code": 403, "error": "该账号未拥有Minecraft"})

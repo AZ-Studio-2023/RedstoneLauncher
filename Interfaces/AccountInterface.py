@@ -1,4 +1,5 @@
 import json
+import os.path
 import sys
 import uuid
 from pathlib import Path
@@ -16,7 +17,7 @@ from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, 
                             TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit, StrongBodyLabel)
 
 from Helpers.authHelper import MicrosoftLogin
-from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCOUNT, ACCOUNTS_PATH
+from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCOUNT, ACCOUNTS_PATH, CACHE_PATH
 from Helpers.flyoutmsg import dlsuc, dlwar
 from Helpers.styleHelper import style_path
 
@@ -161,7 +162,10 @@ class AccountInterface(ScrollArea):
         f.close()
         for account in data:
             if account["type"] == "msa":
-                self.addCard(QIcon(MICROSOFT_ACCOUNT), account["name"], "微软登录", account)
+                if os.path.exists(os.path.join(CACHE_PATH, f"{account['name']}.png")):
+                    self.addCard(QIcon(os.path.join(CACHE_PATH, f"{account['name']}.png")), account["name"], "微软登录", account)
+                else:
+                    self.addCard(QIcon(MICROSOFT_ACCOUNT), account["name"], "微软登录", account)
             elif account["type"] == "Legacy":
                 self.addCard(QIcon(LEGACY_ACCOUNT), account["name"], "离线登录", account)
             else:
@@ -177,7 +181,13 @@ class AccountInterface(ScrollArea):
             self.addCard(QIcon(LEGACY_ACCOUNT), name, "离线登录", {"name": name, "type": "Legacy", "uuid": u, "refresh_token": "", "access_token": ""})
         elif account_type == "Microsoft":
             data.append({"name": name, "type": "msa", "uuid": ms_login_data["uuid"], "refresh_token": ms_login_data["refresh_token"], "access_token": ms_login_data["access_token"]})
-            self.addCard(QIcon(MICROSOFT_ACCOUNT), name, "微软登录", {"name": name, "type": "msa", "uuid": ms_login_data["uuid"], "refresh_token": ms_login_data["refresh_token"], "access_token": ms_login_data["access_token"]})
+            if os.path.exists(os.path.join(CACHE_PATH, f"{name}.png")):
+                self.addCard(QIcon(os.path.join(CACHE_PATH, f"{name}.png")), name, "微软登录", {"name": name, "type": "msa", "uuid": ms_login_data["uuid"], "refresh_token": ms_login_data["refresh_token"], "access_token": ms_login_data["access_token"]})
+            else:
+                self.addCard(QIcon(MICROSOFT_ACCOUNT), name, "微软登录",
+                             {"name": name, "type": "msa", "uuid": ms_login_data["uuid"],
+                              "refresh_token": ms_login_data["refresh_token"],
+                              "access_token": ms_login_data["access_token"]})
         else:
             pass  # 第三方登录逻辑，待研究
         f = open(ACCOUNTS_PATH, "w")

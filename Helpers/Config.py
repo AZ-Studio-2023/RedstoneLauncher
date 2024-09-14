@@ -78,6 +78,9 @@ class Config(QConfig):
     PluginEnable = OptionsConfigItem(
                 "betaGroup", "plugin", False, BoolValidator(), restart=True
     )
+    customJava = OptionsConfigItem(
+                "javaGroup", "customJava", []
+    )
 
 cfg = Config()
 qconfig.load(CONFIG_PATH, cfg)

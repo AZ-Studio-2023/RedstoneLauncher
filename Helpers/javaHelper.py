@@ -10,6 +10,7 @@ from PyQt5.QtCore import QThread, pyqtSignal, QObject
 from PyQt5.QtWidgets import QApplication
 
 from Helpers.getValue import DEFAULT_GAME_PATH
+from Helpers.outputHelper import logger
 
 
 class javaPath:
@@ -32,8 +33,8 @@ def get_java_version(file_path):
             version = ".".join(filter(None, version_match.groups()))
             return version
     except Exception as e:
-        print(f"Error getting version for {file_path}: {e}")
-    return ""
+        logger.error(f"获取Java版本时出错：{e}")
+    return "Unknown"
 
 
 def find_java_directories(base_path, match_keywords, exclude_keywords):

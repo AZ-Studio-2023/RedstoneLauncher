@@ -8,7 +8,7 @@ from qfluentwidgets import FluentIcon, ExpandGroupSettingCard, SubtitleLabel, Pr
     ExpandLayout, SettingCardGroup, isDarkTheme, IconWidget, CardWidget, CaptionLabel, BodyLabel, TransparentToolButton, \
     IndeterminateProgressBar, OptionsSettingCard
 
-import Helpers.javaHelper
+from Helpers.javaHelper import get_java_version
 from Helpers.Config import DEFAULT_GAME_PATH
 from Helpers.Config import cfg
 from Helpers.flyoutmsg import dlsuc
@@ -101,13 +101,16 @@ class GameSettingsInterface(ScrollArea):
         )
         self.autoFindGlobal = PushButton("全局查找")
         self.autoFindLocal = PrimaryPushButton("快速查找")
+        self.addJava = PushButton("手动添加")
+        self.addJava.setEnabled(False)
 
         self.bar = IndeterminateProgressBar(self)
         self.bar.setVisible(False)
 
         self.autoFindLocal.clicked.connect(self.start_local_find)
         self.autoFindGlobal.clicked.connect(self.start_global_find)
-        
+        self.addJava.clicked.connect(self.add_Java)
+
         self.loaclFindWorker = GetJava_Local()
         self.globalFindWorker = GetJava_Global()
 
@@ -135,6 +138,8 @@ class GameSettingsInterface(ScrollArea):
                 cfg.set(cfg.javaPath, data[0].path)
         for java in data:
             self.addCard(QIcon(JAVA_RUNTIME), java.version, java.path)
+        for j in cfg.customJava.value:
+            self.addCard(QIcon(JAVA_RUNTIME), get_java_version(j), j)
         dlsuc(self, f"共计找到了 {len(data)} 个Java运行时", "快速查找完成", 6000)
 
     def global_finished(self, data):
@@ -149,6 +154,24 @@ class GameSettingsInterface(ScrollArea):
 
         dlsuc(self, f"共计找到了 {len(data)} 个Java运行时", "全局查找完成", 6000)
 
+    def add_Java(self):
+        options = QFileDialog.Options()
+        file_dialog = QFileDialog(self)
+        file_dialog.setOptions(options)
+        file_dialog.setFileMode(QFileDialog.ExistingFiles)
+        file_dialog.setNameFilters(["java.exe"])
+        file_dialog.setAcceptMode(QFileDialog.AcceptOpen)
+
+        if file_dialog.exec_():
+            selected_files = file_dialog.selectedFiles()
+            if selected_files:
+                d = cfg.customJava.value
+                d.append(selected_files[0])
+                cfg.set(cfg.customJava, d)
+                if cfg.javaPath.value == "":
+                        cfg.set(cfg.javaPath, selected_files[0])
+                self.addCard(QIcon(JAVA_RUNTIME), get_java_version(selected_files[0]), selected_files[0])
+
     def InitLayout(self):
         self.settingLabel.move(60, 63)
         self.expandLayout.setSpacing(28)
@@ -162,6 +185,7 @@ class GameSettingsInterface(ScrollArea):
         self.gamePathCard.addWidget(self.changeFolder)
         self.gamePathCard.addWidget(self.AutoFolder)
         self.javaCard.addWidget(self.bar)
+        self.javaCard.addWidget(self.addJava)
         self.javaCard.addWidget(self.autoFindGlobal)
         self.javaCard.addWidget(self.autoFindLocal)
 
