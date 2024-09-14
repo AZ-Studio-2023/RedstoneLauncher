@@ -51,8 +51,8 @@ class Add_Account_MessageBox(MessageBoxBase):
         self.viewLayout.addWidget(self.username)
         self.viewLayout.addWidget(self.tipLabel)
         self.tipLabel.setHidden(True)
-        self.name_Label.setHidden(True)
-        self.username.setHidden(True)
+        self.name_Label.setHidden(False)
+        self.username.setHidden(False)
         self.type_Box.currentIndexChanged.connect(self.change)
 
         # 设置对话框的最小宽度
@@ -95,7 +95,7 @@ class AppCard(CardWidget):
         self.vBoxLayout = QVBoxLayout()
 
         self.setFixedHeight(73)
-        self.iconWidget.setFixedSize(18, 18)
+        self.iconWidget.setFixedSize(28, 28)
         self.contentLabel.setTextColor("#606060", "#d2d2d2")
         self.delButton.setFixedWidth(120)
 
@@ -175,6 +175,10 @@ class AccountInterface(ScrollArea):
         f = open(ACCOUNTS_PATH, "r")
         data = json.loads(f.read())["accounts"]
         f.close()
+        for dic in data:
+            if dic["name"] == name:
+                dlwar("您添加的玩家已存在，请勿重复添加", self)
+                return
         if account_type == "Legacy":
             u = str(uuid.uuid4())
             data.append({"name": name, "type": "Legacy", "uuid": u, "refresh_token": "", "access_token": ""})
