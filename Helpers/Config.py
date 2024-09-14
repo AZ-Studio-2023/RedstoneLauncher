@@ -1,7 +1,7 @@
 # coding:utf-8
 from enum import Enum
 
-from Helpers.getValue import DEFAULT_GAME_PATH
+from Helpers.getValue import DEFAULT_GAME_PATH, CONFIG_PATH
 from PyQt5.QtCore import Qt, QLocale
 from PyQt5.QtGui import QGuiApplication, QFont, QColor
 from qfluentwidgets import (qconfig, QConfig, ConfigItem, OptionsConfigItem, BoolValidator,
@@ -80,4 +80,4 @@ class Config(QConfig):
     )
 
 cfg = Config()
-qconfig.load('config/config.json', cfg)
+qconfig.load(CONFIG_PATH, cfg)

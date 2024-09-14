@@ -16,7 +16,7 @@ from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, 
                             TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit, StrongBodyLabel)
 
 from Helpers.authHelper import MicrosoftLogin
-from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCOUNT
+from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCOUNT, ACCOUNTS_PATH
 from Helpers.flyoutmsg import dlsuc, dlwar
 from Helpers.styleHelper import style_path
 
@@ -114,14 +114,14 @@ class AppCard(CardWidget):
         self.delButton.clicked.connect(lambda: self.del_account(dic=dic))
 
     def del_account(self, dic):
-        f = open("data/accounts.json", "r")
+        f = open(ACCOUNTS_PATH, "r")
         data = json.loads(f.read())["accounts"]
         f.close()
         try:
             data.remove(dic)
         except ValueError:
             return 0
-        f = open("data/accounts.json", "w")
+        f = open(ACCOUNTS_PATH, "w")
         f.write(json.dumps({"accounts": data}))
         f.close()
         self.setVisible(False)
@@ -156,7 +156,7 @@ class AccountInterface(ScrollArea):
         self.vBoxLayout.addWidget(card, alignment=Qt.AlignTop)
 
     def load_account(self):
-        f = open("data/accounts.json", "r")
+        f = open(ACCOUNTS_PATH, "r")
         data = json.loads(f.read())["accounts"]
         f.close()
         for account in data:
@@ -168,7 +168,7 @@ class AccountInterface(ScrollArea):
                 self.addCard(QIcon(THIRD_PARTY_ACCOUNT), account["name"], "第三方登录", account)
     def add_account(self, account_type, name):
         global ms_login_data
-        f = open("data/accounts.json", "r")
+        f = open(ACCOUNTS_PATH, "r")
         data = json.loads(f.read())["accounts"]
         f.close()
         if account_type == "Legacy":
@@ -180,7 +180,7 @@ class AccountInterface(ScrollArea):
             self.addCard(QIcon(MICROSOFT_ACCOUNT), name, "微软登录", {"name": name, "type": "msa", "uuid": ms_login_data["uuid"], "refresh_token": ms_login_data["refresh_token"], "access_token": ms_login_data["access_token"]})
         else:
             pass  # 第三方登录逻辑，待研究
-        f = open("data/accounts.json", "w")
+        f = open(ACCOUNTS_PATH, "w")
         f.write(json.dumps({"accounts": data}))
         f.close()
     def setQss(self):

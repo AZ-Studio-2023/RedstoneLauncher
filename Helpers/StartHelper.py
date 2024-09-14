@@ -8,7 +8,7 @@ from PyQt5.QtCore import QThreadPool, pyqtSignal, pyqtSlot, QObject, QRunnable
 from Helpers.Config import cfg
 from Helpers.MicAuth import refresh_token
 from Helpers.flyoutmsg import dlerr
-from Helpers.getValue import getLaunchData
+from Helpers.getValue import getLaunchData, ACCOUNTS_PATH, COMMAND_PATH, LOG_PATH
 from Helpers.outputHelper import logger
 from Helpers.pluginHelper import plugins_api_items
 
@@ -106,13 +106,13 @@ class launch(QRunnable):
                 self.signals.progress.emit({"state": "5", "uuid": data["process_uuid"]})
                 logger.error("刷新令牌失败！将使用旧的令牌启动")
             else:
-                f = open("data/accounts.json", "r")
+                f = open(ACCOUNTS_PATH, "r")
                 l_data = json.loads(f.read())["accounts"]
                 f.close()
                 d = find_dict(l_data, "uuid", c_data["uuid"])
                 l_data.remove(d)
                 l_data.append({"name": c_data["username"], "type": "msa", "uuid": c_data["uuid"], "refresh_token": c_data["refresh_token"], "access_token": c_data["access_token"]})
-                f = open("data/accounts.json", "w")
+                f = open(ACCOUNTS_PATH, "w")
                 f.write(json.dumps({"accounts": l_data}))
                 f.close()
                 data["access_token"] = c_data["access_token"]
@@ -133,7 +133,7 @@ class launch(QRunnable):
                         file_path = str(
                             os.path.normpath(
                                 os.path.join(data["gameDir"], "libraries", libraries["downloads"][native]['path'])))
-                        if not os.path.exists(f"command/{data['version']}.bat"):
+                        if not os.path.exists(os.path.join(COMMAND_PATH, f"{data['version']}.bat")):
                             task = DecompressionTask(file_path, dirct_path)
                             self.thread_pool.start(task)
                             native_list.append(file_path)
@@ -192,11 +192,11 @@ class launch(QRunnable):
             "--versionType", data["versionType"]
         ]
         command = [data["javaDir"]] + jvm_args + mc_args
-        u = open(f"command/{data['version']}.bat", "w")
+        u = open(os.path.join(COMMAND_PATH, f"{data['version']}.bat"), "w")
         command_bat = subprocess.list2cmdline(command)
         u.write(str(command_bat))
         u.close()
-        game_log_path = os.path.join("log", data["process_uuid"])
+        game_log_path = os.path.join(LOG_PATH, data["process_uuid"])
         if not os.path.exists(game_log_path):
             os.mkdir(game_log_path)
         self.signals.progress.emit({"state": "2", "uuid": data["process_uuid"]})

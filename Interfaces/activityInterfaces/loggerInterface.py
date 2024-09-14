@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QWidget, QHBoxLayout, QScrollArea
 from qfluentwidgets import PlainTextEdit, ScrollArea
 
 from Helpers.flyoutmsg import dlwar
-from Helpers.getValue import getProcessData
+from Helpers.getValue import getProcessData, LOG_PATH
 from Helpers.styleHelper import style_path
 
 old_log = {}
@@ -105,7 +105,7 @@ class loggerInterface(QWidget):
         ''')
     def setLog(self):
         global old_log, old_state, T
-        path = os.path.join("log", self.uuid, "logs", "latest.log")
+        path = os.path.join(LOG_PATH, self.uuid, "logs", "latest.log")
         if os.path.exists(path):
             u = open(path, "r", encoding="gbk")
             log = u.read()

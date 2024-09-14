@@ -1,6 +1,7 @@
 import os
 from datetime import date
 
+from PyQt5.QtCore import QStandardPaths
 
 VERSION = "0.0.16 Preview"
 UPDATE_NUMBER = 0
@@ -26,6 +27,15 @@ ARIA2C_PATH = 'resource/aria2/aria2c.exe'
 RPC_PORT = 6800
 DEFAULT_GAME_PATH = os.path.join(os.path.expanduser('~'), "AppData", "Roaming", ".minecraft")
 PLU_URL = ""
+
+config_path_value = str(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation))
+allPath = os.path.join(config_path_value, "RedstoneLauncher")
+DATA_PATH = os.path.join(allPath, "data")
+ACCOUNTS_PATH = os.path.join(DATA_PATH, "accounts.json")
+COMMAND_PATH = os.path.join(allPath, "command")
+CONFIG_PATH = os.path.join(DATA_PATH, "config.json")
+CACHE_PATH = os.path.join(allPath, "cache")
+LOG_PATH = os.path.join(allPath, "log")
 
 LAUNCH_DATA = {}
 

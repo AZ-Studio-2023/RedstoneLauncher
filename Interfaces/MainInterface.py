@@ -11,7 +11,7 @@ from qfluentwidgets.components.widgets.acrylic_label import AcrylicLabel
 
 from Helpers.flyoutmsg import dlerr, dlsuc, dlwar
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON, MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, \
-    THIRD_PARTY_ACCOUNT, setLaunchData
+    THIRD_PARTY_ACCOUNT, setLaunchData, ACCOUNTS_PATH
 from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, RoundMenu, VBoxLayout, DropDownPushButton, \
     PushButton, TransparentPushButton, HorizontalFlipView, HorizontalPipsPager, LargeTitleLabel, TitleLabel, \
     TransparentDropDownPushButton, PrimaryPushButton, ImageLabel
@@ -104,7 +104,7 @@ class MainInterface(QWidget):
         free_memory = mem.available
         free_memory_mb = free_memory / 1024 / 1024
         free_memory_mb = int(free_memory_mb * 0.8)
-        f = open(os.path.join("data", "accounts.json"), "r")
+        f = open(ACCOUNTS_PATH, "r")
         account_data = json.loads(f.read())
         f.close()
         launch_data = {
@@ -185,7 +185,7 @@ class MainInterface(QWidget):
 
     def load_account(self):
         global account_list
-        f = open("data/accounts.json", "r")
+        f = open(ACCOUNTS_PATH, "r")
         data = json.loads(f.read())["accounts"]
         f.close()
         items_to_remove = []

@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 from Helpers.Config import cfg
 from Helpers.downloadHelper import downloadJson
 from Helpers.flyoutmsg import dlerr, dlsuc, dlwar
-from Helpers.getValue import MINECRAFT_ICON, RELEASE, SNAPSHOT, setDownloadData
+from Helpers.getValue import MINECRAFT_ICON, RELEASE, SNAPSHOT, setDownloadData, CACHE_PATH
 from Helpers.styleHelper import style_path
 
 
@@ -67,13 +67,13 @@ class choseInterface(ScrollArea):
             url = "http://launchermeta.mojang.com/mc/game/version_manifest.json"
         else:
             url = "https://bmclapi2.bangbang93.com/mc/game/version_manifest.json"
-        setDownloadData({"url": url, "path": os.path.join("cache", "version_manifest.json")})
+        setDownloadData({"url": url, "path": os.path.join(CACHE_PATH, "version_manifest.json")})
         self.pool.start(self.download)
 
 
     def load_versions(self, r):
-        if os.path.exists(os.path.join("cache", "version_manifest.json")):
-            u = open(os.path.join("cache", "version_manifest.json"), "r", encoding='utf-8')
+        if os.path.exists(os.path.join(CACHE_PATH, "version_manifest.json")):
+            u = open(os.path.join(CACHE_PATH, "version_manifest.json"), "r", encoding='utf-8')
             data = json.loads(u.read())
             u.close()
             data = data["versions"]
