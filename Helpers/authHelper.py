@@ -4,6 +4,8 @@ import webbrowser
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 from Helpers.getValue import CLIENT_ID, REDIRECT_URL
+from Helpers.outputHelper import logger
+
 
 class WorkerSignals(QObject):
     progress = pyqtSignal(dict)
@@ -114,6 +116,7 @@ class MicrosoftLogin(QRunnable):
                 profile_response = requests.get(profile_url, headers=headers)
                 profile_response.raise_for_status()
                 profile_data = profile_response.json()
+                logger.info(f"登录成功！玩家名：{profile_data['name']}")
                 self.signals.progress.emit( {
                     "access_token": minecraft_access_token,
                     "username": profile_data["name"],
@@ -122,10 +125,14 @@ class MicrosoftLogin(QRunnable):
                     "code": 200
                 })
             else:
+                logger.error("该账号未拥有Minecraft")
                 self.signals.progress.emit({"code": 403, "error": "该账号未拥有Minecraft"})
         except requests.RequestException as e:
+            logger.error(f"网络请求错误: {str(e)}")
             self.signals.progress.emit({"code": 500, "error": f"网络请求错误: {str(e)}"})
         except KeyError as e:
+            logger.error(f"响应数据缺少关键字段: {str(e)}")
             self.signals.progress.emit({"code": 500, "error": f"响应数据缺少关键字段: {str(e)}"})
         except Exception as e:
+            logger.error(f"未知错误: {str(e)}")
             self.signals.progress.emit({"code": 500, "error": f"未知错误: {str(e)}"})

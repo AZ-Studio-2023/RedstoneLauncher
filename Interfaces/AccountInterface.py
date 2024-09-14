@@ -71,7 +71,7 @@ class Add_Account_MessageBox(MessageBoxBase):
     def finish(self, data):
         global ms_login_data
         if data["code"] == 500:
-            self.tipLabel.setText(self.tr("网络错误"))
+            self.tipLabel.setText(self.tr("网络错误，请稍后重试"))
         elif data["code"] == 403:
             self.tipLabel.setText(self.tr("未获取到该账户的Minecraft档案"))
         elif data["code"] == 100:
