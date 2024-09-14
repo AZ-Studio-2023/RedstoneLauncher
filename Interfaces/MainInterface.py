@@ -11,7 +11,7 @@ from qfluentwidgets.components.widgets.acrylic_label import AcrylicLabel
 
 from Helpers.flyoutmsg import dlerr, dlsuc, dlwar
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON, MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, \
-    THIRD_PARTY_ACCOUNT, setLaunchData, ACCOUNTS_PATH
+    THIRD_PARTY_ACCOUNT, setLaunchData, ACCOUNTS_PATH, CACHE_PATH
 from qfluentwidgets import SwitchButton, SplitPushButton, FluentIcon, Action, RoundMenu, VBoxLayout, DropDownPushButton, \
     PushButton, TransparentPushButton, HorizontalFlipView, HorizontalPipsPager, LargeTitleLabel, TitleLabel, \
     TransparentDropDownPushButton, PrimaryPushButton, ImageLabel
@@ -175,7 +175,10 @@ class MainInterface(QWidget):
     def setAccountInfo(self, type, name):
         global account_chose
         if type == "Microsoft":
-            self.accountButton.setIcon(QIcon(MICROSOFT_ACCOUNT))
+            if os.path.exists(os.path.join(CACHE_PATH, f"{name}.png")):
+                self.accountButton.setIcon(QIcon(os.path.join(CACHE_PATH, f"{name}.png")))
+            else:
+                self.accountButton.setIcon(QIcon(MICROSOFT_ACCOUNT))
         elif type == "Legacy":
             self.accountButton.setIcon(QIcon(LEGACY_ACCOUNT))
         elif type == "Third-Party":
@@ -199,8 +202,12 @@ class MainInterface(QWidget):
 
         for account in data:
             if account["type"] == "msa":
-                action = Action(QIcon(MICROSOFT_ACCOUNT), account["name"],
-                           triggered=self.create_lambda("Microsoft", account["name"]))
+                if os.path.exists(os.path.join(CACHE_PATH, f"{account['name']}.png")):
+                    action = Action(QIcon(os.path.join(CACHE_PATH, f"{account['name']}.png")), account["name"],
+                               triggered=self.create_lambda("Microsoft", account["name"]))
+                else:
+                    action = Action(QIcon(MICROSOFT_ACCOUNT), account["name"],
+                               triggered=self.create_lambda("Microsoft", account["name"]))
                 self.account_menu.addAction(action)
                 account_list.append(action)
             elif account["type"] == "Legacy":
