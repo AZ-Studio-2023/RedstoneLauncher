@@ -3,11 +3,14 @@ from datetime import date
 
 from PyQt5.QtCore import QStandardPaths
 
-VERSION = "0.0.16 Preview"
-UPDATE_NUMBER = 0
+VERSION = "0.0.18 Preview"
+UPDATE_NUMBER = 1
+versionDetail = "1.还没写！"
 YEAR = int(date.today().year)
 AUTHOR = "AZ Studio"
 FEEDBACK_URL = "https://github.com/AZ-Studio-2023/RedstoneLauncher/issues"
+RELEASE_URL = "https://github.com/AZ-Studio-2023/RedstoneLauncher/releases/"
+AZ_URL = "https://azteam.cn"
 HELP_URL = "https://azteam.cn"
 CLIENT_ID = "846a8cc1-cc50-4df5-a2df-ea391aac13c5"
 REDIRECT_URL = "http://localhost:60000"

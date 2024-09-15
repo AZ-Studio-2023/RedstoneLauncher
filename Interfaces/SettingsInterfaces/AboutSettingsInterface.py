@@ -6,8 +6,35 @@ from qfluentwidgets import FluentIcon as FIF
 from Helpers.Config import cfg
 from PyQt5.QtCore import Qt, QUrl
 
-from Helpers.getValue import YEAR, AUTHOR, VERSION, FEEDBACK_URL, HELP_URL
+from Helpers.getValue import YEAR, AUTHOR, VERSION, FEEDBACK_URL, HELP_URL, RELEASE_URL, AZ_URL, versionDetail
 from Helpers.styleHelper import style_path
+
+
+def changelog(parent):
+    view = FlyoutView(
+        title=f'Redstone Launcher {VERSION}更新日志 ',
+        content=versionDetail,
+        # image='resource/splash.png',
+        isClosable=True
+    )
+
+    # add button to view
+    button1 = PushButton(FIF.GITHUB, 'GitHub')
+    button1.setFixedWidth(120)
+    button1.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(RELEASE_URL)))
+    view.addWidget(button1, align=Qt.AlignRight)
+
+    button2 = PushButton('AZ Studio')
+    button2.setFixedWidth(120)
+    button2.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(AZ_URL)))
+    view.addWidget(button2, align=Qt.AlignRight)
+
+    view.widgetLayout.insertSpacing(1, 5)
+    view.widgetLayout.addSpacing(5)
+
+    # show view
+    w = Flyout.make(view, parent.aboutCard, parent)
+    view.closed.connect(w.close)
 
 
 class AboutSettingsInterface(ScrollArea):
@@ -65,7 +92,7 @@ class AboutSettingsInterface(ScrollArea):
             self.tr('Version') + f" {VERSION}",
             self.aboutGroup
         )
-
+        self.aboutCard.clicked.connect(lambda: changelog(self))
         self.feedbackCard.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(FEEDBACK_URL)))
 
     def setSettingsQss(self):
