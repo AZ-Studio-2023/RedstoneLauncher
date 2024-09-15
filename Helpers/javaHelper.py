@@ -41,6 +41,10 @@ def find_java_directories(base_path, match_keywords, exclude_keywords):
     java_list = []
     java_path_list = []
     try:
+        # new code
+        if sys.platform.startswith('darwin'):
+            return [javaPath(subprocess.getoutput("whereis java").split("java: ")[1], get_java_version(subprocess.getoutput("whereis java").split("java: ")[1]))]
+        # new code
         for root, dirs, files in os.walk(base_path):
             for dir_name in dirs:
                 if any(exclude in dir_name for exclude in exclude_keywords):
