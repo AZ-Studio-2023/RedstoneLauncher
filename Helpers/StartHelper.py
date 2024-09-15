@@ -207,7 +207,7 @@ class launch(QRunnable):
             except Exception as e:
                 if cfg.debug_card.value:
                     logger.error(f"插件{item}出现错误：{e}")
-        result = subprocess.run(command, capture_output=True, text=True, cwd=game_log_path)
+        result = subprocess.run(command, capture_output=True, text=True, cwd=game_log_path, creationflags=subprocess.CREATE_NO_WINDOW)
         self.signals.progress.emit({"state": "3", "uuid": data["process_uuid"]})
         logger.debug(f"Version: {data['version']} | Process_UUID: {data['process_uuid']} | 当前状态：游戏进程已退出")
         for item in plugins_api:

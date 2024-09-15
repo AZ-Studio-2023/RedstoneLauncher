@@ -103,7 +103,7 @@ class Window(SplitFluentWindow):
             '--split=5',
             '--min-split-size=1M'
         ]
-        self.aria2c_process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)  # 把Aria2c启动
+        self.aria2c_process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
         # download(url, "cache")
         if cfg.PluginEnable.value:
             load_plugins(parent=self)
