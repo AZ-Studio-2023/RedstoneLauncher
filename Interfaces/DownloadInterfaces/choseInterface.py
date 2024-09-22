@@ -34,7 +34,6 @@ class choseInterface(ScrollArea):
         self.enter.clicked.connect(self.StartVersionIndexDownload)
         self.enter.setEnabled(False)
         self.enter.setFixedSize(78, 33)
-        # self.enter.clicked.connect()
         self.HBoxLayout.addWidget(self.title)
         self.HBoxLayout.setContentsMargins(10, 10, 10, 10)
         self.HBoxLayout.addWidget(self.refresh)
