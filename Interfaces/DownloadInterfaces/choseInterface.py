@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 from Helpers.Config import cfg
 from Helpers.downloadHelper import downloadJson
 from Helpers.flyoutmsg import dlerr, dlsuc, dlwar
-from Helpers.getValue import MINECRAFT_ICON, RELEASE, SNAPSHOT, setDownloadData, CACHE_PATH
+from Helpers.getValue import MINECRAFT_ICON, RELEASE, SNAPSHOT, setDownloadData, CACHE_PATH, getVersionsData, setVersionsData
 from Helpers.styleHelper import style_path
 
 
@@ -31,6 +31,7 @@ class choseInterface(ScrollArea):
         self.refresh.setFixedSize(80, 35)
         self.refresh.clicked.connect(self.load_versions)
         self.enter = PrimaryPushButton(FluentIcon.CHECKBOX, self.tr("确定"))
+        self.enter.clicked.connect(self.StartVersionIndexDownload)
         self.enter.setEnabled(False)
         self.enter.setFixedSize(78, 33)
         # self.enter.clicked.connect()
@@ -50,6 +51,7 @@ class choseInterface(ScrollArea):
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setHorizontalHeaderLabels([self.tr('版本号'), self.tr('类型'), self.tr('发布时间')])
+        self.table.currentItemChanged.connect(lambda: self.enter.setEnabled(True))
         self.VBoxLayout.addWidget(self.table)
         self.setQss()
 
@@ -58,9 +60,11 @@ class choseInterface(ScrollArea):
         self.download.signals.progress.connect(self.load_versions)
         self.start()
 
+
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())
+
 
     def start(self):
         if cfg.source.value == "官方":
@@ -69,6 +73,13 @@ class choseInterface(ScrollArea):
             url = "https://bmclapi2.bangbang93.com/mc/game/version_manifest.json"
         setDownloadData({"url": url, "path": os.path.join(CACHE_PATH, "version_manifest.json")})
         self.pool.start(self.download)
+
+    def StartVersionIndexDownload(self):
+        index = self.table.currentRow()
+        version = self.table.item(index, 0).text()
+        d = getVersionsData()
+        d["minecraft"] = version
+        setVersionsData(d)
 
 
     def load_versions(self, r):

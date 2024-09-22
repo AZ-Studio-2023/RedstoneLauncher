@@ -46,6 +46,8 @@ PROCESS_DATA = []
 
 DOWNLOAD_DATA = []
 
+VERSIONS_DATA = {"minecraft": "", "forge": "", "fabric": "", "fabric_api": ""}
+
 def setLaunchData(data):
     global LAUNCH_DATA
     LAUNCH_DATA = data
@@ -68,6 +70,14 @@ def setDownloadData(data):
 def getDownloadData():
     global DOWNLOAD_DATA
     return DOWNLOAD_DATA
+
+def setVersionsData(data):
+    global VERSIONS_DATA
+    VERSIONS_DATA = data
+
+def getVersionsData():
+    global VERSIONS_DATA
+    return VERSIONS_DATA
 
 
 
