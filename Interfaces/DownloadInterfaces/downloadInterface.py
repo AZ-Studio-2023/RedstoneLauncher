@@ -16,6 +16,7 @@ from Helpers.CustomControls import ListViewHelper
 from Helpers.StartHelper import getAllVersion
 from Helpers.styleHelper import style_path
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
+from Interfaces.DownloadInterfaces.checkInterface import checkInterface
 from Interfaces.DownloadInterfaces.choseInterface import choseInterface
 
 
@@ -83,7 +84,7 @@ class downloadInterface(QWidget):
 
     def initNavigation(self):
         self.addSubInterface(choseInterface("Minecraft"), QIcon(MINECRAFT_ICON), "Minecraft", "Minecraft")
-
+        self.addSubInterface(checkInterface(), FIF.CHECKBOX, "已选择", "check", position=Qt.AlignBottom)
         self.navigationBar.setCurrentItem("Minecraft")
         self.stackWidget.currentChanged.connect(self.onCurrentInterfaceChanged)
 
