@@ -53,10 +53,12 @@ class checkInterface(ScrollArea):
         self.title.setText(self.tr("游戏下载"))
         self.title.setContentsMargins(0, 0, 0, 10)
         self.hBoxLayout = QHBoxLayout()
-        self.fButton = TransparentPushButton(FluentIcon.SYNC, self.tr("刷新"))
+        self.fButton = TransparentPushButton(FluentIcon.SYNC, self.tr("同步"))
         self.fButton.clicked.connect(self.refresh)
+        self.submit = PrimaryPushButton(FluentIcon.DOWNLOAD, self.tr("开始下载"))
         self.hBoxLayout.addWidget(self.title, alignment=Qt.AlignLeft)
         self.hBoxLayout.addWidget(self.fButton, alignment=Qt.AlignRight | Qt.AlignTop)
+        self.hBoxLayout.addWidget(self.submit, alignment=Qt.AlignRight | Qt.AlignTop)
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.addLayout(self.hBoxLayout)
         self.vBoxLayout.setSpacing(6)
@@ -69,9 +71,6 @@ class checkInterface(ScrollArea):
         self.Minecraft.setObjectName("Minecraft")
         self.vBoxLayout.addWidget(self.Minecraft, alignment=Qt.AlignTop)
 
-        change = QTimer()
-        change.timeout.connect(self.refresh)
-        change.start(1)
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())
