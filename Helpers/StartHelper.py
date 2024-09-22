@@ -69,7 +69,7 @@ def getAllVersion(gameDir):
 def getVersionInfo(gameDir, version):
     with open(os.path.join(gameDir, 'versions', version, f'{version}.json'), "r") as u:
         file_content = json.loads(u.read())
-        return {"type": file_content["clientVersion"], "clientVersion": file_content["clientVersion"]}
+        return {"type": file_content["clientVersion"], "clientVersion": file_content["clientVersion"], "mainClass": file_content["mainClass"]}
 
 
 class launch(QRunnable):
@@ -89,7 +89,7 @@ class launch(QRunnable):
                     logger.error(f"插件{item}出现错误：{e}")
 
         data = getLaunchData()
-        main_class = "net.minecraft.client.main.Main"
+        main_class = data["mainClass"]
         pc_os = platform.system()
         assetsDir = os.path.join(data["gameDir"], "assets")
         if len(data["clientVersion"]) >= 3 and data["clientVersion"][2] == '.':

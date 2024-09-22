@@ -3,12 +3,11 @@ import json
 import os
 import random
 import uuid
-
 import psutil
+from functools import partial
 from PyQt5.QtCore import Qt, QSize, QTimer, QThreadPool
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication, QSizePolicy, QLabel
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QApplication, QLabel
 from qfluentwidgets.components.widgets.acrylic_label import AcrylicLabel
-
 from Helpers.flyoutmsg import dlerr, dlsuc, dlwar
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON, MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, \
     THIRD_PARTY_ACCOUNT, setLaunchData, ACCOUNTS_PATH, CACHE_PATH
@@ -65,9 +64,7 @@ class MainInterface(QWidget):
         self.account_menu = RoundMenu(parent=self.accountButton)
         self.accountButton.setMenu(self.account_menu)
         self.startLayout.addWidget(self.accountButton, alignment=Qt.AlignRight)
-        # self.chose_button.setFont(self.font)
         self.game_version_button = DropDownPushButton(FluentIcon.PLAY, self.tr('选择游戏版本'))
-        # self.startLayout.addWidget(self.chose_button, alignment=Qt.AlignRight)
         self.startLayout.addWidget(self.game_version_button, alignment=Qt.AlignRight)
         self.game_version_button.setFixedSize(325, 60)
         self.menu = RoundMenu(parent=self.game_version_button)
@@ -112,7 +109,7 @@ class MainInterface(QWidget):
             "gameDir": cfg.gamePath.value, "clientVersion": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["clientVersion"], "xmx": free_memory_mb,
             "gameType": getVersionType(cfg.gamePath.value, self.game_version_button.text()), "userType": find_dict(account_data["accounts"], "name", self.accountButton.text())["type"],
             "uuid": find_dict(account_data["accounts"], "name", self.accountButton.text())["uuid"], "versionType": getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["type"],
-            "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid, "refresh_token": find_dict(account_data["accounts"], "name", self.accountButton.text())["refresh_token"], "access_token": find_dict(account_data["accounts"], "name", self.accountButton.text())["access_token"]}
+            "username": self.accountButton.text(), "version": self.game_version_button.text(), "process_uuid": launch_uuid, "refresh_token": find_dict(account_data["accounts"], "name", self.accountButton.text())["refresh_token"], "access_token": find_dict(account_data["accounts"], "name", self.accountButton.text())["access_token"], "mainClass":  getVersionInfo(cfg.gamePath.value, self.game_version_button.text())["mainClass"]}
         setLaunchData(launch_data)
         dlsuc(self, "游戏进程启动中！可前往任务页查看详细信息")
         self.thread_pool.start(self.launch_worker)
@@ -245,15 +242,15 @@ class MainInterface(QWidget):
                 Vanilla_name = ver["name"]
                 self.menu.addAction(
                     Action(QIcon(MINECRAFT_ICON), Vanilla_name,
-                           triggered=lambda: self.setGameInfo("Vanilla", Vanilla_name)))
+                           triggered=partial(self.setGameInfo, "Vanilla", Vanilla_name)))
             elif ver["type"] == "Forge":
                 Forge_name = ver["name"]
                 self.menu.addAction(
-                    Action(QIcon(FORGE_ICON), Forge_name, triggered=lambda: self.setGameInfo("Forge", Forge_name)))
+                    Action(QIcon(FORGE_ICON), Forge_name, triggered=partial(self.setGameInfo, "Forge", Forge_name)))
             else:
                 Fabric_name = ver["name"]
                 self.menu.addAction(
-                    Action(QIcon(FABRIC_ICON), Fabric_name, triggered=lambda: self.setGameInfo("Fabric", Fabric_name)))
+                    Action(QIcon(FABRIC_ICON), Fabric_name, triggered=partial(self.setGameInfo, "Fabric", Fabric_name)))
 
     def get_all_news(self):
         image_extensions = ['.jpg', '.jpeg', '.png']
