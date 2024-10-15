@@ -68,7 +68,10 @@ def run_plugins(parent):
         get_v.close()
         if data["type"] == "Bar" and os.path.basename(folder) == plugin_name:
             #icon = f'plugins/{plugin_name}/{data["icon"]}'
-            icon = data["show_icon"]
+            if os.path.exists(data["show_icon"]):
+                icon = data["show_icon"]
+            else:
+                icon = os.path.join(folder, data["show_icon"])
             #icon = "resource/logo.png"
             name = data["name"]
             if cfg.debug_card.value:
