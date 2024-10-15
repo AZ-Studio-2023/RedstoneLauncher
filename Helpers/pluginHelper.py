@@ -68,10 +68,7 @@ def run_plugins(parent):
         get_v.close()
         if data["type"] == "Bar" and os.path.basename(folder) == plugin_name:
             #icon = f'plugins/{plugin_name}/{data["icon"]}'
-            if os.path.exists(data["show_icon"]):
-                icon = data["show_icon"]
-            else:
-                icon = os.path.join(folder, data["show_icon"])
+            icon = data["show_icon"]
             #icon = "resource/logo.png"
             name = data["name"]
             if cfg.debug_card.value:
@@ -95,7 +92,11 @@ def run_plugins_plugin(parent, PluginsGroup):
             get_json = open(f"{folder}/index.json", "r", encoding="utf-8")
             data = json.loads(get_json.read())
             get_json.close()
-            addCard(parent, PluginsGroup, data["icon"], data["name"], data["desc"], data["type"], folder)
+            if os.path.exists(data["icon"]):
+                icon = data["icon"]
+            else:
+                icon = os.path.join(folder, data["icon"])
+            addCard(parent, PluginsGroup, icon, data["name"], data["desc"], data["type"], folder)
 
 
 def open_plugin_window(plugin, parent):
