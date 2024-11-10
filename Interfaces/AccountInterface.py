@@ -16,7 +16,7 @@ from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, 
                             VerticalSeparator, MSFluentWindow, NavigationItemPosition, ScrollArea,
                             TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit, StrongBodyLabel)
 
-from Helpers.authHelper import MicrosoftLogin
+from Helpers.authHelper import MicrosoftLogin, get_offline_player_uuid
 from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCOUNT, ACCOUNTS_PATH, CACHE_PATH
 from Helpers.flyoutmsg import dlsuc, dlwar
 from Helpers.styleHelper import style_path
@@ -180,7 +180,7 @@ class AccountInterface(ScrollArea):
                 dlwar("您添加的玩家已存在，请勿重复添加", self)
                 return
         if account_type == "Legacy":
-            u = str(uuid.uuid4())
+            u = get_offline_player_uuid(name)
             data.append({"name": name, "type": "Legacy", "uuid": u, "refresh_token": "", "access_token": ""})
             self.addCard(QIcon(LEGACY_ACCOUNT), name, "离线登录", {"name": name, "type": "Legacy", "uuid": u, "refresh_token": "", "access_token": ""})
         elif account_type == "Microsoft":

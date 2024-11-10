@@ -1,4 +1,6 @@
+import hashlib
 import os.path
+import uuid
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QRunnable
 import requests
@@ -8,6 +10,15 @@ from urllib.parse import parse_qs, urlparse
 from Helpers.getValue import CLIENT_ID, REDIRECT_URL, DATA_PATH, CACHE_PATH
 from Helpers.outputHelper import logger
 
+
+def get_offline_player_uuid(player_name):
+    input_str = "OfflinePlayer:" + player_name
+    hash_bytes = hashlib.md5(input_str.encode('utf-8')).digest()
+    most_sig_bits = 0
+    least_sig_bits = 0
+    for i in range(8):
+        most_sig_bits = (most_sig_bits << 8) | (hash_bytes[i] & 0xff)
+    return uuid.UUID(int=(most_sig_bits << 64) | least_sig_bits)
 
 class WorkerSignals(QObject):
     progress = pyqtSignal(dict)
