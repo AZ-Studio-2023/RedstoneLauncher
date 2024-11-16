@@ -3,7 +3,7 @@ import os.path
 import sys
 import uuid
 from pathlib import Path
-
+import pyperclip
 from PyQt5.QtCore import Qt, QPoint, QSize, QUrl, QRect, QPropertyAnimation, QThreadPool
 from PyQt5.QtGui import QIcon, QFont, QColor, QPainter
 from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QGraphicsOpacityEffect, QLabel
@@ -89,6 +89,7 @@ class AppCard(CardWidget):
         self.iconWidget = IconWidget(icon)
         self.titleLabel = BodyLabel(title, self)
         self.contentLabel = CaptionLabel(content, self)
+        self.copyButton = TransparentToolButton(FluentIcon.COPY, self)
         self.delButton = TransparentToolButton(FluentIcon.DELETE, self)
 
         self.hBoxLayout = QHBoxLayout(self)
@@ -97,7 +98,8 @@ class AppCard(CardWidget):
         self.setFixedHeight(73)
         self.iconWidget.setFixedSize(28, 28)
         self.contentLabel.setTextColor("#606060", "#d2d2d2")
-        self.delButton.setFixedWidth(120)
+        self.copyButton.setFixedWidth(45)
+        self.delButton.setFixedWidth(45)
 
         self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
         self.hBoxLayout.setSpacing(15)
@@ -111,8 +113,15 @@ class AppCard(CardWidget):
         self.hBoxLayout.addLayout(self.vBoxLayout)
 
         self.hBoxLayout.addStretch(1)
+        self.hBoxLayout.addWidget(self.copyButton, 0, Qt.AlignRight)
         self.hBoxLayout.addWidget(self.delButton, 0, Qt.AlignRight)
+        self.copyButton.clicked.connect(lambda: self.copyUUID(dic=dic, p=parent))
         self.delButton.clicked.connect(lambda: self.del_account(dic=dic))
+
+    def copyUUID(self, dic, p):
+        uuid_obj = uuid.UUID(dic["uuid"])
+        pyperclip.copy(str(uuid_obj))
+        dlsuc(p, "玩家UUID已复制到剪贴板")
 
     def del_account(self, dic):
         f = open(ACCOUNTS_PATH, "r")
@@ -180,7 +189,7 @@ class AccountInterface(ScrollArea):
                 dlwar("您添加的玩家已存在，请勿重复添加", self)
                 return
         if account_type == "Legacy":
-            u = get_offline_player_uuid(name)
+            u = str(get_offline_player_uuid(name))
             data.append({"name": name, "type": "Legacy", "uuid": u, "refresh_token": "", "access_token": ""})
             self.addCard(QIcon(LEGACY_ACCOUNT), name, "离线登录", {"name": name, "type": "Legacy", "uuid": u, "refresh_token": "", "access_token": ""})
         elif account_type == "Microsoft":
