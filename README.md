@@ -21,5 +21,10 @@ _✨ 新目标 再出发 ✨_
 ## 统计
 
 ![Star History Chart](https://api.star-history.com/svg?repos=AZ-Studio-2023/RedstoneLauncher&type=Date)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FAZ-Studio-2023%2FRedstoneLauncher.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FAZ-Studio-2023%2FRedstoneLauncher?ref=badge_shield)
 
 ![Alt](https://repobeats.axiom.co/api/embed/e9a933aefa5ffb60330e7079c79fa972279a7f7c.svg "Repobeats analytics image")
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FAZ-Studio-2023%2FRedstoneLauncher.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FAZ-Studio-2023%2FRedstoneLauncher?ref=badge_large)
