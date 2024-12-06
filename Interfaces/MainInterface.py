@@ -77,9 +77,6 @@ class MainInterface(QWidget):
         self.startLayout.addWidget(self.start_button, alignment=Qt.AlignRight)
         self.bottomLayout.addLayout(self.startLayout)
 
-        self.launch_worker = launch()
-        self.launch_worker.signals.progress.connect(self.launch_finish)
-
         self.thread_pool = QThreadPool()
 
         self.timer = QTimer(self)
@@ -93,6 +90,8 @@ class MainInterface(QWidget):
             self.mainImage.setCurrentIndex(self.mainImage.currentIndex()+1)
 
     def launch_start(self):
+        self.launch_worker = launch()
+        self.launch_worker.signals.progress.connect(self.launch_finish)
         mem = psutil.virtual_memory()
         launch_uuid = str(uuid.uuid4())
         data = getProcessData()
