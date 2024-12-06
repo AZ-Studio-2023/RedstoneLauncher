@@ -10,7 +10,7 @@ from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, 
                             VerticalSeparator, MSFluentWindow, NavigationItemPosition, ScrollArea,
                             TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit, StrongBodyLabel)
 
-from Helpers.getValue import MINECRAFT_ICON, getVersionsData
+from Helpers.getValue import MINECRAFT_ICON, getVersionsData, FABRIC_ICON, FORGE_ICON
 from Helpers.styleHelper import style_path
 
 
@@ -49,34 +49,34 @@ class checkInterface(ScrollArea):
         super().__init__()
         self.resize(600, 600)
         self.setObjectName("checkInterface")
-        self.title = TitleLabel()
-        self.title.setText(self.tr("游戏下载"))
-        self.title.setContentsMargins(0, 0, 0, 10)
-        self.hBoxLayout = QHBoxLayout()
-        self.fButton = TransparentPushButton(FluentIcon.SYNC, self.tr("同步"))
-        self.fButton.clicked.connect(self.refresh)
-        self.submit = PrimaryPushButton(FluentIcon.DOWNLOAD, self.tr("开始下载"))
-        self.hBoxLayout.addWidget(self.title, alignment=Qt.AlignLeft)
-        self.hBoxLayout.addWidget(self.fButton, alignment=Qt.AlignRight | Qt.AlignTop)
-        self.hBoxLayout.addWidget(self.submit, alignment=Qt.AlignRight | Qt.AlignTop)
         self.vBoxLayout = QVBoxLayout(self)
-        self.vBoxLayout.addLayout(self.hBoxLayout)
         self.vBoxLayout.setSpacing(6)
-        self.vBoxLayout.setContentsMargins(30, 60, 30, 30)
+        self.vBoxLayout.setContentsMargins(30, 30, 30, 30)
         self.vBoxLayout.setAlignment(Qt.AlignTop)
         self.setQss()
 
-        self.Minecraft = AppCard(QIcon(MINECRAFT_ICON), "Minecraft", "未选择", self)
+        self.Minecraft = AppCard(QIcon(MINECRAFT_ICON), "Minecraft", getVersionsData()["minecraft"], self)
         self.Minecraft.setFixedHeight(70)
         self.Minecraft.setObjectName("Minecraft")
         self.vBoxLayout.addWidget(self.Minecraft, alignment=Qt.AlignTop)
+
+        self.Forge = AppCard(QIcon(FORGE_ICON), "Forge", getVersionsData()["forge"], self)
+        self.Forge.setFixedHeight(70)
+        self.Forge.setObjectName("Forge")
+        self.vBoxLayout.addWidget(self.Forge, alignment=Qt.AlignTop)
+
+        self.Fabric = AppCard(QIcon(FABRIC_ICON), "Fabric", getVersionsData()["fabric"], self)
+        self.Fabric.setFixedHeight(70)
+        self.Fabric.setObjectName("Fabric")
+        self.vBoxLayout.addWidget(self.Fabric, alignment=Qt.AlignTop)
+
+        self.submit = PrimaryPushButton(FluentIcon.DOWNLOAD, self.tr("开始下载"))
+        self.submit.setContentsMargins(0, 25, 0, 0)
+        self.vBoxLayout.addWidget(self.submit, alignment=Qt.AlignRight)
 
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
-    def refresh(self):
-        data = getVersionsData()
-        self.Minecraft.contentLabel.setText(data["minecraft"])
 
 

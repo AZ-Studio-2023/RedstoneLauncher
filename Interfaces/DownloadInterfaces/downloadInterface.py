@@ -20,6 +20,7 @@ from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
 from Interfaces.DownloadInterfaces.checkInterface import checkInterface
 from Interfaces.DownloadInterfaces.choseInterface import choseInterface
 from Interfaces.DownloadInterfaces.choseMod import choseMod
+from Interfaces.DownloadInterfaces.checkInterface import checkInterface
 
 
 class downloadInterface(QWidget):
@@ -57,6 +58,8 @@ class downloadInterface(QWidget):
     def switchInterface(self, objectName):
         if "模组加载器" in objectName:
             self.stackedWidget.setCurrentWidget(self.findChild(choseMod, objectName))
+        elif "总览" in objectName:
+            self.stackedWidget.setCurrentWidget(self.findChild(checkInterface, objectName))
         else:
             self.stackedWidget.setCurrentWidget(self.findChild(choseInterface, objectName))
 

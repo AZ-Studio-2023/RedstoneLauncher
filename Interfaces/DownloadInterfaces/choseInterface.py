@@ -1,7 +1,8 @@
 import json
 import os.path
 
-from PyQt5.QtCore import Qt, QThreadPool
+import requests
+from PyQt5.QtCore import Qt, QThreadPool, QThread, pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QLabel, QFileDialog, QHBoxLayout, QVBoxLayout, QAbstractItemView, QTableWidgetItem
 from qfluentwidgets import FluentIcon, ExpandGroupSettingCard, SubtitleLabel, PrimaryPushButton, PushButton, ScrollArea, \
@@ -13,15 +14,33 @@ from Helpers.Config import cfg
 from Helpers.downloadHelper import downloadJson
 from Helpers.flyoutmsg import dlerr, dlsuc, dlwar
 from Helpers.getValue import MINECRAFT_ICON, RELEASE, SNAPSHOT, setDownloadData, CACHE_PATH, getVersionsData, setVersionsData
+from Helpers.outputHelper import logger
 from Helpers.styleHelper import style_path
 from Interfaces.DownloadInterfaces.choseMod import choseMod
+from Interfaces.DownloadInterfaces.checkInterface import checkInterface
 
+url = ""
 
+class getConfig(QThread):
+    trigger = pyqtSignal(dict)
+    def __init__(self):
+        super(getConfig, self).__init__()
+
+    def run(self):
+        global url
+        try:
+            r = requests.get(url).json()
+        except Exception as e:
+            logger.error(f"错误：{e}")
+            self.trigger.emit({"code": 502, "data":[]})
+            return
+        self.trigger.emit({"code": 200, "data":r})
 
 class choseInterface(ScrollArea):
     def __init__(self, d_type, f, parent=None):
+        global url
         super().__init__(parent=parent)
-        self.parent = parent
+        self.p = parent
         self.d_type = d_type
         self.f = f
         self.setObjectName("choseInterface")
@@ -33,9 +52,12 @@ class choseInterface(ScrollArea):
         self.title = SubtitleLabel(self.tr("选择版本"), self)
         self.refresh = PushButton(FluentIcon.SYNC, self.tr("刷新"))
         self.refresh.setFixedSize(80, 35)
-        self.refresh.clicked.connect(self.load_versions)
+        if self.d_type == "Minecraft":
+            self.refresh.clicked.connect(self.start)
+        else:
+            self.refresh.clicked.connect(self.mod_load)
         self.enter = PrimaryPushButton(FluentIcon.CHECKBOX, self.tr("确定"))
-        self.enter.clicked.connect(self.StartVersionIndexDownload)
+        self.enter.clicked.connect(self.enter_f)
         self.enter.setEnabled(False)
         self.enter.setFixedSize(78, 33)
         self.HBoxLayout.addWidget(self.title)
@@ -53,23 +75,43 @@ class choseInterface(ScrollArea):
         self.table.setRowCount(10)
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.table.setHorizontalHeaderLabels([self.tr('版本号'), self.tr('类型'), self.tr('发布时间')])
+        if self.d_type == "Minecraft":
+            self.table.setHorizontalHeaderLabels([self.tr('版本号'), self.tr('类型'), self.tr('发布时间')])
+        elif self.d_type == "Fabric":
+            self.table.setHorizontalHeaderLabels([self.tr('版本号'), self.tr('Minecraft'), self.tr('稳定性')])
+        else:
+            self.table.setHorizontalHeaderLabels([self.tr('版本号'), self.tr('Minecraft'), self.tr('发布时间')])
         self.table.currentItemChanged.connect(lambda: self.enter.setEnabled(True))
         self.VBoxLayout.addWidget(self.table)
         self.setQss()
 
         self.pool = QThreadPool()
-        self.download = downloadJson()
-        self.download.signals.progress.connect(self.load_versions)
         self.start()
+        self.gc = getConfig()
+        self.gc.trigger.connect(self.load_versions)
+        self.mod_load()
+
 
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
+    def mod_load(self):
+        global url
+        if self.d_type == "Forge":
+            url = f"https://bmclapi2.bangbang93.com/forge/minecraft/{getVersionsData()['minecraft']}"
+            self.gc.start()
+        elif self.d_type == "Fabric":
+            if cfg.source.value == "官方":
+                 url = f"https://meta.fabricmc.net/v2/versions/loader/{getVersionsData()['minecraft']}"
+            else:
+                url = f"https://bmclapi2.bangbang93.com/fabric-meta/v2/versions/loader/{getVersionsData()['minecraft']}"
+            self.gc.start()
 
     def start(self):
         if self.d_type == "Minecraft":
+            self.download = downloadJson()
+            self.download.signals.progress.connect(self.load_versions)
             if cfg.source.value == "官方":
                 url = "http://launchermeta.mojang.com/mc/game/version_manifest.json"
             else:
@@ -77,14 +119,29 @@ class choseInterface(ScrollArea):
             setDownloadData({"url": url, "path": os.path.join(CACHE_PATH, "version_manifest.json")})
             self.pool.start(self.download)
 
-    def StartVersionIndexDownload(self):
+    def enter_f(self):
         if self.d_type == "Minecraft":
             index = self.table.currentRow()
             version = self.table.item(index, 0).text()
             d = getVersionsData()
             d["minecraft"] = version
             setVersionsData(d)
-            self.f(choseMod(self.f), "模组加载器")
+            self.f(choseMod(self.f, self.p), "模组加载器")
+        elif self.d_type == "Forge":
+            index = self.table.currentRow()
+            version = self.table.item(index, 0).text()
+            d = getVersionsData()
+            d["forge"] = version
+            d["fabric"] = "未选择"
+            self.f(checkInterface(), "总览")
+        elif self.d_type == "Fabric":
+            index = self.table.currentRow()
+            version = self.table.item(index, 0).text()
+            d = getVersionsData()
+            d["fabric"] = version
+            d["forge"] = "未选择"
+            self.f(checkInterface(), "总览")
+
 
 
     def load_versions(self, r):
@@ -106,9 +163,41 @@ class choseInterface(ScrollArea):
                     self.table.setItem(num, 2, QTableWidgetItem(cn_time))
                 self.table.resizeColumnsToContents()
                 if r == "ok":
-                    dlsuc(content="数据获取成功", parent=self.parent)
+                    dlsuc(content="数据获取成功", parent=self.p)
                 else:
-                    dlwar(content="数据获取失败，已使用本地数据缓存", parent=self.parent)
+                    dlwar(content="数据获取失败，已使用本地数据缓存", parent=self.p)
             else:
-                dlerr("数据获取失败", parent=self.parent)
+                dlerr("数据获取失败", parent=self.p)
+        elif self.d_type == "Forge":
+            if r["code"] == 200:
+                dlsuc(content="数据获取成功", parent=self.p)
+                data = r["data"]
+                self.table.setRowCount(0)
+                self.table.setRowCount(len(data))
+                for num, j in enumerate(data):
+                    self.table.setItem(num, 0, QTableWidgetItem(j["version"]))
+                    self.table.setItem(num, 1, QTableWidgetItem(j["mcversion"]))
+                    self.table.setItem(num, 2, QTableWidgetItem(j["modified"]))
+                self.table.resizeColumnsToContents()
+            else:
+                dlerr("数据获取失败", parent=self.p)
+            self.gc.quit()
+        elif self.d_type == "Fabric":
+            if r["code"] == 200:
+                dlsuc(content="数据获取成功", parent=self.p)
+                data = r["data"]
+                self.table.setRowCount(0)
+                self.table.setRowCount(len(data))
+                for num, j in enumerate(data):
+                    if j["loader"]["stable"]:
+                        s = "是"
+                    else:
+                        s = "否"
+                    self.table.setItem(num, 0, QTableWidgetItem(j["loader"]["version"]))
+                    self.table.setItem(num, 1, QTableWidgetItem(j["intermediary"]["version"]))
+                    self.table.setItem(num, 2, QTableWidgetItem(s))
+                self.table.resizeColumnsToContents()
+            else:
+                dlerr("数据获取失败", parent=self.p)
+            self.gc.quit()
 

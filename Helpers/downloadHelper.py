@@ -31,6 +31,9 @@ class downloadJson(QRunnable):
         f.close()
         self.signals.progress.emit("ok")
 
+    def flush(self):
+        pass
+
 def download(url, path):
     aria2 = aria2p.API(
         aria2p.Client(

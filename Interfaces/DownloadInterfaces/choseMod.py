@@ -21,6 +21,7 @@ from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCO
 from Helpers.flyoutmsg import dlsuc, dlwar
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
 from Helpers.styleHelper import style_path
+from Interfaces.DownloadInterfaces.checkInterface import checkInterface
 
 ms_login_data = None
 
@@ -28,8 +29,10 @@ ms_login_data = None
 class AppCard(CardWidget):
     """ App card """
 
-    def __init__(self, icon, title, content, parent=None):
+    def __init__(self, icon, title, content, f, parent=None):
         super().__init__(parent)
+        self.f = f
+        self.p = parent
         self.iconWidget = IconWidget(icon)
         self.titleLabel = BodyLabel(title, self)
         self.contentLabel = CaptionLabel(content, self)
@@ -42,6 +45,7 @@ class AppCard(CardWidget):
         self.iconWidget.setFixedSize(28, 28)
         self.contentLabel.setTextColor("#606060", "#d2d2d2")
         self.choseButton.setFixedWidth(45)
+        self.choseButton.clicked.connect(self.next)
 
         self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
         self.hBoxLayout.setSpacing(15)
@@ -56,15 +60,25 @@ class AppCard(CardWidget):
 
         self.hBoxLayout.addStretch(1)
         self.hBoxLayout.addWidget(self.choseButton, 0, Qt.AlignRight)
+    def next(self):
+        from Interfaces.DownloadInterfaces.choseInterface import choseInterface
+        if self.titleLabel.text() == "Forge":
+            self.f(choseInterface("Forge", self.f, self.p), "Forge")
+        elif self.titleLabel.text() == "Fabric":
+            self.f(choseInterface("Fabric", self.f, self.p), "Fabric")
+        else:
+            self.f(checkInterface(), "总览")
 
 
 
 
 class choseMod(ScrollArea):
 
-    def __init__(self, f):
+    def __init__(self, f, parent=None):
         super().__init__()
         self.setObjectName("choseModInterface")
+        self.f = f
+        self.p = parent
         self.title = TitleLabel()
         self.title.setText(self.tr("选择模组加载器"))
         self.title.setContentsMargins(0, 0, 0, 10)
@@ -80,7 +94,7 @@ class choseMod(ScrollArea):
         self.setQss()
 
     def addCard(self, icon, title, content):
-        card = AppCard(icon, title, content, self)
+        card = AppCard(icon, title, content, self.f, parent=self.p)
         card.setFixedHeight(70)
         card.setObjectName(title)
         self.vBoxLayout.addWidget(card, alignment=Qt.AlignTop)
