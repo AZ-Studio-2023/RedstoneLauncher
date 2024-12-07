@@ -19,6 +19,7 @@ from Helpers.StartHelper import getAllVersion
 from Helpers.getValue import COMMAND_PATH, FORGE_ICON, FABRIC_ICON, MINECRAFT_ICON, SAVES, SCREENSHOT, RES, MODS, \
     ROCKET, JOYSTICK
 from Helpers.styleHelper import style_path
+from Interfaces.VersionsInterfaces.ModsInterface import ModsInterface
 
 ver = ""
 
@@ -139,14 +140,18 @@ class VersionTemplateInterface(ScrollArea):
     def __init__(self, version, f, parent=None):
         super().__init__()
         self.setObjectName("VersionTemplate")
+        self.f = f
+        self.p = parent
         self.Layout = FlowLayout(self)
         self.info = GameInfoCard(version, self)
         self.info.setContentsMargins(0,0,0,0)
         self.Layout.addWidget(self.info)
         if find_type(getAllVersion(cfg.gamePath.value), "name", version) == "Forge":
             self.mod = ImageCard(FORGE_ICON, "模组管理")
+            self.mod.clicked.connect(lambda: self.f(ModsInterface(version, self.f, self.p), "模组管理"))
         elif find_type(getAllVersion(cfg.gamePath.value), "name", version) == "Fabric":
             self.mod = ImageCard(FABRIC_ICON, "模组管理")
+            self.mod.clicked.connect(lambda: self.f(ModsInterface(version, self.f, self.p), "模组管理"))
         else:
             self.mod = ImageCard(MINECRAFT_ICON, "原版客户端")
         self.mod.setContentsMargins(0, 0, 0, 0)

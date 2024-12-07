@@ -18,6 +18,7 @@ from Helpers.StartHelper import getAllVersion
 from Helpers.styleHelper import style_path
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
 from Interfaces.DownloadInterfaces.checkInterface import checkInterface
+from Interfaces.VersionsInterfaces.ModsInterface import ModsInterface
 from Interfaces.VersionsInterfaces.VersionTemplateInterface import VersionTemplateInterface
 from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 
@@ -56,6 +57,8 @@ class VersionInterface(QWidget):
     def switchInterface(self, objectName):
         if "版本管理" in objectName:
             self.stackedWidget.setCurrentWidget(self.findChild(VersionListInterface, objectName))
+        elif "模组管理" in objectName:
+            self.stackedWidget.setCurrentWidget(self.findChild(ModsInterface, objectName))
         else:
             self.stackedWidget.setCurrentWidget(self.findChild(VersionTemplateInterface, objectName))
 
