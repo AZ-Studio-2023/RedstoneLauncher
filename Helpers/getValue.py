@@ -25,6 +25,12 @@ THIRD_PARTY_ACCOUNT = "resource/image/account/third_party.png"
 JAVA_RUNTIME = "resource/image/java.png"
 SNAPSHOT = "resource/image/block/obsidian.png"
 RELEASE = "resource/image/block/grass_block.png"
+RES = "resource/image/setting/res.svg"
+MODS = "resource/image/setting/mods.svg"
+SCREENSHOT = "resource/image/setting/screenshot.svg"
+SAVES = "resource/image/setting/saves.svg"
+ROCKET = "resource/image/setting/Rocket.svg"
+JOYSTICK = "resource/image/setting/Joystick.svg"
 
 ARIA2C_PATH = 'resource/aria2/aria2c.exe'
 RPC_PORT = 6800

@@ -17,17 +17,17 @@ from Helpers.CustomControls import ListViewHelper
 from Helpers.StartHelper import getAllVersion
 from Helpers.styleHelper import style_path
 from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
-from Interfaces.DownloadInterfaces.choseInterface import choseInterface
-from Interfaces.DownloadInterfaces.choseMod import choseMod
 from Interfaces.DownloadInterfaces.checkInterface import checkInterface
+from Interfaces.VersionsInterfaces.VersionTemplateInterface import VersionTemplateInterface
+from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
 
 
-class downloadInterface(QWidget):
+class VersionInterface(QWidget):
 
     def __init__(self):
         super().__init__()
         self.setStyleSheet('Demo{background:rgb(255,255,255)}')
-        self.setObjectName("downloadInterface")
+        self.setObjectName("VersionInterface")
         self.breadcrumbBar = BreadcrumbBar(self)
         self.stackedWidget = QStackedWidget(self)
         self.vBoxLayout = QVBoxLayout(self)
@@ -35,7 +35,7 @@ class downloadInterface(QWidget):
         setFont(self.breadcrumbBar, 22)
         self.breadcrumbBar.setSpacing(20)
 
-        self.addInterface(choseInterface("Minecraft", self.addInterface, self), "游戏下载")
+        self.addInterface(VersionListInterface(self.addInterface, self), "版本管理")
 
         self.vBoxLayout.setContentsMargins(20, 20, 20, 20)
         self.vBoxLayout.addWidget(self.breadcrumbBar)
@@ -47,7 +47,6 @@ class downloadInterface(QWidget):
 
         w = interface
         w.setObjectName(text + "-" + str(uuid1().hex))
-        w.setAlignment(Qt.AlignCenter)
 
         self.stackedWidget.addWidget(w)
         self.stackedWidget.setCurrentWidget(w)
@@ -55,12 +54,10 @@ class downloadInterface(QWidget):
         self.breadcrumbBar.addItem(w.objectName(), text)
 
     def switchInterface(self, objectName):
-        if "模组加载器" in objectName:
-            self.stackedWidget.setCurrentWidget(self.findChild(choseMod, objectName))
-        elif "总览" in objectName:
-            self.stackedWidget.setCurrentWidget(self.findChild(checkInterface, objectName))
+        if "版本管理" in objectName:
+            self.stackedWidget.setCurrentWidget(self.findChild(VersionListInterface, objectName))
         else:
-            self.stackedWidget.setCurrentWidget(self.findChild(choseInterface, objectName))
+            self.stackedWidget.setCurrentWidget(self.findChild(VersionTemplateInterface, objectName))
 
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:

@@ -169,35 +169,45 @@ class choseInterface(ScrollArea):
             else:
                 dlerr("数据获取失败", parent=self.p)
         elif self.d_type == "Forge":
-            if r["code"] == 200:
-                dlsuc(content="数据获取成功", parent=self.p)
-                data = r["data"]
-                self.table.setRowCount(0)
-                self.table.setRowCount(len(data))
-                for num, j in enumerate(data):
-                    self.table.setItem(num, 0, QTableWidgetItem(j["version"]))
-                    self.table.setItem(num, 1, QTableWidgetItem(j["mcversion"]))
-                    self.table.setItem(num, 2, QTableWidgetItem(j["modified"]))
-                self.table.resizeColumnsToContents()
-            else:
-                dlerr("数据获取失败", parent=self.p)
+            try:
+                if r["code"] == 200:
+                    dlsuc(content="数据获取成功", parent=self.p)
+                    data = r["data"]
+                    if len(data) == 0:
+                        dlwar("无可用版本", parent=self.p)
+                    self.table.setRowCount(0)
+                    self.table.setRowCount(len(data))
+                    for num, j in enumerate(data):
+                        self.table.setItem(num, 0, QTableWidgetItem(j["version"]))
+                        self.table.setItem(num, 1, QTableWidgetItem(j["mcversion"]))
+                        self.table.setItem(num, 2, QTableWidgetItem(j["modified"]))
+                    self.table.resizeColumnsToContents()
+                else:
+                    dlerr("数据获取失败", parent=self.p)
+            except:
+                dlwar("无可用版本", parent=self.p)
             self.gc.quit()
         elif self.d_type == "Fabric":
-            if r["code"] == 200:
-                dlsuc(content="数据获取成功", parent=self.p)
-                data = r["data"]
-                self.table.setRowCount(0)
-                self.table.setRowCount(len(data))
-                for num, j in enumerate(data):
-                    if j["loader"]["stable"]:
-                        s = "是"
-                    else:
-                        s = "否"
-                    self.table.setItem(num, 0, QTableWidgetItem(j["loader"]["version"]))
-                    self.table.setItem(num, 1, QTableWidgetItem(j["intermediary"]["version"]))
-                    self.table.setItem(num, 2, QTableWidgetItem(s))
-                self.table.resizeColumnsToContents()
-            else:
-                dlerr("数据获取失败", parent=self.p)
+            try:
+                if r["code"] == 200:
+                    dlsuc(content="数据获取成功", parent=self.p)
+                    data = r["data"]
+                    if len(data) == 0:
+                        dlwar("无可用版本", parent=self.p)
+                    self.table.setRowCount(0)
+                    self.table.setRowCount(len(data))
+                    for num, j in enumerate(data):
+                        if j["loader"]["stable"]:
+                            s = "是"
+                        else:
+                            s = "否"
+                        self.table.setItem(num, 0, QTableWidgetItem(j["loader"]["version"]))
+                        self.table.setItem(num, 1, QTableWidgetItem(j["intermediary"]["version"]))
+                        self.table.setItem(num, 2, QTableWidgetItem(s))
+                    self.table.resizeColumnsToContents()
+                else:
+                    dlerr("数据获取失败", parent=self.p)
+            except:
+                dlwar("无可用版本", parent=self.p)
             self.gc.quit()
 

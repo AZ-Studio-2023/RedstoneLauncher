@@ -1,145 +1,115 @@
-# coding:utf-8
+import json
+import os.path
 import sys
+import uuid
+from pathlib import Path
+import pyperclip
+from PyQt5.QtCore import Qt, QPoint, QSize, QUrl, QRect, QPropertyAnimation, QThreadPool
+from PyQt5.QtGui import QIcon, QFont, QColor, QPainter
+from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QGraphicsOpacityEffect, QLabel
 
-from PyQt5.QtCore import Qt, pyqtSignal, QEasingCurve, QUrl
-from PyQt5.QtGui import QIcon, QDesktopServices
-from PyQt5.QtWidgets import QLabel, QHBoxLayout, QVBoxLayout, QApplication, QFrame, QWidget
-
-from qfluentwidgets import (NavigationBar, NavigationItemPosition, NavigationWidget, MessageBox,
-                            isDarkTheme, setTheme, Theme, setThemeColor, SearchLineEdit,
-                            PopUpAniStackedWidget, getFont)
-from qfluentwidgets import FluentIcon as FIF
-from qframelesswindow import FramelessWindow, TitleBar
+from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, CaptionLabel, PushButton,
+                            TransparentToolButton, FluentIcon, RoundMenu, Action, ElevatedCardWidget,
+                            ImageLabel, isDarkTheme, FlowLayout, MSFluentTitleBar, SimpleCardWidget,
+                            HeaderCardWidget, InfoBarIcon, HyperlinkLabel, HorizontalFlipView,
+                            PrimaryPushButton, TitleLabel, PillPushButton, setFont, SingleDirectionScrollArea,
+                            VerticalSeparator, MSFluentWindow, NavigationItemPosition, ScrollArea,
+                            TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit, StrongBodyLabel)
 
 from Helpers.Config import cfg
-from Helpers.CustomControls import ListViewHelper
 from Helpers.StartHelper import getAllVersion
+from Helpers.authHelper import MicrosoftLogin, get_offline_player_uuid
+from Helpers.getValue import MICROSOFT_ACCOUNT, LEGACY_ACCOUNT, THIRD_PARTY_ACCOUNT, ACCOUNTS_PATH, CACHE_PATH
+from Helpers.flyoutmsg import dlsuc, dlwar
+from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
 from Helpers.styleHelper import style_path
 from Interfaces.VersionsInterfaces.VersionTemplateInterface import VersionTemplateInterface
-from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
 
+versions = []
 
-class Widget(QWidget):
+class AppCard(CardWidget):
+    """ App card """
 
-    def __init__(self, text: str, parent=None):
-        super().__init__(parent=parent)
-        self.label = QLabel(text, self)
-        self.label.setAlignment(Qt.AlignCenter)
+    def __init__(self, icon, title, content, f, parent=None):
+        super().__init__(parent)
+        self.f = f
+        self.p = parent
+        self.iconWidget = IconWidget(icon)
+        self.titleLabel = BodyLabel(title, self)
+        self.contentLabel = CaptionLabel(content, self)
+        self.choseButton = TransparentToolButton(FluentIcon.RIGHT_ARROW, self)
+        self.choseButton.clicked.connect(self.next)
+
         self.hBoxLayout = QHBoxLayout(self)
-        self.hBoxLayout.addWidget(self.label, 1, Qt.AlignCenter)
-        self.setObjectName(text.replace(' ', '-'))
+        self.vBoxLayout = QVBoxLayout()
+
+        self.setFixedHeight(73)
+        self.iconWidget.setFixedSize(28, 28)
+        self.contentLabel.setTextColor("#606060", "#d2d2d2")
+        self.choseButton.setFixedWidth(45)
+
+        self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
+        self.hBoxLayout.setSpacing(15)
+        self.hBoxLayout.addWidget(self.iconWidget)
+
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.setSpacing(0)
+        self.vBoxLayout.addWidget(self.titleLabel, 0, Qt.AlignVCenter)
+        self.vBoxLayout.addWidget(self.contentLabel, 0, Qt.AlignVCenter)
+        self.vBoxLayout.setAlignment(Qt.AlignVCenter)
+        self.hBoxLayout.addLayout(self.vBoxLayout)
+
+        self.hBoxLayout.addStretch(1)
+        self.hBoxLayout.addWidget(self.choseButton, 0, Qt.AlignRight)
+
+    def next(self):
+        self.f(VersionTemplateInterface(self.titleLabel.text(), self.f, self.p), self.titleLabel.text())
 
 
-class StackedWidget(QFrame):
-    """ Stacked widget """
-
-    currentChanged = pyqtSignal(int)
-
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.hBoxLayout = QHBoxLayout(self)
-        self.view = PopUpAniStackedWidget(self)
-
-        self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
-        self.hBoxLayout.addWidget(self.view)
-
-        self.view.currentChanged.connect(self.currentChanged)
-
-    def addWidget(self, widget):
-        """ add widget to view """
-        self.view.addWidget(widget)
-
-    def widget(self, index: int):
-        return self.view.widget(index)
-
-    def setCurrentWidget(self, widget, popOut=False):
-        if not popOut:
-            self.view.setCurrentWidget(widget, duration=300)
-        else:
-            self.view.setCurrentWidget(
-                widget, True, False, 200, QEasingCurve.InQuad)
-
-    def setCurrentIndex(self, index, popOut=False):
-        self.setCurrentWidget(self.view.widget(index), popOut)
 
 
-class VersionListInterface(QWidget):
 
-    def __init__(self):
+class VersionListInterface(ScrollArea):
+
+    def __init__(self, f, parent=None):
         super().__init__()
         self.setObjectName("VersionListInterface")
-
-        # use dark theme mode
-        # setTheme(Theme.DARK)
-
-        # change the theme color
-        # setThemeColor('#0078d4')
-
-        self.hBoxLayout = QHBoxLayout(self)
-        self.navigationBar = ListViewHelper(self)
-        self.stackWidget = StackedWidget(self)
-
-
-        # initialize layout
-        self.initLayout()
-
-        # add items to navigation interface
-        self.initNavigation()
+        self.f = f
+        self.p = parent
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.setSpacing(6)
+        self.vBoxLayout.setContentsMargins(30, 0, 30, 30)
+        self.vBoxLayout.setAlignment(Qt.AlignTop)
+        self.refresh = TransparentToolButton(FluentIcon.SYNC)
+        self.refresh.clicked.connect(self.refresh_func)
+        self.vBoxLayout.addWidget(self.refresh, alignment=Qt.AlignRight)
+        self.refresh.setFixedWidth(45)
         self.setQss()
+        self.refresh_func()
 
-    def initLayout(self):
-        self.hBoxLayout.addWidget(self.navigationBar)
-        self.hBoxLayout.addWidget(self.stackWidget)
-        self.hBoxLayout.setStretchFactor(self.stackWidget, 1)
-
-    def initNavigation(self):
-        for version in getAllVersion(cfg.gamePath.value):
-            if version["type"] == "Vanilla":
-                self.addSubInterface(VersionTemplateInterface(version["name"]), QIcon(MINECRAFT_ICON), version["name"])
-            elif version["type"] == "Forge":
-                self.addSubInterface(VersionTemplateInterface(version["name"]), QIcon(FORGE_ICON), version["name"])
-            elif version["type"] == "Fabric":
-                self.addSubInterface(VersionTemplateInterface(version["name"]), QIcon(FORGE_ICON), version["name"])
-
-        self.stackWidget.currentChanged.connect(self.onCurrentInterfaceChanged)
-
-        # hide the text of button when selected
-        # self.navigationBar.setSelectedTextVisible(False)
-
-        # adjust the font size of button
-        # self.navigationBar.setFont(getFont(12))
-
-    def addSubInterface(self, interface, icon, text: str, position=NavigationItemPosition.TOP, selectedIcon=None):
-        """ add sub interface """
-        self.stackWidget.addWidget(interface)
-        self.navigationBar.addItem(
-            routeKey=interface.objectName(),
-            icon=icon,
-            text=text,
-            onClick=lambda: self.switchTo(interface),
-            selectedIcon=selectedIcon,
-            position=position,
-        )
+    def addCard(self, icon, title, content):
+        card = AppCard(icon, title, content, self.f, parent=self.p)
+        card.setFixedHeight(70)
+        card.setObjectName(title)
+        self.vBoxLayout.addWidget(card, alignment=Qt.AlignTop)
 
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())
 
-    def switchTo(self, widget):
-        self.stackWidget.setCurrentWidget(widget)
+    def refresh_func(self):
+        global versions
+        d = getAllVersion(cfg.gamePath.value)
+        for ver in d:
+            if ver["name"] not in versions:
+                if ver["type"] == "Vanilla":
+                    Vanilla_name = ver["name"]
+                    self.addCard(QIcon(MINECRAFT_ICON), Vanilla_name, "原版客户端")
+                elif ver["type"] == "Forge":
+                    Forge_name = ver["name"]
+                    self.addCard(QIcon(FORGE_ICON), Forge_name, "Forge客户端")
+                else:
+                    Fabric_name = ver["name"]
+                    self.addCard(QIcon(FABRIC_ICON), Fabric_name, "Fabric客户端")
+                versions.append(ver["name"])
 
-    def onCurrentInterfaceChanged(self, index):
-        widget = self.stackWidget.widget(index)
-        self.navigationBar.setCurrentItem(widget.objectName())
-
-    def showMessageBox(self):
-        w = MessageBox(
-            '支持作者🥰',
-            '个人开发不易，如果这个项目帮助到了您，可以考虑请作者喝一瓶快乐水🥤。您的支持就是作者开发和维护项目的动力🚀',
-            self
-        )
-        w.yesButton.setText('来啦老弟')
-        w.cancelButton.setText('下次一定')
-
-        if w.exec():
-            QDesktopServices.openUrl(QUrl("https://afdian.net/a/zhiyiYo"))

@@ -23,8 +23,6 @@ from Helpers.getValue import MINECRAFT_ICON, FORGE_ICON, FABRIC_ICON
 from Helpers.styleHelper import style_path
 from Interfaces.DownloadInterfaces.checkInterface import checkInterface
 
-ms_login_data = None
-
 
 class AppCard(CardWidget):
     """ App card """

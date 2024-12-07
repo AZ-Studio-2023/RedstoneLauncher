@@ -15,7 +15,7 @@ from Helpers.pluginHelper import load_plugins, run_plugins
 from Helpers.styleHelper import style_path
 from Interfaces.DownloadInterfaces.downloadInterface import downloadInterface
 from Interfaces.MainInterface import MainInterface
-from Interfaces.VersionsInterfaces.VersionListsInterface import VersionListInterface
+from Interfaces.VersionsInterfaces.VersionInterface import VersionInterface
 from Interfaces.SettingsInterfaces.SettingsInterface import SettingsInterface
 from Interfaces.AccountInterface import AccountInterface
 from Interfaces.activityInterfaces.activityInterface import activityInterface
@@ -80,7 +80,7 @@ class Window(SplitFluentWindow):
 
         # create sub interface
         self.HomeInterface = MainInterface()
-        self.VersionsListInterface = VersionListInterface()
+        self.VersionInterface = VersionInterface()
         self.SettingsInterface = SettingsInterface()
         self.AccountInterface = AccountInterface()
         self.activityInterface = activityInterface()
@@ -119,7 +119,7 @@ class Window(SplitFluentWindow):
     def initNavigation(self):
         self.addSubInterface(self.HomeInterface, FIF.HOME, self.tr('主页'))
         self.navigationInterface.addSeparator()
-        self.addSubInterface(self.VersionsListInterface, FIF.BOOK_SHELF, self.tr('版本列表'))
+        self.addSubInterface(self.VersionInterface, FIF.BOOK_SHELF, self.tr('版本管理'))
         self.addSubInterface(self.activityInterface, FIF.TILES, self.tr('任务'))
         self.addSubInterface(self.downloadInterface, FIF.DOWNLOAD, self.tr('下载'))
         self.addSubInterface(self.AccountInterface, FIF.PEOPLE, self.tr('游戏账号'), NavigationItemPosition.BOTTOM)
@@ -132,13 +132,23 @@ class Window(SplitFluentWindow):
         # self.navigationInterface.setAcrylicEnabled(True)
 
     def initWindow(self):
-        self.resize(1200, 750)
         self.setWindowIcon(QIcon('resource/image/logo.png'))
         self.setWindowTitle('Redstone Launcher')
 
-        desktop = QApplication.desktop().availableGeometry()
-        w, h = desktop.width(), desktop.height()
-        self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
+        self.base_width = 1200
+        self.base_height = 750
+
+        screen = QApplication.primaryScreen()
+        screen_size = screen.size()
+        screen_width = screen_size.width()
+        screen_height = screen_size.height()
+        scale_factor = min(screen_width / self.base_width, screen_height / self.base_height)
+        new_width = int(self.base_width * scale_factor)
+        new_height = int(self.base_height * scale_factor)
+        new_width = min(new_width, self.base_width)
+        new_height = min(new_height, self.base_height)
+        self.resize(new_width, new_height)
+        self.move((screen_width - new_width) // 2, (screen_height - new_height) // 2)
 
     def closeEvent(self, event):
         self.aria2c_process.terminate()
