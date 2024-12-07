@@ -70,9 +70,22 @@ class checkInterface(ScrollArea):
         self.Fabric.setObjectName("Fabric")
         self.vBoxLayout.addWidget(self.Fabric, alignment=Qt.AlignTop)
 
+        self.Layout = FlowLayout()
+        self.nameInput = LineEdit()
+        self.nameInput.setPlaceholderText("请输入版本名")
+        self.nameInput.setFixedWidth(150)
+        if getVersionsData()["forge"] != "未选择":
+            self.nameInput.setText(f"{getVersionsData()['minecraft']}-Forge {getVersionsData()['forge']}")
+        elif getVersionsData()["fabric"] != "未选择":
+            self.nameInput.setText(f"{getVersionsData()['minecraft']}-Fabric {getVersionsData()['fabric']}")
+        else:
+            self.nameInput.setText(getVersionsData()['minecraft'])
         self.submit = PrimaryPushButton(FluentIcon.DOWNLOAD, self.tr("开始下载"))
         self.submit.setContentsMargins(0, 25, 0, 0)
-        self.vBoxLayout.addWidget(self.submit, alignment=Qt.AlignRight)
+        self.Layout.setAlignment(Qt.AlignRight)
+        self.Layout.addWidget(self.nameInput)
+        self.Layout.addWidget(self.submit)
+        self.vBoxLayout.addLayout(self.Layout)
 
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:
