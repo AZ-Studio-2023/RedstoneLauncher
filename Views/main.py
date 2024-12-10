@@ -2,6 +2,7 @@
 import os.path
 import subprocess
 
+import aria2p
 from PyQt5.QtCore import Qt, QEventLoop, QTimer, QSize
 from PyQt5.QtGui import QIcon, QFont, QFontDatabase
 from PyQt5.QtWidgets import QApplication, QLabel
@@ -99,12 +100,11 @@ class Window(SplitFluentWindow):
             '--rpc-listen-all=true',
             '--rpc-allow-origin-all',
             '--rpc-listen-port', str(RPC_PORT),
-            '--max-concurrent-downloads=5',  #
+            '--max-concurrent-downloads=10',  #
             '--split=5',
             '--min-split-size=1M'
         ]
         self.aria2c_process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
-        # download(url, "cache")
         if cfg.PluginEnable.value:
             load_plugins(parent=self)
             run_plugins(parent=self)

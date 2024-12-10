@@ -133,14 +133,14 @@ class choseInterface(ScrollArea):
             d = getVersionsData()
             d["forge"] = version
             d["fabric"] = "未选择"
-            self.f(checkInterface(), "总览")
+            self.f(checkInterface(self.p), "总览")
         elif self.d_type == "Fabric":
             index = self.table.currentRow()
             version = self.table.item(index, 0).text()
             d = getVersionsData()
             d["fabric"] = version
             d["forge"] = "未选择"
-            self.f(checkInterface(), "总览")
+            self.f(checkInterface(self.p), "总览")
 
 
 

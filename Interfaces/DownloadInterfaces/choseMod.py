@@ -65,7 +65,7 @@ class AppCard(CardWidget):
         elif self.titleLabel.text() == "Fabric":
             self.f(choseInterface("Fabric", self.f, self.p), "Fabric")
         else:
-            self.f(checkInterface(), "总览")
+            self.f(checkInterface(self.p), "总览")
 
 
 

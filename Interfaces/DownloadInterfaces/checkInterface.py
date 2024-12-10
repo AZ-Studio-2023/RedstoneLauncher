@@ -10,8 +10,10 @@ from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, 
                             VerticalSeparator, MSFluentWindow, NavigationItemPosition, ScrollArea,
                             TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit, StrongBodyLabel)
 
+from Helpers.flyoutmsg import dlwar, dlsuc
 from Helpers.getValue import MINECRAFT_ICON, getVersionsData, FABRIC_ICON, FORGE_ICON
 from Helpers.styleHelper import style_path
+from Helpers.downloadHelper import downloadVersions
 
 
 class AppCard(CardWidget):
@@ -45,8 +47,9 @@ class AppCard(CardWidget):
 
 class checkInterface(ScrollArea):
 
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
+        self.p = parent
         self.resize(600, 600)
         self.setObjectName("checkInterface")
         self.vBoxLayout = QVBoxLayout(self)
@@ -82,14 +85,32 @@ class checkInterface(ScrollArea):
             self.nameInput.setText(getVersionsData()['minecraft'])
         self.submit = PrimaryPushButton(FluentIcon.DOWNLOAD, self.tr("开始下载"))
         self.submit.setContentsMargins(0, 25, 0, 0)
+        self.submit.clicked.connect(self.start)
         self.Layout.setAlignment(Qt.AlignRight)
         self.Layout.addWidget(self.nameInput)
         self.Layout.addWidget(self.submit)
         self.vBoxLayout.addLayout(self.Layout)
 
+        self.pool = QThreadPool()
+
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:
             self.setStyleSheet(f.read())
+
+    def start(self):
+        if self.nameInput.text() != "":
+            if getVersionsData()["forge"] != "未选择":
+                self.task = downloadVersions(self.nameInput.text(), getVersionsData()["minecraft"], "forge", getVersionsData()['forge'])
+            elif getVersionsData()["fabric"] != "未选择":
+                self.task = downloadVersions(self.nameInput.text(), getVersionsData()["minecraft"], "fabric", getVersionsData()['fabric'])
+            else:
+                self.task = downloadVersions(self.nameInput.text(), getVersionsData()["minecraft"])
+            self.pool.start(self.task)
+            dlsuc(self.p, "已提交下载任务，可在任务页查看详情")
+            self.submit.setText("请手动点击导航栏返回下载首页")
+            self.submit.setEnabled(False)
+        else:
+            dlwar("您尚未输入版本名", self.p)
 
 
 
