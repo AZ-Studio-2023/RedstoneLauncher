@@ -21,6 +21,7 @@ def mirrorURL(url: str):
         url = url.replace("https://piston-data.mojang.com", "https://bmclapi2.bangbang93.com")
     elif "https://libraries.minecraft.net/" in url:
         url = url.replace("https://libraries.minecraft.net/", "https://bmclapi2.bangbang93.com/maven/")
+    return url
 
 
 def find_dict(dictionary_list, key, value):
