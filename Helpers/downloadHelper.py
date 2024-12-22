@@ -99,7 +99,7 @@ class downloadVersions(QRunnable):
         self.pool = QThreadPool()
         url: str = version_dic["url"]
         if cfg.source.value != "官方":
-            url = url.replace("https://piston-meta.mojang.com", "https://bmclapi2.bangbang93.com")
+            url = mirrorURL(url)
         if not os.path.exists(os.path.join(cfg.gamePath.value, "versions", self.name)):
             os.makedirs(os.path.join(cfg.gamePath.value, "versions", self.name))
         setDownloadData({"url": url, "path": os.path.join(cfg.gamePath.value, "versions", self.name, f'{self.name}.json')})
@@ -114,7 +114,7 @@ class downloadVersions(QRunnable):
         # 下载游戏Jar
         url = versionData["downloads"]["client"]["url"]
         if cfg.source.value != "官方":
-            url = url.replace("https://piston-data.mojang.com", "https://bmclapi2.bangbang93.com")
+            url = mirrorURL(url)
         download(url, os.path.join(cfg.gamePath.value, "versions", self.name, f'{self.name}.jar'))
 
         # 下载依赖库
@@ -122,7 +122,7 @@ class downloadVersions(QRunnable):
             if "artifact" in lib["downloads"] and "classifiers" not in lib["downloads"]:
                 url = lib["downloads"]["artifact"]["url"]
                 if cfg.source.value != "官方":
-                    url = url.replace("https://libraries.minecraft.net", "https://bmclapi2.bangbang93.com/maven")
+                    url = mirrorURL(url)
                 dir_path = os.path.join(cfg.gamePath.value, "libraries", os.path.dirname(lib["downloads"]["artifact"]["path"]))
                 if not os.path.exists(dir_path):
                     os.makedirs(dir_path)
@@ -130,7 +130,7 @@ class downloadVersions(QRunnable):
             elif "classifiers" in lib["downloads"]:
                 url = lib["downloads"]["artifact"]["url"]
                 if cfg.source.value != "官方":
-                    url = url.replace("https://libraries.minecraft.net", "https://bmclapi2.bangbang93.com/maven")
+                    url = mirrorURL(url)
                 dir_path = os.path.join(cfg.gamePath.value, "libraries",
                                         os.path.dirname(lib["downloads"]["artifact"]["path"]))
                 if not os.path.exists(dir_path):
@@ -141,7 +141,7 @@ class downloadVersions(QRunnable):
                     try:
                         url = cl["url"]
                         if cfg.source.value != "官方":
-                            url = url.replace("https://libraries.minecraft.net", "https://bmclapi2.bangbang93.com/maven")
+                            url = mirrorURL(url)
                         dir_path = os.path.join(cfg.gamePath.value, "libraries",
                                                 os.path.dirname(cl["path"]))
                         if not os.path.exists(dir_path):
@@ -155,7 +155,7 @@ class downloadVersions(QRunnable):
                 # 下载资源索引
                 url = versionData["assetIndex"]["url"]
                 if cfg.source.value != "官方":
-                    url = url.replace("https://piston-meta.mojang.com", "https://bmclapi2.bangbang93.com")
+                    url = mirrorURL(url)
                 assets_path = os.path.join(cfg.gamePath.value, "assets", "indexes")
                 if not os.path.exists(assets_path):
                     os.makedirs(assets_path)
