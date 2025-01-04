@@ -7,6 +7,7 @@ def get_logger(level=logging.INFO):
     # 创建logger对象
     logger = logging.getLogger()
     logger.setLevel(level)
+    logging.getLogger("urllib3").setLevel(logging.INFO)
     console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
 

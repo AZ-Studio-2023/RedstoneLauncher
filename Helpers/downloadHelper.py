@@ -10,6 +10,80 @@ import json
 
 from Helpers.outputHelper import logger
 
+aria2 = aria2p.API(aria2p.Client(
+    host="http://localhost",
+    port=RPC_PORT,
+    secret=""
+))
+
+def get_download_status():
+    global aria2
+    # 获取当前所有的下载任务
+    downloads = aria2.get_downloads()
+    downloads = [task for task in downloads if task.status == 'active']
+    # 如果没有下载任务，返回提示信息
+    if not downloads:
+        return "没有正在进行的下载任务。"
+
+    # 总的已下载大小和总大小
+    total_downloaded = 0
+    total_size = 0
+    total_speed = 0  # 初始化总速度
+
+    # 计算总进度和总速度
+    for download in downloads:
+        downloaded = download.completed_length  # 已下载的字节数
+        size = download.total_length  # 任务总大小（字节数）
+        speed = download.download_speed  # 任务下载速度（字节/秒）
+
+        # 更新总已下载大小、总大小和总速度
+        total_downloaded += downloaded
+        total_size += size
+        total_speed += speed  # 累加下载速度
+
+    # 计算总进度
+    if total_size > 0:
+        total_progress = (total_downloaded / total_size) * 100
+    else:
+        total_progress = 0
+
+    # 生成总进度条
+    total_progress_bar = "#" * int((total_progress / 100) * 40)  # 使用 40 个字符表示总进度
+    total_progress_bar = total_progress_bar.ljust(40)  # 确保进度条的长度为 40
+    total_speed_human = convert_bytes(total_speed)  # 格式化总速度
+    total_progress_line = f"总进度: {total_progress:.2f}% | {total_progress_bar} | {total_downloaded}/{total_size} bytes | 速度: {total_speed_human}/s\n"
+
+    # 创建一个结果字符串，先加入总进度
+    status_string = total_progress_line + "\n"
+
+    # 获取并显示每个任务的进度
+    for download in downloads:
+        # 计算任务的进度
+        progress = download.progress / 100  # 进度百分比转为小数
+        progress_bar = "#" * int(progress * 40)  # 使用 40 个字符表示进度条
+        progress_bar = progress_bar.ljust(40)  # 确保进度条的长度为 40
+        progress_percentage = f"{download.progress:.2f}%"
+
+        # 每个任务的进度信息，文件名放在最左侧
+        task_status = f"{download.name} | {progress_percentage} | {progress_bar} | {download.completed_length}/{download.total_length} bytes\n"
+
+        # 拼接到结果字符串
+        status_string += task_status
+
+    return status_string
+
+
+def convert_bytes(byte_size):
+    """将字节数转换为合适的单位（B, KB, MB, GB）"""
+    if byte_size < 1024:
+        return f"{byte_size} B"
+    elif byte_size < 1024 ** 2:
+        return f"{byte_size / 1024:.2f} KB"
+    elif byte_size < 1024 ** 3:
+        return f"{byte_size / 1024 ** 2:.2f} MB"
+    else:
+        return f"{byte_size / 1024 ** 3:.2f} GB"
+
 def mirrorURL(url: str):
     if "https://launchermeta.mojang.com/" in url:
         url = url.replace("https://launchermeta.mojang.com/", "https://bmclapi2.bangbang93.com")
@@ -59,18 +133,12 @@ class downloadJson(QRunnable):
 
 
 def download(url, path):
+    global aria2
     if os.path.exists(path):
         return
     dir_path = os.path.dirname(path)
     file_name = os.path.basename(path)
 
-    aria2 = aria2p.API(
-        aria2p.Client(
-            host="http://localhost",
-            port=RPC_PORT,
-            secret=""
-        )
-    )
     event = aria2.add_uris([url], options={
         "dir": dir_path,
         "out": file_name

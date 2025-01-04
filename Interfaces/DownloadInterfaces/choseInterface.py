@@ -81,7 +81,7 @@ class choseInterface(ScrollArea):
             self.table.setHorizontalHeaderLabels([self.tr('版本号'), self.tr('Minecraft'), self.tr('稳定性')])
         else:
             self.table.setHorizontalHeaderLabels([self.tr('版本号'), self.tr('Minecraft'), self.tr('发布时间')])
-        self.table.currentItemChanged.connect(lambda: self.enter.setEnabled(True))
+        self.table.currentItemChanged.connect(self.changed_func)
         self.VBoxLayout.addWidget(self.table)
         self.setQss()
 
@@ -91,6 +91,13 @@ class choseInterface(ScrollArea):
         self.gc.trigger.connect(self.load_versions)
         self.mod_load()
 
+    def changed_func(self):
+        if getVersionsData()["downloading"]:
+            self.enter.setText("当前正在下载游戏，可前往任务页查看详情")
+            self.enter.setEnabled(False)
+        else:
+            self.enter.clicked.connect(self.enter_f)
+            self.enter.setEnabled(True)
 
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:

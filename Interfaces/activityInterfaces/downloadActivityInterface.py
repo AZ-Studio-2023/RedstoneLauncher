@@ -2,14 +2,25 @@ import os.path
 import time
 from datetime import datetime
 
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal
 from PyQt5.QtGui import QIcon, QFontDatabase, QFont
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QScrollArea
 from qfluentwidgets import PlainTextEdit, ScrollArea
-from Helpers.getValue import getProcessData
+from Helpers.getValue import getProcessData, getVersionsData, setVersionsData
 from Helpers.styleHelper import style_path
+from Helpers.downloadHelper import get_download_status
 
+old_message = ""
+finished_ver = []
 
+class update_text(QThread):
+    trigger = pyqtSignal()
+    def __init__(self):
+        super(update_text, self).__init__()
+
+    def run(self):
+        time.sleep(10)
+        self.trigger.emit()
 
 class downloadActivityInterface(QWidget):
 
@@ -30,7 +41,9 @@ class downloadActivityInterface(QWidget):
         self.hBoxLayout = QHBoxLayout(self)
         self.hBoxLayout.addWidget(self.textEdit, stretch=1)
         self.textEdit.setReadOnly(True)
-        self.textEdit.setPlainText("这里没有可查看的任务")
+        self.t = update_text()
+        self.t.trigger.connect(self.t_func)
+        self.t.start()
         self.textEdit.setStyleSheet('''
             LineEdit, TextEdit, PlainTextEdit {
                 color: white;
@@ -87,33 +100,21 @@ class downloadActivityInterface(QWidget):
             }
             ''')
 
+    def t_func(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.setLog)
+        self.timer.start(5)
 
     def setLog(self):
-        global old_log, old_state
-        path = os.path.join("log", self.uuid, "logs", "latest.log")
-        if os.path.exists(path):
-            u = open(path, "r", encoding="gbk")
-            log = u.read()
-            u.close()
-            for data in getProcessData():
-                if data["uuid"] == self.uuid:
-                    state = data["state"]
-                    break
-            if log != old_log[self.uuid]:
-                old_log[self.uuid] = log
-                self.textEdit.setPlainText(
-                    f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n{log}")
-            elif state != old_state[self.uuid]:
-                old_state[self.uuid] = state
-                self.textEdit.setPlainText(
-                    f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n{log}")
-        else:
-            for data in getProcessData():
-                if data["uuid"] == self.uuid:
-                    state = data["state"]
-                    break
-            if state != old_state[self.uuid]:
-                old_state[self.uuid] = state
-                self.textEdit.setPlainText(
-                    f"游戏日志 | Version: {self.version} | Process_UUID: {self.uuid}\n当前进程状态：{state}\n\n当前无游戏日志")
+        global old_message, finished_ver
+        m = get_download_status()
+        if m != old_message:
+            self.textEdit.setPlainText(m)
+            old_message = m
+            if m == "没有正在进行的下载任务。":
+                d = getVersionsData()
+                if d not in finished_ver and d["downloading"]:
+                    d["downloading"] = False
+                    finished_ver.append(d)
+                    setVersionsData(d)
 
