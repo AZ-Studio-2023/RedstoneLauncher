@@ -51,6 +51,13 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# Nuitka dist
+*.dll
+*.pem
+*.npz
+*.exe
+.keep_dir.txt
+
 # Translations
 *.mo
 *.pot
