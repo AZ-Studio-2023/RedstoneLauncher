@@ -302,13 +302,13 @@ class downloadVersions(QRunnable):
                 d = getVersionsData()
                 d["installing"] = True
                 setVersionsData(d)
-                if not download_file(mirrorURL(url), os.path.join(CACHE_PATH, get_filename_from_url(url))):
+                if not download_file(url, os.path.join(CACHE_PATH, get_filename_from_url(url))):
                     logger.error("下载错误")
-                command = f"{cfg.javaPath.value} -jar {os.path.join(CACHE_PATH, get_filename_from_url(url))} -mcversion {self.version} -loader {self.modsLoaderVersion} -dir {cfg.gamePath.value} "
+                command = f"{cfg.javaPath.value} -jar {os.path.join(CACHE_PATH, get_filename_from_url(url))} client -mcversion {self.version} -loader {self.modsLoaderVersion} -dir {cfg.gamePath.value} "
                 if mc_type == "snapshot":
                     command = command + "-snapshot "
                 if cfg.source.value != "官方":
-                    command = command + "-mavenurl https://bmclapi2.bangbang93.com/maven -metaurl https://bmclapi2.bangbang93.com/fabric-meta"
+                    command = command + "-mavenurl https://bmclapi2.bangbang93.com/maven/ -metaurl https://bmclapi2.bangbang93.com/fabric-meta/"
                 command = command + " nogui"
                 logger.info(command)
                 process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
