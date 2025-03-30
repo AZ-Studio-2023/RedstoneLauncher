@@ -1,11 +1,14 @@
 import os
+import subprocess
+import time
+from urllib.parse import urlsplit
 
 import aria2p
 from PyQt5.QtCore import QObject, pyqtSignal, QRunnable, pyqtSlot, QThreadPool
 import requests
 
 from Helpers.Config import cfg
-from Helpers.getValue import RPC_PORT, getDownloadData, CACHE_PATH, setDownloadData
+from Helpers.getValue import RPC_PORT, getDownloadData, CACHE_PATH, setDownloadData, getVersionsData, setVersionsData
 import json
 
 from Helpers.outputHelper import logger
@@ -16,6 +19,17 @@ aria2 = aria2p.API(aria2p.Client(
     secret=""
 ))
 
+def get_first_stable_ver(lst):
+    for item in lst:
+        if item.get('stable'):
+            return item
+    return None
+
+def get_filename_from_url(url):
+    path = urlsplit(url).path
+    filename = os.path.basename(path)
+    return filename
+
 def get_download_status():
     global aria2
     # 获取当前所有的下载任务
@@ -23,7 +37,10 @@ def get_download_status():
     downloads = [task for task in downloads if task.status == 'active']
     # 如果没有下载任务，返回提示信息
     if not downloads:
-        return "没有正在进行的下载任务。"
+        if not getVersionsData()["installing"]:
+            return "没有正在进行的下载任务。"
+        else:
+            return "正在安装模组加载器"
 
     # 总的已下载大小和总大小
     total_downloaded = 0
@@ -85,17 +102,22 @@ def convert_bytes(byte_size):
         return f"{byte_size / 1024 ** 3:.2f} GB"
 
 def mirrorURL(url: str):
-    if "https://launchermeta.mojang.com/" in url:
-        url = url.replace("https://launchermeta.mojang.com/", "https://bmclapi2.bangbang93.com")
-    elif "https://launcher.mojang.com/" in url:
-        url = url.replace("https://launcher.mojang.com/", "https://bmclapi2.bangbang93.com")
-    elif "https://piston-meta.mojang.com" in url:
-        url = url.replace("https://piston-meta.mojang.com", "https://bmclapi2.bangbang93.com")
-    elif "https://piston-data.mojang.com" in url:
-        url = url.replace("https://piston-data.mojang.com", "https://bmclapi2.bangbang93.com")
-    elif "https://libraries.minecraft.net/" in url:
-        url = url.replace("https://libraries.minecraft.net/", "https://bmclapi2.bangbang93.com/maven/")
-    return url
+    if cfg.source.value != "官方":
+        if "https://launchermeta.mojang.com/" in url:
+            url = url.replace("https://launchermeta.mojang.com/", "https://bmclapi2.bangbang93.com")
+        elif "https://launcher.mojang.com/" in url:
+            url = url.replace("https://launcher.mojang.com/", "https://bmclapi2.bangbang93.com")
+        elif "https://piston-meta.mojang.com" in url:
+            url = url.replace("https://piston-meta.mojang.com", "https://bmclapi2.bangbang93.com")
+        elif "https://piston-data.mojang.com" in url:
+            url = url.replace("https://piston-data.mojang.com", "https://bmclapi2.bangbang93.com")
+        elif "https://libraries.minecraft.net/" in url:
+            url = url.replace("https://libraries.minecraft.net/", "https://bmclapi2.bangbang93.com/maven/")
+        elif "https://meta.fabricmc.net/" in url:
+            url = url.replace("https://meta.fabricmc.net/", "https://bmclapi2.bangbang93.com/fabric-meta/")
+        elif "https://maven.fabricmc.net/" in url:
+            url = url.replace("https://maven.fabricmc.net/", "https://bmclapi2.bangbang93.com/maven/")
+        return url
 
 
 def find_dict(dictionary_list, key, value):
@@ -145,6 +167,27 @@ def download(url, path):
     })
     return event
 
+def getFinish():
+    global aria2
+    downloads = aria2.get_downloads()
+    downloads = [task for task in downloads if task.status == 'active']
+    if not downloads:
+        return True
+    else:
+        return False
+
+
+def download_file(url, save_path):
+    response = requests.get(url, stream=True)
+    if response.status_code == 200:
+        with open(save_path, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    file.write(chunk)
+        return True
+    else:
+        return False
+
 class downloadSignals(QObject):
     progress = pyqtSignal(str)
 
@@ -166,8 +209,8 @@ class downloadVersions(QRunnable):
         version_dic = find_dict(data["versions"], "id", self.version)
         self.pool = QThreadPool()
         url: str = version_dic["url"]
-        if cfg.source.value != "官方":
-            url = mirrorURL(url)
+        mc_type:str = version_dic["type"]
+        url = mirrorURL(url)
         if not os.path.exists(os.path.join(cfg.gamePath.value, "versions", self.name)):
             os.makedirs(os.path.join(cfg.gamePath.value, "versions", self.name))
         setDownloadData({"url": url, "path": os.path.join(cfg.gamePath.value, "versions", self.name, f'{self.name}.json')})
@@ -179,26 +222,29 @@ class downloadVersions(QRunnable):
         versionData = json.loads(f.read())
         f.close()
 
+        versionData["type"] = mc_type
+        versionData["clientVersion"] = self.version
+        f = open(os.path.join(cfg.gamePath.value, "versions", self.name, f'{self.name}.json'), "w")
+        f.write(json.dumps(versionData, indent=4))
+        f.close()
+
         # 下载游戏Jar
         url = versionData["downloads"]["client"]["url"]
-        if cfg.source.value != "官方":
-            url = mirrorURL(url)
+        url = mirrorURL(url)
         download(url, os.path.join(cfg.gamePath.value, "versions", self.name, f'{self.name}.jar'))
 
         # 下载依赖库
         for lib in versionData["libraries"]:
             if "artifact" in lib["downloads"] and "classifiers" not in lib["downloads"]:
                 url = lib["downloads"]["artifact"]["url"]
-                if cfg.source.value != "官方":
-                    url = mirrorURL(url)
+                url = mirrorURL(url)
                 dir_path = os.path.join(cfg.gamePath.value, "libraries", os.path.dirname(lib["downloads"]["artifact"]["path"]))
                 if not os.path.exists(dir_path):
                     os.makedirs(dir_path)
                 download(url, os.path.join(cfg.gamePath.value, "libraries", lib["downloads"]["artifact"]["path"]))
             elif "classifiers" in lib["downloads"]:
                 url = lib["downloads"]["artifact"]["url"]
-                if cfg.source.value != "官方":
-                    url = mirrorURL(url)
+                url = mirrorURL(url)
                 dir_path = os.path.join(cfg.gamePath.value, "libraries",
                                         os.path.dirname(lib["downloads"]["artifact"]["path"]))
                 if not os.path.exists(dir_path):
@@ -208,8 +254,7 @@ class downloadVersions(QRunnable):
                 for cl in lib["downloads"]["classifiers"].values():
                     try:
                         url = cl["url"]
-                        if cfg.source.value != "官方":
-                            url = mirrorURL(url)
+                        url = mirrorURL(url)
                         dir_path = os.path.join(cfg.gamePath.value, "libraries",
                                                 os.path.dirname(cl["path"]))
                         if not os.path.exists(dir_path):
@@ -222,8 +267,7 @@ class downloadVersions(QRunnable):
 
                 # 下载资源索引
                 url = versionData["assetIndex"]["url"]
-                if cfg.source.value != "官方":
-                    url = mirrorURL(url)
+                url = mirrorURL(url)
                 assets_path = os.path.join(cfg.gamePath.value, "assets", "indexes")
                 if not os.path.exists(assets_path):
                     os.makedirs(assets_path)
@@ -238,14 +282,44 @@ class downloadVersions(QRunnable):
                 assetsData = json.loads(f.read())
                 f.close()
                 for obj in assetsData["objects"].values():
-                    if cfg.source.value == "官方":
-                        url = f"https://resources.download.minecraft.net/{obj['hash'][0:2]}/{obj['hash']}"
-                    else:
-                        url = f"https://bmclapi2.bangbang93.com/assets/{obj['hash'][0:2]}/{obj['hash']}"
-                    path = os.path.join(cfg.gamePath.value, "assets", "objects", obj['hash'][0:2])
-                    if not os.path.exists(path):
-                        os.makedirs(path)
-                    download(url, os.path.join(cfg.gamePath.value, "assets", "objects", obj['hash'][0:2], obj['hash']))
+                    try:
+                        if cfg.source.value == "官方":
+                            url = f"https://resources.download.minecraft.net/{obj['hash'][0:2]}/{obj['hash']}"
+                        else:
+                            url = f"https://bmclapi2.bangbang93.com/assets/{obj['hash'][0:2]}/{obj['hash']}"
+                        path = os.path.join(cfg.gamePath.value, "assets", "objects", obj['hash'][0:2])
+                        if not os.path.exists(path):
+                            os.makedirs(path)
+                        download(url, os.path.join(cfg.gamePath.value, "assets", "objects", obj['hash'][0:2], obj['hash']))
+                    except Exception as e:
+                        logger.error(f"下载资源文件出错：{e}")
+
+        # 模组端
+        if self.modsLoader == "fabric":
+            r = requests.get(mirrorURL("https://meta.fabricmc.net/v2/versions/installer")).json()
+            url = get_first_stable_ver(r)["url"]
+            if not url is None:
+                d = getVersionsData()
+                d["installing"] = True
+                setVersionsData(d)
+                if not download_file(mirrorURL(url), os.path.join(CACHE_PATH, get_filename_from_url(url))):
+                    logger.error("下载错误")
+                command = f"{cfg.javaPath.value} -jar {os.path.join(CACHE_PATH, get_filename_from_url(url))} -mcversion {self.version} -loader {self.modsLoaderVersion} -dir {cfg.gamePath.value} "
+                if mc_type == "snapshot":
+                    command = command + "-snapshot "
+                if cfg.source.value != "官方":
+                    command = command + "-mavenurl https://bmclapi2.bangbang93.com/maven -metaurl https://bmclapi2.bangbang93.com/fabric-meta"
+                command = command + " nogui"
+                logger.info(command)
+                process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                 creationflags=subprocess.CREATE_NO_WINDOW)
+                process.wait()
+                d = getVersionsData()
+                d["installing"] = False
+                setVersionsData(d)
+
+
+
 
 
 

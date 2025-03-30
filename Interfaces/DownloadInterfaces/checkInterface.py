@@ -11,7 +11,7 @@ from qfluentwidgets import (CardWidget, setTheme, Theme, IconWidget, BodyLabel, 
                             TransparentPushButton, MessageBoxBase, SubtitleLabel, ComboBox, LineEdit, StrongBodyLabel)
 
 from Helpers.flyoutmsg import dlwar, dlsuc
-from Helpers.getValue import MINECRAFT_ICON, getVersionsData, FABRIC_ICON, FORGE_ICON
+from Helpers.getValue import MINECRAFT_ICON, getVersionsData, FABRIC_ICON, FORGE_ICON, setVersionsData
 from Helpers.styleHelper import style_path
 from Helpers.downloadHelper import downloadVersions
 
@@ -99,6 +99,9 @@ class checkInterface(ScrollArea):
 
     def start(self):
         if self.nameInput.text() != "":
+            l = getVersionsData()
+            l["name"] = self.nameInput.text()
+            setVersionsData(l)
             if getVersionsData()["forge"] != "未选择":
                 self.task = downloadVersions(self.nameInput.text(), getVersionsData()["minecraft"], "forge", getVersionsData()['forge'])
             elif getVersionsData()["fabric"] != "未选择":

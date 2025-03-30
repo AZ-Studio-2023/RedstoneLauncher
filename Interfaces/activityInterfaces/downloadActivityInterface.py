@@ -6,6 +6,8 @@ from PyQt5.QtCore import QTimer, QThread, pyqtSignal
 from PyQt5.QtGui import QIcon, QFontDatabase, QFont
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QScrollArea
 from qfluentwidgets import PlainTextEdit, ScrollArea
+
+from Helpers.flyoutmsg import dlsuc
 from Helpers.getValue import getProcessData, getVersionsData, setVersionsData
 from Helpers.styleHelper import style_path
 from Helpers.downloadHelper import get_download_status
@@ -103,7 +105,7 @@ class downloadActivityInterface(QWidget):
     def t_func(self):
         self.timer = QTimer()
         self.timer.timeout.connect(self.setLog)
-        self.timer.start(5)
+        self.timer.start(3000)
 
     def setLog(self):
         global old_message, finished_ver
@@ -116,5 +118,6 @@ class downloadActivityInterface(QWidget):
                 if d not in finished_ver and d["downloading"]:
                     d["downloading"] = False
                     finished_ver.append(d)
+                    dlsuc(self, f"{d['name']}安装完成！")
                     setVersionsData(d)
 

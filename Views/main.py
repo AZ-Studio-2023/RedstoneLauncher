@@ -101,8 +101,8 @@ class Window(SplitFluentWindow):
             '--rpc-listen-all=true',
             '--rpc-allow-origin-all',
             '--rpc-listen-port', str(RPC_PORT),
-            '--max-concurrent-downloads=10',
-            '--split=10',
+            '--max-concurrent-downloads=20',
+            '--split=15',
             '--min-split-size=1M'
         ]
         self.aria2c_process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)

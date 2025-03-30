@@ -52,7 +52,7 @@ PROCESS_DATA = []
 
 DOWNLOAD_DATA = []
 
-VERSIONS_DATA = {"minecraft": "未选择", "forge": "未选择", "fabric": "未选择", "downloading": False}
+VERSIONS_DATA = {"name": "", "minecraft": "未选择", "forge": "未选择", "fabric": "未选择", "downloading": False, "installing": False}
 
 def setLaunchData(data):
     global LAUNCH_DATA
