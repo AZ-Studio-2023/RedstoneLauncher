@@ -1,6 +1,7 @@
 # coding:utf-8
 import os.path
 import subprocess
+import sys
 
 import aria2p
 from PyQt5.QtCore import Qt, QEventLoop, QTimer, QSize
@@ -154,6 +155,7 @@ class Window(SplitFluentWindow):
         self.aria2c_process.terminate()
         self.aria2c_process.wait()
         event.accept()
+        sys.exit()
 
     def setQss(self):
         with open(style_path(), encoding='utf-8') as f:
