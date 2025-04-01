@@ -265,34 +265,34 @@ class downloadVersions(QRunnable):
                         continue
 
 
-                # 下载资源索引
-                url = versionData["assetIndex"]["url"]
-                url = mirrorURL(url)
-                assets_path = os.path.join(cfg.gamePath.value, "assets", "indexes")
-                if not os.path.exists(assets_path):
-                    os.makedirs(assets_path)
-                setDownloadData(
-                    {"url": url, "path": os.path.join(assets_path, f"{versionData['assetIndex']['id']}.json")})
-                self.runnable = downloadJson()
-                self.pool.start(self.runnable)
-                self.pool.waitForDone()
+        # 下载资源索引
+        url = versionData["assetIndex"]["url"]
+        url = mirrorURL(url)
+        assets_path = os.path.join(cfg.gamePath.value, "assets", "indexes")
+        if not os.path.exists(assets_path):
+            os.makedirs(assets_path)
+        setDownloadData(
+            {"url": url, "path": os.path.join(assets_path, f"{versionData['assetIndex']['id']}.json")})
+        self.runnable = downloadJson()
+        self.pool.start(self.runnable)
+        self.pool.waitForDone()
 
-                # 下载资源文件
-                f = open(os.path.join(assets_path, f"{versionData['assetIndex']['id']}.json"), "r")
-                assetsData = json.loads(f.read())
-                f.close()
-                for obj in assetsData["objects"].values():
-                    try:
-                        if cfg.source.value == "官方":
-                            url = f"https://resources.download.minecraft.net/{obj['hash'][0:2]}/{obj['hash']}"
-                        else:
-                            url = f"https://bmclapi2.bangbang93.com/assets/{obj['hash'][0:2]}/{obj['hash']}"
-                        path = os.path.join(cfg.gamePath.value, "assets", "objects", obj['hash'][0:2])
-                        if not os.path.exists(path):
-                            os.makedirs(path)
-                        download(url, os.path.join(cfg.gamePath.value, "assets", "objects", obj['hash'][0:2], obj['hash']))
-                    except Exception as e:
-                        logger.error(f"下载资源文件出错：{e}")
+        # 下载资源文件
+        f = open(os.path.join(assets_path, f"{versionData['assetIndex']['id']}.json"), "r")
+        assetsData = json.loads(f.read())
+        f.close()
+        for obj in assetsData["objects"].values():
+            try:
+                if cfg.source.value == "官方":
+                    url = f"https://resources.download.minecraft.net/{obj['hash'][0:2]}/{obj['hash']}"
+                else:
+                    url = f"https://bmclapi2.bangbang93.com/assets/{obj['hash'][0:2]}/{obj['hash']}"
+                path = os.path.join(cfg.gamePath.value, "assets", "objects", obj['hash'][0:2])
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                download(url, os.path.join(cfg.gamePath.value, "assets", "objects", obj['hash'][0:2], obj['hash']))
+            except Exception as e:
+                logger.error(f"下载资源文件出错：{e}")
 
         # 模组端
         if self.modsLoader == "fabric":
